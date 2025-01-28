@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import { verify } from 'jsonwebtoken';
+import { findOne } from '../models/User';
 
 const auth = async (req, res, next) => {
   try {
@@ -8,8 +8,8 @@ const auth = async (req, res, next) => {
       throw new Error();
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ _id: decoded.userId });
+    const decoded = verify(token, process.env.JWT_SECRET);
+    const user = await findOne({ _id: decoded.userId });
 
     if (!user) {
       throw new Error();
@@ -23,4 +23,4 @@ const auth = async (req, res, next) => {
   }
 };
 
-module.exports = auth;
+export default auth;
