@@ -1,12 +1,10 @@
-const Tournament = require('../models/Tournament');
-const { findById, findByIdAndUpdate, findByIdAndDelete } = require('../models/Tournament');
+const tournamentService = require('../services/tournamentService');
 
 async function createTournament(req, res) {
   try {
     const tournamentData = req.body;
     const user = req.user;
-    const tournament = new Tournament({ ...tournamentData, organiser: user._id });
-    await tournament.save();
+    const tournament = await tournamentService.createTournament(tournamentData, user);
     res.status(201).json(tournament);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -16,7 +14,7 @@ async function createTournament(req, res) {
 async function getTournamentById(req, res) {
   try {
     const { id } = req.params;
-    const tournament = await Tournament.findById(id);
+    const tournament = await tournamentService.getTournamentById(id);
     if (!tournament) {
       return res.status(404).json({ error: 'Tournament not found' });
     }
@@ -30,7 +28,7 @@ async function updateTournamentById(req, res) {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const tournament = await Tournament.findByIdAndUpdate(id, updates, { new: true });
+    const tournament = await tournamentService.updateTournamentById(id, updates);
     if (!tournament) {
       return res.status(404).json({ error: 'Tournament not found' });
     }
@@ -43,7 +41,7 @@ async function updateTournamentById(req, res) {
 async function deleteTournamentById(req, res) {
   try {
     const { id } = req.params;
-    const tournament = await Tournament.findByIdAndDelete(id);
+    const tournament = await tournamentService.deleteTournamentById(id);
     if (!tournament) {
       return res.status(404).json({ error: 'Tournament not found' });
     }
@@ -56,19 +54,8 @@ async function deleteTournamentById(req, res) {
 async function getOrganiserTournaments(req, res) {
   try {
     const { sportType, location, search } = req.query;
-    const filters = { createdBy: req.user._id };
-
-    if (sportType) {
-      filters.sportType = sportType;
-    }
-    if (location) {
-      filters.location = new RegExp(location, 'i'); // Case-insensitive regex search
-    }
-    if (search) {
-      filters.name = new RegExp(search, 'i'); // Case-insensitive regex search
-    }
-
-    const tournaments = await Tournament.find(filters);
+    const user = req.user;
+    const tournaments = await tournamentService.getOrganiserTournaments(user, sportType, location, search);
     res.status(200).json(tournaments);
   } catch (error) {
     res.status(500).json({ error: error.message });
