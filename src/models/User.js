@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const USER_TYPES = ["organiser", "admin", "player"];
+
 const userSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
@@ -18,7 +20,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: USER_TYPES,
     default: 'user'
   },
   otpData: {

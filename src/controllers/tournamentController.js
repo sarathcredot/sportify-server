@@ -1,9 +1,10 @@
-import Tournament, { findById, findByIdAndUpdate, findByIdAndDelete } from '../models/Tournament';
+const Tournament = require('../models/Tournament');
+const { findById, findByIdAndUpdate, findByIdAndDelete } = require('../models/Tournament');
 
-export async function createTournament(req, res) {
+async function createTournament(req, res) {
   try {
-    const { name, location, date } = req.body;
-    const tournament = new Tournament({ name, location, date });
+    const tournamentData = req.body;
+    const tournament = new Tournament(tournamentData);
     await tournament.save();
     res.status(201).json(tournament);
   } catch (error) {
@@ -11,7 +12,7 @@ export async function createTournament(req, res) {
   }
 }
 
-export async function getTournamentById(req, res) {
+async function getTournamentById(req, res) {
   try {
     const { id } = req.params;
     const tournament = await findById(id);
@@ -24,7 +25,7 @@ export async function getTournamentById(req, res) {
   }
 }
 
-export async function updateTournamentById(req, res) {
+async function updateTournamentById(req, res) {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -38,7 +39,7 @@ export async function updateTournamentById(req, res) {
   }
 }
 
-export async function deleteTournamentById(req, res) {
+async function deleteTournamentById(req, res) {
   try {
     const { id } = req.params;
     const tournament = await findByIdAndDelete(id);
@@ -50,3 +51,33 @@ export async function deleteTournamentById(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
+async function getUserTournaments(req, res) {
+  try {
+    const { sportType, location, search } = req.query;
+    const filters = { createdBy: req.user._id };
+
+    if (sportType) {
+      filters.sportType = sportType;
+    }
+    if (location) {
+      filters.location = new RegExp(location, 'i'); // Case-insensitive regex search
+    }
+    if (search) {
+      filters.name = new RegExp(search, 'i'); // Case-insensitive regex search
+    }
+
+    const tournaments = await Tournament.find(filters);
+    res.status(200).json(tournaments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = {
+  createTournament,
+  getTournamentById,
+  updateTournamentById,
+  deleteTournamentById,
+  getUserTournaments
+};

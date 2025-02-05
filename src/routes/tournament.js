@@ -1,48 +1,42 @@
 const express = require('express');
-const { body, param } = require('express-validator');
-const authMiddleware = require('../middleware/auth').default;
+const multer = require("multer");
+const auth = require('../middleware/auth');
 const tournamentController = require('../controllers/tournamentController');
+const validate = require('../utils/validate'); 
+const { createTournamentSchema, updateTournamentSchema } = require('../schemas/tournamentSchema');
+const checkOwnership = require('../middleware/checkOwnership');
+const Tournament = require('../models/Tournament');
 
-const router = express.Router(authMiddleware);
+const upload = multer();
+const router = express.Router(auth);
 
 // Create a new tournament
 router.post(
   '/',
-  [
-    body('name').notEmpty().withMessage('Name is required'),
-    body('location').notEmpty().withMessage('Location is required'),
-    body('date').notEmpty().withMessage('Date is required').isISO8601().withMessage('Date must be a valid date')
-  ],
+  // upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'banner', maxCount: 1 }]),
+  validate(createTournamentSchema),
   tournamentController.createTournament
 );
 
 // Get a tournament by ID
 router.get(
   '/:id',
-  [
-    param('id').notEmpty().withMessage('ID is required').isMongoId().withMessage('ID must be a valid MongoDB ID')
-  ],
+  checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
 
 // Update a tournament by ID
 router.put(
   '/:id',
-  [
-    param('id').notEmpty().withMessage('ID is required').isMongoId().withMessage('ID must be a valid MongoDB ID'),
-    body('name').optional().notEmpty().withMessage('Name is required'),
-    body('location').optional().notEmpty().withMessage('Location is required'),
-    body('date').optional().notEmpty().withMessage('Date is required').isISO8601().withMessage('Date must be a valid date')
-  ],
+  validate(updateTournamentSchema),
+  checkOwnership(Tournament),
   tournamentController.updateTournamentById
 );
 
 // Delete a tournament by ID
 router.delete(
   '/:id',
-  [
-    param('id').notEmpty().withMessage('ID is required').isMongoId().withMessage('ID must be a valid MongoDB ID')
-  ],
+  checkOwnership(Tournament),
   tournamentController.deleteTournamentById
 );
 

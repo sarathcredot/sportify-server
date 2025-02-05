@@ -20,7 +20,7 @@ app.use(morgan('dev'));
 // Routes
 // app.use('/api/players', require('./src/routes/players'));
 // app.use('/api/auctions', require('./src/routes/auctions'));
-// app.use('/api/teams', require('./src/routes/teams'));
+app.use('/api/tournaments', require('./src/routes/tournament'));
 app.use('/api/auth', require('./src/routes/auth'));
 
 // Error handling middleware

@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
-const SPORT_TYPES = ["cricket", "women_cricket", "football", "women_football"];
+const SPORT_TYPES = ["cricket", "football"];
 
 const TournamentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   logo: { type: String, required: true },
+  banner: { type: String, required: true },
   startDate: { type: Date },
   endDate: { type: Date },
   sportType: {
@@ -15,7 +16,6 @@ const TournamentSchema = new mongoose.Schema({
   location: { type: String, required: true },
   ground: { type: String },
   playersPerTeam: { type: Number, required: true },
-  // announcementTemplate: { type: String },
   registrationFee: { type: Number },
   teamGroundFee: { type: Number },
   auction: {
@@ -29,7 +29,7 @@ const TournamentSchema = new mongoose.Schema({
     player: { type: String },
     team: { type: String },
   },
-  createdBy: {
+  organiser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -38,4 +38,4 @@ const TournamentSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model("Tournament", TournamentSchema);
+module.exports = mongoose.model("Tournament", TournamentSchema);
