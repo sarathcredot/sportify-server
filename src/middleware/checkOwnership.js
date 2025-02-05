@@ -8,7 +8,7 @@ const checkOwnership = (model) => {
       if (!resource) {
         return res.status(404).json({ error: `${model.modelName} not found` });
       }
-      if (resource.createdBy.toString() !== req.user._id.toString()) {
+      if (resource.createdBy?.toString() !== req.user._id.toString()) {
         return res.status(403).json({ error: 'Access denied' });
       }
       next();

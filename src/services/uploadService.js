@@ -13,8 +13,7 @@ const uploadFile = async (file, folder) => {
     if (!file) throw new Error("File is required");
     if (!folder) throw new Error("Folder name is required");
 
-    // const uploadDir = path.join(__dirname, '..', '..', 'uploads', folder);
-    const uploadDir = path.resolve('uploads', folder);
+    const uploadDir = path.resolve('media', folder);
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -22,7 +21,9 @@ const uploadFile = async (file, folder) => {
     const fileKey = `${uuidv4()}-${file.originalname}`;
     const filePath = path.join(uploadDir, fileKey);
 
-    return fileKey;
+    fs.writeFileSync(filePath, file.buffer);
+
+    return `${folder}/${fileKey}`;
 };
 
 module.exports = { uploadFile };

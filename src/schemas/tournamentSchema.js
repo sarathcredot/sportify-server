@@ -5,9 +5,9 @@ const SPORT_TYPES = ["cricket", "football"];
 const createTournamentSchema = z.object({
   name: z.string().nonempty({ message: "Name is required" }),
   location: z.string().nonempty({ message: "Location is required" }),
+  logoUrl: z.string().nonempty({ message: "Logo is required" }),
+  bannerUrl: z.string().nonempty({ message: "Banner is required" }),
   sportType: z.enum(SPORT_TYPES, { message: "Sport type is invalid" }),
-  logo: z.string().nonempty({ message: "Logo is required" }),
-  banner: z.string().nonempty({ message: "Banner is required" }),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   ground: z.string().optional(),
@@ -15,7 +15,6 @@ const createTournamentSchema = z.object({
     .number()
     .int()
     .positive({ message: "Players per team must be a positive integer" }),
-    // .required(),
   registrationFee: z.number().optional(),
   teamGroundFee: z.number().optional(),
   auction: z

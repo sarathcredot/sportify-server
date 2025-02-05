@@ -4,8 +4,8 @@ const SPORT_TYPES = ["cricket", "football"];
 
 const TournamentSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  logo: { type: String, required: true },
-  banner: { type: String, required: true },
+  logoUrl: { type: String, required: true },
+  bannerUrl: { type: String, required: true },
   startDate: { type: Date },
   endDate: { type: Date },
   sportType: {
@@ -29,7 +29,7 @@ const TournamentSchema = new mongoose.Schema({
     player: { type: String },
     team: { type: String },
   },
-  organiser: {
+  createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,

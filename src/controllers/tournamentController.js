@@ -4,7 +4,8 @@ const { findById, findByIdAndUpdate, findByIdAndDelete } = require('../models/To
 async function createTournament(req, res) {
   try {
     const tournamentData = req.body;
-    const tournament = new Tournament(tournamentData);
+    const user = req.user;
+    const tournament = new Tournament({ ...tournamentData, organiser: user._id });
     await tournament.save();
     res.status(201).json(tournament);
   } catch (error) {
@@ -15,7 +16,7 @@ async function createTournament(req, res) {
 async function getTournamentById(req, res) {
   try {
     const { id } = req.params;
-    const tournament = await findById(id);
+    const tournament = await Tournament.findById(id);
     if (!tournament) {
       return res.status(404).json({ error: 'Tournament not found' });
     }
@@ -29,7 +30,7 @@ async function updateTournamentById(req, res) {
   try {
     const { id } = req.params;
     const updates = req.body;
-    const tournament = await findByIdAndUpdate(id, updates, { new: true });
+    const tournament = await Tournament.findByIdAndUpdate(id, updates, { new: true });
     if (!tournament) {
       return res.status(404).json({ error: 'Tournament not found' });
     }
@@ -42,7 +43,7 @@ async function updateTournamentById(req, res) {
 async function deleteTournamentById(req, res) {
   try {
     const { id } = req.params;
-    const tournament = await findByIdAndDelete(id);
+    const tournament = await Tournament.findByIdAndDelete(id);
     if (!tournament) {
       return res.status(404).json({ error: 'Tournament not found' });
     }
@@ -52,7 +53,7 @@ async function deleteTournamentById(req, res) {
   }
 }
 
-async function getUserTournaments(req, res) {
+async function getOrganiserTournaments(req, res) {
   try {
     const { sportType, location, search } = req.query;
     const filters = { createdBy: req.user._id };
@@ -79,5 +80,5 @@ module.exports = {
   getTournamentById,
   updateTournamentById,
   deleteTournamentById,
-  getUserTournaments
+  getOrganiserTournaments
 };

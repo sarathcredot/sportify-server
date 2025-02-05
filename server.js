@@ -18,10 +18,9 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 // Routes
-// app.use('/api/players', require('./src/routes/players'));
-// app.use('/api/auctions', require('./src/routes/auctions'));
 app.use('/api/tournaments', require('./src/routes/tournament'));
 app.use('/api/auth', require('./src/routes/auth'));
+app.use('/api/upload', require('./src/routes/fileUpload'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

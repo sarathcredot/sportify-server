@@ -8,12 +8,12 @@ const checkOwnership = require('../middleware/checkOwnership');
 const Tournament = require('../models/Tournament');
 
 const upload = multer();
-const router = express.Router(auth);
+const router = express.Router();
+router.use(auth);
 
 // Create a new tournament
 router.post(
   '/',
-  // upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'banner', maxCount: 1 }]),
   validate(createTournamentSchema),
   tournamentController.createTournament
 );
