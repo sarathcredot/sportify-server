@@ -11,6 +11,12 @@ const upload = multer();
 const router = express.Router();
 router.use(auth);
 
+// Get all tournaments
+router.get(
+  '/',
+  tournamentController.getOrganiserTournaments
+);
+
 // Create a new tournament
 router.post(
   '/',
