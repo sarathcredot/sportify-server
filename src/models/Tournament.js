@@ -69,15 +69,11 @@ const TournamentSchema = new mongoose.Schema({
     playerRegistrationFeeEnabled: { type: Boolean, default: false },
   },
   auction: {
-    auctionDate: { type: Date },
-    auctionTime: { type: String },
-    auctionLocation: { type: String },
-    biddingPointPerTeam: { type: Number },
-    minBidPerPlayer: { type: Number },
-    maxBidPerPlayer: { type: Number },
-    bidIncreaseBy: { type: Number },
-    biddingTimerLimit: { type: Number },
-    message: { type: String },
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Auction",
+    required: function() {
+      return this.settings.auctionEnabled;
+    }
   },
   organiserDetails: {
     name: { type: String, required: true },
@@ -90,8 +86,8 @@ const TournamentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model("Tournament", TournamentSchema);

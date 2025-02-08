@@ -46,6 +46,16 @@ const validateOvers = (data, ctx) => {
   }
 };
 
+const validateAuction = (data, ctx) => {
+  if (data.auctionEnabled == true && !data.auction) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Auction details required",
+      path: ["auction"],
+    });
+  }
+};
+
 // Date schema with preprocessing
 const dateSchema = z.preprocess((arg) => {
   if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
@@ -86,11 +96,29 @@ const createTournamentSchema = z.object({
       .email("Invalid email address")
       .nonempty("Email is required"),
   }),
+  auction: z.object({
+    auctionDate: dateSchema,
+    auctionTime: z.string(),
+    // .refine((time) => {
+    //   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    //   return timeRegex.test(time);
+    // }, {
+    //   message: "Invalid time format, should be HH:mm",
+    //   path: ["auctionTime"],
+    // }),
+    auctionLocation: z.string(),
+    biddingPointPerTeam: z.number(),
+    minBidPerPlayer: z.number(),
+    maxBidPerPlayer: z.number(),
+    bidIncreaseBy: z.number(),
+    biddingTimerLimit: z.number(),
+    message: z.string().optional(),
+  }).optional(),
+}).superRefine((data, ctx) => {
+  validateAuction(data, ctx);
 });
-
-const updateTournamentSchema = createTournamentSchema.partial();
 
 module.exports = {
   createTournamentSchema,
-  updateTournamentSchema,
+  // updateTournamentSchema,
 };

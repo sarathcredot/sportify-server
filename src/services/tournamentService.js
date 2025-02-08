@@ -1,7 +1,20 @@
 const Tournament = require("../models/Tournament");
+const Auction = require("../models/Auction");
 
 async function createTournament(tournamentData, user) {
-  const tournament = new Tournament({ ...tournamentData, createdBy: user._id });
+  let auctionId;
+  if (tournamentData.auction && tournamentData.settings?.auctionEnabled) {
+    const auction = new Auction(tournamentData.auction);
+    const savedAuction = await auction.save();
+    auctionId = savedAuction._id;
+  }
+
+  const tournament = new Tournament({
+    ...tournamentData,
+    auction: auctionId,
+    createdBy: user._id
+  });
+  
   await tournament.save();
   return tournament;
 }

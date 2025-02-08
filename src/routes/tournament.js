@@ -1,13 +1,11 @@
 const express = require('express');
-const multer = require("multer");
 const auth = require('../middleware/auth');
 const tournamentController = require('../controllers/tournamentController');
 const validate = require('../utils/validate'); 
-const { createTournamentSchema, updateTournamentSchema } = require('../schemas/tournamentSchema');
+const { createTournamentSchema } = require('../schemas/tournamentSchema');
 const checkOwnership = require('../middleware/checkOwnership');
 const Tournament = require('../models/Tournament');
 
-const upload = multer();
 const router = express.Router();
 router.use(auth);
 
@@ -32,12 +30,12 @@ router.get(
 );
 
 // Update a tournament by ID
-router.put(
-  '/:id',
-  validate(updateTournamentSchema),
-  checkOwnership(Tournament),
-  tournamentController.updateTournamentById
-);
+// router.put(
+//   '/:id',
+//   validate(updateTournamentSchema),
+//   checkOwnership(Tournament),
+//   tournamentController.updateTournamentById
+// );
 
 // Delete a tournament by ID
 router.delete(
