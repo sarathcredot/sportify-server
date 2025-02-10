@@ -1,6 +1,6 @@
 const { z } = require("zod");
 const { SPORT_TYPES, CRICKET_MATCH_TYPES, FOOTBALL_MATCH_TYPES, CRICKET_BALL_TYPES, FOOTBALL_BALL_TYPES } = require('../utils/constants');
-
+const { dateSchema } = require("../utils/schemaUtils");
 // Validation functions
 const validateMatchType = (data, ctx) => {
   if (data.sportType === "cricket" && !CRICKET_MATCH_TYPES.includes(data.matchType)) {
@@ -55,11 +55,6 @@ const validateAuction = (data, ctx) => {
     });
   }
 };
-
-// Date schema with preprocessing
-const dateSchema = z.preprocess((arg) => {
-  if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
-}, z.date());
 
 const createTournamentSchema = z.object({
   name: z.string().nonempty("Name is required"),

@@ -5,31 +5,30 @@ const validate = require('../utils/validate');
 const { createTournamentSchema } = require('../schemas/tournamentSchema');
 const checkOwnership = require('../middleware/checkOwnership');
 const Tournament = require('../models/Tournament');
+const { createPlayerSchema } = require('../schemas/playerSchema');
+const playerController = require('../controllers/playerController');
+
 
 const router = express.Router();
 router.use(auth);
 
-// Get all tournaments
 router.get(
   '/',
   tournamentController.getOrganiserTournaments
 );
 
-// Create a new tournament
 router.post(
   '/',
   validate(createTournamentSchema),
   tournamentController.createTournament
 );
 
-// Get a tournament by ID
 router.get(
   '/:id',
   checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
 
-// Update a tournament by ID
 // router.put(
 //   '/:id',
 //   validate(updateTournamentSchema),
@@ -37,11 +36,17 @@ router.get(
 //   tournamentController.updateTournamentById
 // );
 
-// Delete a tournament by ID
 router.delete(
   '/:id',
   checkOwnership(Tournament),
   tournamentController.deleteTournamentById
 );
+
+router.post(
+  '/:tournamentId/players',
+  validate(createPlayerSchema),
+  playerController.registerPlayer
+);
+
 
 module.exports = router;

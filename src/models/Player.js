@@ -3,11 +3,16 @@ const { SPORT_TYPES, PLAYER_STATUS_TYPES } = require("../utils/constants");
 
 const playerSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
+    firstName: { type: String, required: true, trim: true },
+    lastName: { type: String, required: true, trim: true },
+    photoUrl: { type: String, required: true },
+    dateOfBirth: { type: Date, required: true },
+    contactNumber: { type: String, required: true, trim: true },
+    playerCategory: { type: String, required: true },
     sport: { type: String, required: true, enum: SPORT_TYPES },
-    basePrice: { type: Number, required: true},
-    skills: [{ type: String, },],
-    stats: { type: Map, of: Number,},
+    cricHeroesId: { type: String },
+    notes: { type: String },
+    stats: { type: Map, of: Number },
     status: { 
       type: String, 
       enum: PLAYER_STATUS_TYPES, 

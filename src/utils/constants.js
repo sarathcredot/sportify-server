@@ -9,6 +9,18 @@ const PLAYER_AUCTION_STATUS_TYPES = ["available", "sold", "unsold"];
 const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images"];
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/bmp", "image/webp", "image/tiff"];
 const AUCTION_STATUS_TYPES = ["upcoming", "live", "completed"];
+const CRICKET_PLAYER_CATEGORIES = [
+  "batsman",
+  "bowler",
+  "all_rounder",
+  "wicket_keeper"
+];
+const FOOTBALL_PLAYER_CATEGORIES = [
+  "goalkeeper",
+  "defender",
+  "midfielder",
+  "forward"
+];
 
 module.exports = {
   OTP_LENGTH,
@@ -22,4 +34,6 @@ module.exports = {
   ALLOWED_UPLOAD_FOLDERS,
   ALLOWED_IMAGE_TYPES,
   AUCTION_STATUS_TYPES,
+  CRICKET_PLAYER_CATEGORIES,
+  FOOTBALL_PLAYER_CATEGORIES,
 };
