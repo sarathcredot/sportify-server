@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./src/config/database');
+const errorHandler = require('./src/middleware/errorHandler');
 
 const app = express();
 
@@ -22,11 +23,7 @@ app.use('/api/tournaments', require('./src/routes/tournament'));
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/upload', require('./src/routes/fileUpload'));
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 

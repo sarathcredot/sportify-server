@@ -8,7 +8,7 @@ class AuthService {
     return '123456';
     // return Math.floor(1000 + Math.random() * 9000).toString();
   }
-
+  
   async sendOTP(phoneNumber, countryCode, otp) {
     try {
       // const message = await twilioClient.messages.create({
@@ -32,12 +32,10 @@ class AuthService {
 
       const normalizedPhone = parsedNumber.nationalNumber;
       
-      // Generate OTP
       const otp = this.generateOTP();
       const otpExpiry = new Date();
-      otpExpiry.setMinutes(otpExpiry.getMinutes() + 10); // OTP valid for 10 minutes
+      otpExpiry.setMinutes(otpExpiry.getMinutes() + 10);
 
-      // Save or update user
       let user = await User.findOne({ phoneNumber: normalizedPhone });
       if (!user) {
         user = new User({
@@ -55,10 +53,7 @@ class AuthService {
         };
       }
       await user.save();
-
-      // Send OTP
       await this.sendOTP(normalizedPhone, countryCode, otp);
-
       return { success: true, message: 'OTP sent successfully' };
     } catch (error) {
       throw new Error(error.message || 'Failed to initiate authentication');
@@ -92,7 +87,6 @@ class AuthService {
       user.isVerified = true;
       await user.save();
 
-      // Generate JWT
       const token = jwt.sign(
         { userId: user._id, phone: user.phoneNumber },
         process.env.JWT_SECRET,

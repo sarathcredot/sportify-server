@@ -1,6 +1,6 @@
 const { z } = require("zod");
 const { SPORT_TYPES, CRICKET_MATCH_TYPES, FOOTBALL_MATCH_TYPES, CRICKET_BALL_TYPES, FOOTBALL_BALL_TYPES } = require('../utils/constants');
-
+const { dateSchema } = require("../utils/schemaUtils");
 // Validation functions
 const validateMatchType = (data, ctx) => {
   if (data.sportType === "cricket" && !CRICKET_MATCH_TYPES.includes(data.matchType)) {
@@ -46,10 +46,15 @@ const validateOvers = (data, ctx) => {
   }
 };
 
-// Date schema with preprocessing
-const dateSchema = z.preprocess((arg) => {
-  if (typeof arg === "string" || arg instanceof Date) return new Date(arg);
-}, z.date());
+const validateAuction = (data, ctx) => {
+  if (data.auctionEnabled == true && !data.auction) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Auction details required",
+      path: ["auction"],
+    });
+  }
+};
 
 const createTournamentSchema = z.object({
   name: z.string().nonempty("Name is required"),
@@ -88,11 +93,29 @@ const createTournamentSchema = z.object({
       .email("Invalid email address")
       .nonempty("Email is required"),
   }),
+  auction: z.object({
+    auctionDate: dateSchema,
+    auctionTime: z.string(),
+    // .refine((time) => {
+    //   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    //   return timeRegex.test(time);
+    // }, {
+    //   message: "Invalid time format, should be HH:mm",
+    //   path: ["auctionTime"],
+    // }),
+    auctionLocation: z.string(),
+    biddingPointPerTeam: z.number(),
+    minBidPerPlayer: z.number(),
+    maxBidPerPlayer: z.number(),
+    bidIncreaseBy: z.number(),
+    biddingTimerLimit: z.number(),
+    message: z.string().optional(),
+  }).optional(),
+}).superRefine((data, ctx) => {
+  validateAuction(data, ctx);
 });
-
-const updateTournamentSchema = createTournamentSchema.partial();
 
 module.exports = {
   createTournamentSchema,
-  updateTournamentSchema,
+  // updateTournamentSchema,
 };

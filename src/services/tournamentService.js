@@ -1,74 +1,79 @@
 const Tournament = require("../models/Tournament");
+const Auction = require("../models/Auction");
+const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
 
-async function createTournament(tournamentData, user) {
-  const tournament = new Tournament({ ...tournamentData, createdBy: user._id });
-  await tournament.save();
-  return tournament;
-}
+class TournamentService {
 
-async function getTournamentById(id) {
-  const tournament = await Tournament.findById(id);
-  return tournament;
-}
-
-async function updateTournamentById(id, updates) {
-  const tournament = await Tournament.findByIdAndUpdate(id, updates, {
-    new: true,
-  });
-  return tournament;
-}
-
-async function deleteTournamentById(id) {
-  const tournament = await Tournament.findByIdAndDelete(id);
-  return tournament;
-}
-
-async function getOrganiserTournaments(
-  user,
-  sportType,
-  location,
-  search,
-  isOngoing
-) {
-  const filters = { createdBy: user._id };
-
-  if (sportType) {
-    filters.sportType = sportType;
-  }
-  if (location) {
-    filters.location = new RegExp(location, "i");
-  }
-  if (search) {
-    filters.name = new RegExp(search, "i");
+  async createTournament(tournamentData, user) {
+    this.validateTournamentData(tournamentData);
+    
+    const tournament = new Tournament({
+      ...tournamentData,
+      organiser: user._id,
+    });
+    return await tournament.save();
   }
 
-  const currentDate = new Date();
-  
-  const dateFilter =
-    isOngoing !== undefined
-      ? isOngoing
-        ? { startDate: { $lte: currentDate }, endDate: { $gte: currentDate } }
-        : {
-            $or: [
-              { startDate: { $gt: currentDate } },
-              { endDate: { $lt: currentDate } },
-            ],
-          }
-      : {};
+  async getTournamentById(id) {
+    const tournament = await Tournament.findById(id)
+      .populate('organiser', 'name email');
 
-  const tournaments = await Tournament.find({ ...filters, ...dateFilter });
+    if (!tournament) {
+      throw new NotFoundError('Tournament not found');
+    }
 
-  return tournaments.map((tournament) => ({
-    ...tournament.toObject(),
-    isOnGoing:
-      currentDate >= tournament.startDate && currentDate <= tournament.endDate,
-  }));
+    return tournament;
+  }
+
+  async updateTournament(id, updateData, user) {
+    const tournament = await this.getTournamentById(id);
+    
+    if (!this.canUserModifyTournament(tournament, user)) {
+      throw new UnauthorizedError('Not authorized to modify this tournament');
+    }
+
+    this.validateUpdateData(updateData);
+    
+    return await Tournament.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+  }
+
+  async getOrganiserTournaments(user, sportType, location, search) {
+    const query = { createdBy: user._id };
+    
+    if (sportType) {
+      query.sportType = sportType;
+    }
+    
+    if (location) {
+      query.location = location;
+    }
+    
+    if (search) {
+      query.name = { $regex: String(search).trim(), $options: 'i' };
+    }
+
+    const tournaments = await Tournament.find(query);
+    return tournaments;
+  }
+
+  validateTournamentData(data) {
+    if (new Date(data.startDate) < new Date()) {
+      throw new ValidationError('Start date cannot be in the past');
+    }
+  }
+
+  canUserModifyTournament(tournament, user) {
+    return tournament.organiser.toString() === user._id.toString() ||
+           user.role === 'admin';
+  }
+
+  async validateUpdateData(updateData) {
+    // Implementation of validateUpdateData method
+  }
 }
 
-module.exports = {
-  createTournament,
-  getTournamentById,
-  updateTournamentById,
-  deleteTournamentById,
-  getOrganiserTournaments,
-};
+module.exports = new TournamentService();

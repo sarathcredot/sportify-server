@@ -1,26 +1,19 @@
 const mongoose = require('mongoose');
+const { PLAYER_AUCTION_STATUS_TYPES, AUCTION_STATUS_TYPES } = require('../utils/constants');
 
 const auctionSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  sport: {
-    type: String,
-    required: true,
-    enum: ['cricket', 'football']
-  },
-  startDate: {
-    type: Date,
-    required: true
-  },
-  endDate: {
-    type: Date,
-    required: true
-  },
+  auctionDate: { type: Date, required: true },
+  auctionTime: { type: String, required: true },
+  auctionLocation: { type: String, required: true },
+  biddingPointPerTeam: { type: Number, required: true },
+  minBidPerPlayer: { type: Number, required: true },
+  maxBidPerPlayer: { type: Number, required: true },
+  bidIncreaseBy: { type: Number, required: true },
+  biddingTimerLimit: { type: Number, required: true },
+  message: { type: String, required: true },
   status: {
     type: String,
-    enum: ['upcoming', 'live', 'completed'],
+    enum: AUCTION_STATUS_TYPES,
     default: 'upcoming'
   },
   players: [{
@@ -33,12 +26,13 @@ const auctionSchema = new mongoose.Schema({
       team: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Team'
-      }
+      },
+      bidTime: { type: Date }
     },
     status: {
       type: String,
-      enum: ['pending', 'active', 'sold', 'unsold'],
-      default: 'pending'
+      enum: PLAYER_AUCTION_STATUS_TYPES,
+      default: 'available'
     }
   }]
 }, {
