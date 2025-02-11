@@ -68,6 +68,8 @@ const createTournamentSchema = z.object({
     auctionEnabled: z.boolean().default(false),
     maxTeamAllowed: z.number().int().positive(),
     maxPlayersPerTeam: z.number().int().positive(),
+    teamRegistrationFee: z.number().int().positive(),
+    playerRegistrationFee: z.number().int().positive(),
     teamRegistrationFeeEnabled: z.boolean().default(false),
     playerRegistrationFeeEnabled: z.boolean().default(false),
   }).superRefine((data, ctx) => {

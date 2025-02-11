@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 
-const { SPORT_TYPES, CRICKET_MATCH_TYPES, FOOTBALL_MATCH_TYPES, CRICKET_BALL_TYPES, FOOTBALL_BALL_TYPES } = require('../utils/constants');
+const {
+  SPORT_TYPES,
+  CRICKET_MATCH_TYPES,
+  FOOTBALL_MATCH_TYPES,
+  CRICKET_BALL_TYPES,
+  FOOTBALL_BALL_TYPES,
+} = require("../utils/constants");
 
 const TournamentSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -67,6 +73,32 @@ const TournamentSchema = new mongoose.Schema({
     maxPlayersPerTeam: { type: Number, required: true },
     teamRegistrationFeeEnabled: { type: Boolean, default: false },
     playerRegistrationFeeEnabled: { type: Boolean, default: false },
+    teamRegistrationFee: {
+      type: Number,
+      validate: {
+        validator: function (value) {
+          if (this.teamRegistrationFeeEnabled && value <= 0) {
+            return false;
+          }
+          return true;
+        },
+        message: (props) =>
+          `${props.value} is required if Team registration fee enabled.`,
+      },
+    },
+    playerRegistrationFee: {
+      type: Number,
+      validate: {
+        validator: function (value) {
+          if (this.playerRegistrationFeeEnabled && value <= 0) {
+            return false;
+          }
+          return true;
+        },
+        message: (props) =>
+          `${props.value} is required if Player registration fee enabled.`,
+      },
+    },
   },
   auction: {
     auctionDate: { type: Date },
