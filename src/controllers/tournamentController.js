@@ -2,6 +2,14 @@ const tournamentService = require('../services/tournamentService');
 const ResponseHandler = require('../utils/responseHandler');
 
 class TournamentController {
+  constructor() {
+    this.createTournament = this.createTournament.bind(this);
+    this.getTournamentById = this.getTournamentById.bind(this);
+    this.updateTournamentById = this.updateTournamentById.bind(this);
+    this.deleteTournamentById = this.deleteTournamentById.bind(this);
+    this.getOrganiserTournaments = this.getOrganiserTournaments.bind(this);
+    this.handleError = this.handleError.bind(this);
+  }
   async createTournament(req, res) {
     try {
       const tournament = await tournamentService.createTournament(req.body, req.user);

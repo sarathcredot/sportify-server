@@ -6,11 +6,21 @@ class TournamentService {
 
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
-    
-    const tournament = new Tournament({
+
+    const auction = new Auction(tournamentData?.auction)
+
+    let obj = {
       ...tournamentData,
+      auction: auction?._id,
       organiser: user._id,
-    });
+      createdBy: user?._id
+    }
+
+    if(auction?._id){
+      obj.auction = auction?._id 
+    }
+    
+    const tournament = new Tournament(obj);
     return await tournament.save();
   }
 
