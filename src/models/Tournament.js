@@ -6,10 +6,12 @@ const {
   FOOTBALL_MATCH_TYPES,
   CRICKET_BALL_TYPES,
   FOOTBALL_BALL_TYPES,
+  TOURNAMENT_STATUS,
 } = require("../utils/constants");
 
 const TournamentSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  status: {type: String, enum: TOURNAMENT_STATUS, default: "upcoming" },
   description: { type: String },
   logoUrl: { type: String, required: true },
   bannerUrl: { type: String, required: true },

@@ -1,4 +1,5 @@
 const OTP_LENGTH = 6;
+const TOURNAMENT_STATUS = ["on_going", "completed", "upcoming"]
 const SPORT_TYPES = ["cricket", "football"];
 const CRICKET_MATCH_TYPES = ["test_match", "limited_over"];
 const FOOTBALL_MATCH_TYPES = ["mud_football", "turf_football"];
@@ -36,4 +37,5 @@ module.exports = {
   AUCTION_STATUS_TYPES,
   CRICKET_PLAYER_CATEGORIES,
   FOOTBALL_PLAYER_CATEGORIES,
+  TOURNAMENT_STATUS
 };
