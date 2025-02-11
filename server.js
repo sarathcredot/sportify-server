@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
+const path = require("path");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
+app.use("/media", express.static(path.join(__dirname, "media")));
 
 // Routes
 app.use('/api/tournaments', require('./src/routes/tournament'));
