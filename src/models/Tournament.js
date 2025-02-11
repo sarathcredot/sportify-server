@@ -11,7 +11,6 @@ const {
 
 const TournamentSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  status: {type: String, enum: TOURNAMENT_STATUS, default: "upcoming" },
   description: { type: String },
   logoUrl: { type: String, required: true },
   bannerUrl: { type: String, required: true },
