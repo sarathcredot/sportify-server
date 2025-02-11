@@ -6,7 +6,6 @@ const {
   FOOTBALL_MATCH_TYPES,
   CRICKET_BALL_TYPES,
   FOOTBALL_BALL_TYPES,
-  TOURNAMENT_STATUS,
 } = require("../utils/constants");
 
 const TournamentSchema = new mongoose.Schema({
