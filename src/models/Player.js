@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { SPORT_TYPES, PLAYER_STATUS_TYPES } = require("../utils/constants");
+const { SPORT_TYPES, PLAYER_STATUS_TYPES, PLAYER_STATUS } = require("../utils/constants");
 
 const playerSchema = new mongoose.Schema(
   {
@@ -16,7 +16,7 @@ const playerSchema = new mongoose.Schema(
     status: { 
       type: String, 
       enum: PLAYER_STATUS_TYPES, 
-      default: PLAYER_STATUS_TYPES[0]
+      default: PLAYER_STATUS.PENDING
     },
     currentTeam: { 
       type: mongoose.Schema.Types.ObjectId,

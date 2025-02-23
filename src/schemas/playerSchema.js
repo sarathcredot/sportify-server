@@ -1,16 +1,17 @@
 const { z } = require("zod");
-const { 
-  SPORT_TYPES, 
-  CRICKET_PLAYER_CATEGORIES, 
-  FOOTBALL_PLAYER_CATEGORIES 
+const {
+  SPORT_TYPES,
+  CRICKET_PLAYER_CATEGORIES,
+  FOOTBALL_PLAYER_CATEGORIES,
+  SPORTS_NAMES,
 } = require("../utils/constants");
 const { dateSchema } = require("../utils/schemaUtils");
 
 const getPlayerCategories = (sport) => {
   switch (sport) {
-    case "cricket":
+    case SPORTS_NAMES.CRICKET:
       return CRICKET_PLAYER_CATEGORIES;
-    case "football":
+    case SPORTS_NAMES.FOOTBALL:
       return FOOTBALL_PLAYER_CATEGORIES;
     default:
       return [];
@@ -42,6 +43,11 @@ const createPlayerSchema = z
     }
   );
 
+const approvePlayerSchema = z.object({
+  approve: z.boolean(),
+});
+
 module.exports = {
   createPlayerSchema,
-}; 
+  approvePlayerSchema,
+};

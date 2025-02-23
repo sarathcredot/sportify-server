@@ -1,16 +1,16 @@
 const { z } = require("zod");
-const { SPORT_TYPES, CRICKET_MATCH_TYPES, FOOTBALL_MATCH_TYPES, CRICKET_BALL_TYPES, FOOTBALL_BALL_TYPES } = require('../utils/constants');
+const { SPORT_TYPES, CRICKET_MATCH_TYPES, FOOTBALL_MATCH_TYPES, CRICKET_BALL_TYPES, FOOTBALL_BALL_TYPES, SPORTS_NAMES } = require('../utils/constants');
 const { dateSchema } = require("../utils/schemaUtils");
 // Validation functions
 const validateMatchType = (data, ctx) => {
-  if (data.sportType === "cricket" && !CRICKET_MATCH_TYPES.includes(data.matchType)) {
+  if (data.sportType === SPORTS_NAMES.CRICKET && !CRICKET_MATCH_TYPES.includes(data.matchType)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Invalid match type for cricket",
       path: ["settings", "matchType"],
     });
   }
-  if (data.sportType === "football" && !FOOTBALL_MATCH_TYPES.includes(data.matchType)) {
+  if (data.sportType === SPORTS_NAMES.FOOTBALL && !FOOTBALL_MATCH_TYPES.includes(data.matchType)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Invalid match type for football",
@@ -20,14 +20,14 @@ const validateMatchType = (data, ctx) => {
 };
 
 const validateBallType = (data, ctx) => {
-  if (data.sportType === "cricket" && !CRICKET_BALL_TYPES.includes(data.ballType)) {
+  if (data.sportType === SPORTS_NAMES.CRICKET && !CRICKET_BALL_TYPES.includes(data.ballType)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Invalid ball type for cricket",
       path: ["settings", "ballType"],
     });
   }
-  if (data.sportType === "football" && !FOOTBALL_BALL_TYPES.includes(data.ballType)) {
+  if (data.sportType === SPORTS_NAMES.FOOTBALL && !FOOTBALL_BALL_TYPES.includes(data.ballType)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       message: "Invalid ball type for football",
@@ -117,5 +117,4 @@ const createTournamentSchema = z.object({
 
 module.exports = {
   createTournamentSchema,
-  // updateTournamentSchema,
 };

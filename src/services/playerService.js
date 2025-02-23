@@ -1,7 +1,8 @@
 const Player = require('../models/Player');
 const Tournament = require('../models/Tournament');
 const { ValidationError, NotFoundError } = require('../utils/errors');
-const { uploadFile } = require('./uploadService');
+const { PLAYER_STATUS } = require('../utils/constants');
+
 
 class PlayerService {
   async registerPlayer(playerData, user) {
@@ -23,9 +24,21 @@ class PlayerService {
       ...playerData,
       dateOfBirth: new Date(playerData.dateOfBirth),
       tournament: tournament._id,
-      status: 'pending'
+      status: PLAYER_STATUS.PENDING
     });
 
+    await player.save();
+    return player;
+  }
+
+  async getPlayersByTournamentId(tournamentId) {
+    const players = await Player.find({ tournament: tournamentId });
+    return players;
+  }
+
+  async approvePlayer(playerId, approve) {
+    const player = await Player.findById(playerId);
+    player.status = approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED;
     await player.save();
     return player;
   }

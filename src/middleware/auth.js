@@ -1,5 +1,4 @@
 const { verify } = require('jsonwebtoken');
-const { findOne } = require('../models/User');
 const User = require('../models/User');
 const ResponseHandler = require('../utils/responseHandler');
 

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { PLAYER_AUCTION_STATUS_TYPES, AUCTION_STATUS_TYPES } = require('../utils/constants');
+const { PLAYER_AUCTION_STATUS_TYPES, AUCTION_STATUS_TYPES, PLAYER_AUCTION_STATUS, AUCTION_STATUS, TEAM_STATUS_TYPES, TEAM_STATUS } = require('../utils/constants');
 
 const auctionSchema = new mongoose.Schema({
   auctionDate: { type: Date, required: true },
@@ -14,7 +14,7 @@ const auctionSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: AUCTION_STATUS_TYPES,
-    default: 'upcoming'
+    default: AUCTION_STATUS.UPCOMING
   },
   players: [{
     player: {
@@ -32,7 +32,18 @@ const auctionSchema = new mongoose.Schema({
     status: {
       type: String,
       enum: PLAYER_AUCTION_STATUS_TYPES,
-      default: 'available'
+      default: PLAYER_AUCTION_STATUS.AVAILABLE
+    }
+  }],
+  teams: [{
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    },
+    status: {
+      type: String,
+      enum: TEAM_STATUS_TYPES,
+      default: TEAM_STATUS.PENDING
     }
   }]
 }, {

@@ -1,5 +1,7 @@
 const playerService = require('../services/playerService');
 const ResponseHandler = require('../utils/responseHandler');
+const { PLAYER_STATUS } = require('../utils/constants');
+
 
 class PlayerController {
   async registerPlayer(req, res) {
@@ -22,6 +24,24 @@ class PlayerController {
         ResponseHandler.error('Error registering player', error.message, 500)
       );
     }
+  }
+
+  async getPlayersByTournamentId(req, res) {
+    try {
+      const { tournamentId } = req.params;
+      const players = await playerService.getPlayersByTournamentId(tournamentId);
+      res.status(200).json(ResponseHandler.success('Players retrieved successfully', players));
+    } catch (error) {
+      res.status(500).json(ResponseHandler.error('Server error', error.message, 500));
+    }
+  }
+
+  async approvePlayer(req, res) {
+    const { playerId } = req.params;
+    const { approve } = req.body;
+
+    const player = await playerService.approvePlayer(playerId, approve);
+    res.status(200).json(ResponseHandler.success('Player approved successfully', player));
   }
 }
 

@@ -6,6 +6,7 @@ const {
   FOOTBALL_MATCH_TYPES,
   CRICKET_BALL_TYPES,
   FOOTBALL_BALL_TYPES,
+  SPORTS_NAMES,
 } = require("../utils/constants");
 
 const TournamentSchema = new mongoose.Schema({
@@ -28,9 +29,9 @@ const TournamentSchema = new mongoose.Schema({
       required: true,
       validate: {
         validator: function (value) {
-          if (this.sportType === "cricket") {
+          if (this.sportType === SPORTS_NAMES.CRICKET) {
             return CRICKET_MATCH_TYPES.includes(value);
-          } else if (this.sportType === "football") {
+          } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
             return FOOTBALL_MATCH_TYPES.includes(value);
           }
           return false;
@@ -44,9 +45,9 @@ const TournamentSchema = new mongoose.Schema({
       required: true,
       validate: {
         validator: function (value) {
-          if (this.sportType === "cricket") {
+          if (this.sportType === SPORTS_NAMES.CRICKET) {
             return CRICKET_BALL_TYPES.includes(value);
-          } else if (this.sportType === "football") {
+          } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
             return FOOTBALL_BALL_TYPES.includes(value);
           }
           return false;
@@ -59,7 +60,7 @@ const TournamentSchema = new mongoose.Schema({
       type: String,
       validate: {
         validator: function (value) {
-          if (this.matchType === "limited_over" && !value) {
+          if (this.matchType === CRICKET_MATCH_TYPES.LIMITED_OVER && !value) {
             return false;
           }
           return true;

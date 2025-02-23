@@ -107,6 +107,17 @@ class AuthService {
       throw new Error(error.message || 'Failed to verify OTP');
     }
   }
+
+  async createUser(userData) {
+    const user = new User(userData);
+    await user.save();
+    return user;
+  }
+
+  async getUserByPhoneNumberAndRole(phoneNumber, countryCode, role) {
+    const user = await User.findOne({ phoneNumber: phoneNumber, countryCode: countryCode, role: role });
+    return user;
+  }
 }
 
 module.exports = new AuthService();

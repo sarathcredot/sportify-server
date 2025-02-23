@@ -1,6 +1,8 @@
 const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
+const { ROLES } = require('../utils/constants');
+
 
 class TournamentService {
 
@@ -78,7 +80,7 @@ class TournamentService {
 
   canUserModifyTournament(tournament, user) {
     return tournament.organiser.toString() === user._id.toString() ||
-           user.role === 'admin';
+           user.role === ROLES.ADMIN;
   }
 
   async validateUpdateData(updateData) {

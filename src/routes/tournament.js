@@ -5,9 +5,11 @@ const validate = require('../utils/validate');
 const { createTournamentSchema } = require('../schemas/tournamentSchema');
 const checkOwnership = require('../middleware/checkOwnership');
 const Tournament = require('../models/Tournament');
-const { createPlayerSchema } = require('../schemas/playerSchema');
+const { createPlayerSchema, approvePlayerSchema } = require('../schemas/playerSchema');
 const playerController = require('../controllers/playerController');
-
+const checkIsAdmin = require('../middleware/checkIsAdmin');
+const teamController = require('../controllers/teamController');
+const { createTeamSchema, approveTeamSchema } = require('../schemas/teamSchema');
 
 const router = express.Router();
 router.use(auth);
@@ -48,5 +50,34 @@ router.post(
   playerController.registerPlayer
 );
 
+router.get(
+  '/:tournamentId/players',
+  playerController.getPlayersByTournamentId
+);
+
+router.post(
+  '/:tournamentId/players/:playerId/approve',
+  validate(approvePlayerSchema),
+  checkIsAdmin(Tournament),
+  playerController.approvePlayer
+);
+
+router.post(
+  '/:tournamentId/teams',
+  validate(createTeamSchema),
+  teamController.registerTeam
+); 
+
+router.get(
+  '/:tournamentId/teams',
+  teamController.getTeamsByTournamentId
+);
+
+router.post(
+  '/:tournamentId/teams/:teamId/approve',
+  validate(approveTeamSchema),
+  checkIsAdmin(Tournament),
+  teamController.approveTeam
+);
 
 module.exports = router;
