@@ -8,11 +8,12 @@ const {
 const { dateSchema } = require("../utils/schemaUtils");
 
 const getPlayerCategories = (sport) => {
+  console.log(sport, "SPORT IN THE GET PLAYER CATEGORIESS")
   switch (sport) {
     case SPORTS_NAMES.CRICKET:
-      return CRICKET_PLAYER_CATEGORIES;
+      return Object.values(CRICKET_PLAYER_CATEGORIES);
     case SPORTS_NAMES.FOOTBALL:
-      return FOOTBALL_PLAYER_CATEGORIES;
+      return Object.values(FOOTBALL_PLAYER_CATEGORIES);
     default:
       return [];
   }

@@ -28,7 +28,7 @@ class TournamentService {
 
   async getTournamentById(id) {
     const tournament = await Tournament.findById(id)
-      .populate('organiser', 'name email');
+      // .populate('organiser', 'name email');
 
     if (!tournament) {
       throw new NotFoundError('Tournament not found');
