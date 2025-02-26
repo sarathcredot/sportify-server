@@ -26,6 +26,7 @@ const createPlayerSchema = z
     photoUrl: z.string().nonempty("Player photo is required"),
     dateOfBirth: dateSchema,
     contactNumber: z.string().nonempty("Contact number is required"),
+    email: z.string().nonempty("Email is required"),
     sport: z.enum(SPORT_TYPES, {
       errorMap: () => ({ message: "Invalid sport type" }),
     }),
