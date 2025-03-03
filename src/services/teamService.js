@@ -16,11 +16,11 @@ class TeamService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    if (playerData.sport !== tournament.sportType) {
-      throw new ValidationError(
-        "Player sport type does not match tournament sport type"
-      );
-    }
+    // if (playerData.sport !== tournament.sportType) {
+    //   throw new ValidationError(
+    //     "Player sport type does not match tournament sport type"
+    //   );
+    // }
 
     const team = new Team({
       ...teamData,
@@ -46,7 +46,7 @@ class TeamService {
   }
 
   async registerTeamWithManager(teamData) {
-    const phoneNumber = parsePhoneNumber(teamData.phoneNumber);
+    const phoneNumber = parsePhoneNumber(teamData.phoneNumber, "IN");
 
     if (!phoneNumber.isValid()) {
       throw new ValidationError("Invalid phone number");

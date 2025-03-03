@@ -64,7 +64,7 @@ router.post(
 
 router.post(
   '/:tournamentId/teams',
-  validate(createTeamSchema),
+  // validate(createTeamSchema),
   teamController.registerTeam
 ); 
 
