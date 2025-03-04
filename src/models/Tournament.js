@@ -30,9 +30,9 @@ const TournamentSchema = new mongoose.Schema({
       validate: {
         validator: function (value) {
           if (this.sportType === SPORTS_NAMES.CRICKET) {
-            return CRICKET_MATCH_TYPES.includes(value);
+            return Object.values(CRICKET_MATCH_TYPES).includes(value);
           } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
-            return FOOTBALL_MATCH_TYPES.includes(value);
+            return Object.values(FOOTBALL_MATCH_TYPES).includes(value);
           }
           return false;
         },
@@ -46,9 +46,9 @@ const TournamentSchema = new mongoose.Schema({
       validate: {
         validator: function (value) {
           if (this.sportType === SPORTS_NAMES.CRICKET) {
-            return CRICKET_BALL_TYPES.includes(value);
+            return Object.values(CRICKET_BALL_TYPES).includes(value);
           } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
-            return FOOTBALL_BALL_TYPES.includes(value);
+            return Object.values(FOOTBALL_BALL_TYPES).includes(value);
           }
           return false;
         },
