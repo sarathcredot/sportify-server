@@ -16,6 +16,7 @@ class TeamController {
         .status(201)
         .json(ResponseHandler.success("Team registered successfully", team));
     } catch (error) {
+      console.log(error, 'ERROR IN ADD TEAM ')
       if (error.name === "ValidationError") {
         return res.status(400).json(ResponseHandler.error(error.message));
       }
@@ -46,7 +47,7 @@ class TeamController {
     const { approve } = req.body;
     
     const team = await teamService.approveTeam(teamId, approve);
-    res.status(200).json(ResponseHandler.success('Team approved successfully', team));
+    res.status(200).json(ResponseHandler.success(`${approve ? "Team approved successfully": "Team rejected successfully"}`, team));
   }
 } 
 

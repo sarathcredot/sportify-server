@@ -2,7 +2,7 @@ const Team = require("../models/Team");
 const Tournament = require("../models/Tournament");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const authService = require("./authService");
-const { TEAM_MANAGER_ROLE, TEAM_STATUS } = require("../utils/constants");
+const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
 const { parsePhoneNumber } = require("libphonenumber-js");
 
 class TeamService {
@@ -41,7 +41,7 @@ class TeamService {
   async createTeamManager(teamManagerData) {
     return authService.createUser({
       ...teamManagerData,
-      role: TEAM_MANAGER_ROLE,
+      role: ROLES.TEAM_MANAGER,
     });
   }
 
@@ -55,8 +55,10 @@ class TeamService {
     let user = await authService.getUserByPhoneNumberAndRole(
       phoneNumber.nationalNumber,
       phoneNumber.countryCallingCode,
-      TEAM_MANAGER_ROLE
+      ROLES.TEAM_MANAGER
     );
+
+    console.log(user, 'USER')
 
     if (!user) {
       user = await this.createTeamManager({

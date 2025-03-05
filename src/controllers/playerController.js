@@ -41,7 +41,7 @@ class PlayerController {
     const { approve } = req.body;
 
     const player = await playerService.approvePlayer(playerId, approve);
-    res.status(200).json(ResponseHandler.success('Player approved successfully', player));
+    res.status(200).json(ResponseHandler.success(`${approve ? "Player approved successfully": "Player rejected successfully"}`, player));
   }
 }
 
