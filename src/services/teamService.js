@@ -34,7 +34,9 @@ class TeamService {
   }
 
   async getTeamsByTournamentId(tournamentId) {
-    const teams = await Team.find({ tournament: tournamentId });
+    const teams = await Team.find({ tournament: tournamentId }).sort({
+      createdAt: -1,
+    });
     return teams;
   }
 
