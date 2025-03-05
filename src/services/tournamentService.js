@@ -9,8 +9,10 @@ class TournamentService {
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 
-    const auction = new Auction(tournamentData?.auction)
+    let auction = new Auction(tournamentData?.auction);
 
+    auction = await auction.save();
+console.log(auction?._id, 'AUCTION ID')
     let obj = {
       ...tournamentData,
       auction: auction?._id,

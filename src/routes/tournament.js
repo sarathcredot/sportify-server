@@ -58,7 +58,7 @@ router.get(
 router.post(
   '/:tournamentId/players/:playerId/approve',
   validate(approvePlayerSchema),
-  checkIsAdmin(Tournament),
+  // checkIsAdmin(Tournament),
   playerController.approvePlayer
 );
 
@@ -76,7 +76,7 @@ router.get(
 router.post(
   '/:tournamentId/teams/:teamId/approve',
   validate(approveTeamSchema),
-  checkIsAdmin(Tournament),
+  // checkIsAdmin(Tournament),
   teamController.approveTeam
 );
 
