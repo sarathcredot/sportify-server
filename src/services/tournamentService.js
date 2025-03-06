@@ -1,7 +1,7 @@
 const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
-const { ROLES } = require('../utils/constants');
+const { ROLES, PLAYER_STATUS } = require('../utils/constants');
 
 
 class TournamentService {
@@ -12,7 +12,7 @@ class TournamentService {
     let auction = new Auction(tournamentData?.auction);
 
     auction = await auction.save();
-console.log(auction?._id, 'AUCTION ID')
+    console.log(auction?._id, 'AUCTION ID')
     let obj = {
       ...tournamentData,
       auction: auction?._id,
@@ -72,6 +72,25 @@ console.log(auction?._id, 'AUCTION ID')
 
     const tournaments = await Tournament.find(query);
     return tournaments;
+  }
+
+  async approvePlayerInTournament(tournamentId, playerId, approve) {
+    const tournament = await Tournament.findOneAndUpdate(
+      {
+        _id: tournamentId,
+        'players.player': playerId
+      },
+      {
+        $set: {
+          'players.$.status': approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED
+        }
+      },
+      { new: true }
+    );
+    if (!tournament) {
+      throw new NotFoundError('Tournament or player not found');
+    }
+    return tournament;
   }
 
   validateTournamentData(data) {

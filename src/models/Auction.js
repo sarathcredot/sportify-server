@@ -16,36 +16,9 @@ const auctionSchema = new mongoose.Schema({
     enum: AUCTION_STATUS_TYPES,
     default: AUCTION_STATUS.UPCOMING
   },
-  players: [{
-    player: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Player'
-    },
-    currentBid: {
-      amount: Number,
-      team: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team'
-      },
-      bidTime: { type: Date }
-    },
-    status: {
-      type: String,
-      enum: PLAYER_AUCTION_STATUS_TYPES,
-      default: PLAYER_AUCTION_STATUS.AVAILABLE
-    }
-  }],
-  teams: [{
-    team: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Team'
-    },
-    status: {
-      type: String,
-      enum: TEAM_STATUS_TYPES,
-      default: TEAM_STATUS.PENDING
-    }
-  }]
+  auctionStartedAt: { type: Date },
+  auctionEndedAt: { type: Date },
+  currentBiddingPlayer: { type: mongoose.Schema.Types.ObjectId, ref: 'Player' },
 }, {
   timestamps: true
 });

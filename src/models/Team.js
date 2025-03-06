@@ -14,11 +14,6 @@ const teamSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    tournament: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tournament",
-      required: true,
-    },
     status: {
       type: String,
       enum: TEAM_STATUS_TYPES,

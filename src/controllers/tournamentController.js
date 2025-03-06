@@ -1,15 +1,8 @@
 const tournamentService = require('../services/tournamentService');
 const ResponseHandler = require('../utils/responseHandler');
+const BaseController = require('./baseController');
 
-class TournamentController {
-  constructor() {
-    this.createTournament = this.createTournament.bind(this);
-    this.getTournamentById = this.getTournamentById.bind(this);
-    this.updateTournamentById = this.updateTournamentById.bind(this);
-    this.deleteTournamentById = this.deleteTournamentById.bind(this);
-    this.getOrganiserTournaments = this.getOrganiserTournaments.bind(this);
-    this.handleError = this.handleError.bind(this);
-  }
+class TournamentController extends BaseController {
   async createTournament(req, res) {
     try {
       const tournament = await tournamentService.createTournament(req.body, req.user);
@@ -38,7 +31,7 @@ class TournamentController {
       }
       res.status(200).json(ResponseHandler.success('Tournament updated successfully', tournament));
     } catch (error) {
-      res.status(500).json(ResponseHandler.error('Server error', error.message, 500));
+      this.handleError(res, error);
     }
   }
 
@@ -51,7 +44,7 @@ class TournamentController {
       }
       res.status(200).json(ResponseHandler.success('Tournament deleted successfully', null));
     } catch (error) {
-      res.status(500).json(ResponseHandler.error('Server error', error.message, 500));
+      this.handleError(res, error);
     }
   }
 
@@ -62,21 +55,8 @@ class TournamentController {
       const tournaments = await tournamentService.getOrganiserTournaments(user, sportType, location, search);
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
     } catch (error) {
-      res.status(500).json(ResponseHandler.error('Server error', error.message, 500));
+      this.handleError(res, error);
     }
-  }
-
-  handleError(res, error) {
-    const errorMap = {
-      ValidationError: 400,
-      NotFoundError: 404,
-      UnauthorizedError: 401,
-    };
-    
-    const statusCode = errorMap[error.name] || 500;
-    res.status(statusCode).json(
-      ResponseHandler.error(error.message, null, statusCode)
-    );
   }
 }
 

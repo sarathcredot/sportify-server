@@ -1,7 +1,8 @@
 const playerService = require('../services/playerService');
+const tournamentService = require('../services/tournamentService');
 const ResponseHandler = require('../utils/responseHandler');
 const { PLAYER_STATUS } = require('../utils/constants');
-
+const Tournament = require('../models/Tournament');
 
 class PlayerController {
   async registerPlayer(req, res) {
@@ -37,10 +38,19 @@ class PlayerController {
   }
 
   async approvePlayer(req, res) {
-    const { playerId } = req.params;
+    const { tournamentId, playerId } = req.params;
     const { approve } = req.body;
 
-    const player = await playerService.approvePlayer(playerId, approve);
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      return res.status(404).json(ResponseHandler.error('Tournament not found'));
+    }
+
+    if (tournament.status !== PLAYER_STATUS.APPROVED) {
+      return res.status(400).json(ResponseHandler.error('Tournament is not in approved status'));
+    }
+
+    const player = await tournamentService.approvePlayerInTournament(tournamentId, playerId, approve);
     res.status(200).json(ResponseHandler.success('Player approved successfully', player));
   }
 }

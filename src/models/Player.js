@@ -14,19 +14,9 @@ const playerSchema = new mongoose.Schema(
     cricHeroesId: { type: String },
     notes: { type: String },
     stats: { type: Map, of: Number },
-    status: { 
-      type: String, 
-      enum: PLAYER_STATUS_TYPES, 
-      default: PLAYER_STATUS.PENDING
-    },
     currentTeam: { 
       type: mongoose.Schema.Types.ObjectId,
       ref: "Team",
-    },
-    tournament: { 
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Tournament",
-      required: true,
     },
   },
   {

@@ -7,6 +7,10 @@ const {
   CRICKET_BALL_TYPES,
   FOOTBALL_BALL_TYPES,
   SPORTS_NAMES,
+  TEAM_STATUS_TYPES,
+  TEAM_STATUS,
+  PLAYER_STATUS_TYPES,
+  PLAYER_STATUS,
 } = require("../utils/constants");
 
 const TournamentSchema = new mongoose.Schema({
@@ -119,6 +123,40 @@ const TournamentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  players: [{
+    player: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Player'
+    },
+    currentBid: {
+      amount: Number,
+      team: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team'
+      },
+      bidTime: { type: Date }
+    },
+    status: {
+      type: String,
+      enum: PLAYER_STATUS_TYPES,
+      default: PLAYER_STATUS.PENDING,
+    },
+  }],
+  teams: [{
+    team: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Team'
+    },
+    status: {
+      type: String,
+      enum: TEAM_STATUS_TYPES,
+      default: TEAM_STATUS.PENDING
+    },
+    players: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Player",
+    }],
+  }]
 }, {
   timestamps: true
 });

@@ -1,8 +1,9 @@
 const { parsePhoneNumber } = require("libphonenumber-js");
 const ResponseHandler = require("../utils/responseHandler");
 const teamService = require("../services/teamService");
+const BaseController = require('./baseController');
 
-class TeamController {
+class TeamController extends BaseController {
   async registerTeam(req, res) {
     try {
       const teamData = {
@@ -16,14 +17,7 @@ class TeamController {
         .status(201)
         .json(ResponseHandler.success("Team registered successfully", team));
     } catch (error) {
-      if (error.name === "ValidationError") {
-        return res.status(400).json(ResponseHandler.error(error.message));
-      }
-      res
-        .status(500)
-        .json(
-          ResponseHandler.error("Error registering team", error.message, 500)
-        );
+      this.handleError(res, error);
     }
   }
 
