@@ -40,7 +40,7 @@ class TeamController extends BaseController {
     const { approve } = req.body;
     
     const team = await teamService.approveTeam(teamId, approve);
-    res.status(200).json(ResponseHandler.success('Team approved successfully', team));
+    res.status(200).json(ResponseHandler.success(`${approve ? "Team approved successfully": "Team rejected successfully"}`, team));
   }
 } 
 

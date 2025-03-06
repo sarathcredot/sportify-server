@@ -1,30 +1,30 @@
-const Player = require('../models/Player');
-const Tournament = require('../models/Tournament');
-const { ValidationError, NotFoundError } = require('../utils/errors');
-const { PLAYER_STATUS } = require('../utils/constants');
-
+const Player = require("../models/Player");
+const Tournament = require("../models/Tournament");
+const { ValidationError, NotFoundError } = require("../utils/errors");
+const { PLAYER_STATUS } = require("../utils/constants");
 
 class PlayerService {
   async registerPlayer(playerData, user) {
-
     const tournament = await Tournament.findById(playerData.tournamentId);
     if (!tournament) {
-      throw new NotFoundError('Tournament not found');
+      throw new NotFoundError("Tournament not found");
     }
 
     if (new Date() > tournament.endDate) {
-      throw new ValidationError('Tournament registration is closed');
+      throw new ValidationError("Tournament registration is closed");
     }
 
     if (playerData.sport !== tournament.sportType) {
-      throw new ValidationError('Player sport type does not match tournament sport type');
+      throw new ValidationError(
+        "Player sport type does not match tournament sport type"
+      );
     }
 
     const player = new Player({
       ...playerData,
       dateOfBirth: new Date(playerData.dateOfBirth),
       tournament: tournament._id,
-      status: PLAYER_STATUS.PENDING
+      status: PLAYER_STATUS.PENDING,
     });
 
     await player.save();
@@ -32,7 +32,9 @@ class PlayerService {
   }
 
   async getPlayersByTournamentId(tournamentId) {
-    const players = await Player.find({ tournament: tournamentId });
+    const players = await Player.find({ tournament: tournamentId }).sort({
+      createdAt: -1,
+    });
     return players;
   }
 
@@ -44,4 +46,4 @@ class PlayerService {
   }
 }
 
-module.exports = new PlayerService(); 
+module.exports = new PlayerService();
