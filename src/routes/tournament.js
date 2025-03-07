@@ -27,7 +27,7 @@ router.post(
 
 router.get(
   '/:id',
-  checkOwnership(Tournament),
+  // checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
 

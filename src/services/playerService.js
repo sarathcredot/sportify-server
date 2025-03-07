@@ -2,6 +2,7 @@ const Player = require("../models/Player");
 const Tournament = require("../models/Tournament");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const { PLAYER_STATUS } = require("../utils/constants");
+const { Types } = require("mongoose");
 
 class PlayerService {
   async registerPlayer(playerData, user) {
@@ -32,7 +33,7 @@ class PlayerService {
   }
 
   async getPlayersByTournamentId(tournamentId) {
-    const players = await Player.find({ tournament: tournamentId }).sort({
+    const players = await Player.find({ tournament: new Types.ObjectId(tournamentId) }).sort({
       createdAt: -1,
     });
     return players;

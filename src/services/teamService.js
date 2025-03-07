@@ -4,6 +4,7 @@ const { ValidationError, NotFoundError } = require("../utils/errors");
 const authService = require("./authService");
 const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
 const { parsePhoneNumber } = require("libphonenumber-js");
+const { Types } = require("mongoose");
 
 class TeamService {
   async registerTeam(teamData, user) {
@@ -34,7 +35,7 @@ class TeamService {
   }
 
   async getTeamsByTournamentId(tournamentId) {
-    const teams = await Team.find({ tournament: tournamentId }).sort({
+    const teams = await Team.find({ tournament: new Types.ObjectId(tournamentId) }).sort({
       createdAt: -1,
     });
     return teams;
