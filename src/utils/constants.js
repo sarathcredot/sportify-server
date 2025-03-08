@@ -98,7 +98,7 @@ const AUCTION_STATUS = {
 const AUCTION_STATUS_TYPES = Object.values(AUCTION_STATUS);
 
 // Other constants
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 5;
 const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images"];
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
