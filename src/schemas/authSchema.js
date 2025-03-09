@@ -6,6 +6,12 @@ const sendOTPSchema = z.object({
   countryCode: z.string().nonempty({ message: "Country code is required" }),
 });
 
+const registerSchema = z.object({
+  phoneNumber: z.string().nonempty({ message: "Phone number is required" }),
+  countryCode: z.string().nonempty({ message: "Country code is required" }),
+  fullName: z.string().nonempty({ message: "Full name is required" }),
+});
+
 const verifyOTPSchema = z.object({
   phoneNumber: z.string().nonempty({ message: "Phone number is required" }),
   countryCode: z.string().nonempty({ message: "Country code is required" }),
@@ -20,4 +26,5 @@ const verifyOTPSchema = z.object({
 module.exports = {
   sendOTPSchema,
   verifyOTPSchema,
+  registerSchema,
 };

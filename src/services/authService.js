@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { parsePhoneNumber } = require('libphonenumber-js');
 const User = require('../models/User');
+const { ROLES } = require('../utils/constants');
 
 class AuthService {
   
@@ -38,14 +39,7 @@ class AuthService {
 
       let user = await User.findOne({ phoneNumber: normalizedPhone });
       if (!user) {
-        user = new User({
-          phoneNumber: normalizedPhone,
-          countryCode,
-          otpData: {
-            otp,
-            expiresAt: otpExpiry
-          }
-        });
+        throw new Error('User not found');
       } else {
         user.otpData = {
           otp,
@@ -106,6 +100,21 @@ class AuthService {
     } catch (error) {
       throw new Error(error.message || 'Failed to verify OTP');
     }
+  }
+
+  async register(phoneNumber, countryCode, fullName) {
+    let user = await this.getUserByPhoneNumberAndRole(phoneNumber, countryCode, ROLES.ORGANISER);
+    if (user) {
+      throw new Error('User already exists');
+    }
+    user = new User({
+      phoneNumber,
+      countryCode,
+      fullName,
+      role: ROLES.ORGANISER
+    });
+    await user.save();
+    return user;
   }
 
   async createUser(userData) {

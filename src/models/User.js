@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const { USER_TYPES, ROLES } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: true,
+    trim: true
+  },
   phoneNumber: {
     type: String,
     required: true,
