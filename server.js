@@ -1,11 +1,13 @@
 require('dotenv').config();
+
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const connectDB = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
-const path = require("path");
+const setupSwagger = require('./swagger');
 
 const app = express();
 
@@ -19,7 +21,7 @@ app.use(cors());
 app.options('*', cors());
 app.use(helmet());
 app.use(morgan('dev'));
-app.use("/media", express.static(path.join(__dirname, "media")));
+app.use('/media', express.static(path.join(__dirname, 'media')));
 
 // Routes
 app.use('/api/tournaments', require('./src/routes/tournament'));
@@ -29,6 +31,8 @@ app.use('/api/upload', require('./src/routes/fileUpload'));
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
+
+setupSwagger(app);
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

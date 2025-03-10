@@ -5,7 +5,7 @@ const { PLAYER_STATUS } = require("../utils/constants");
 
 class PlayerService {
   async registerPlayer(playerData, user) {
-    const tournament = await Tournament.findById(playerData.tournamentId);
+    let tournament = await Tournament.findById(playerData.tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
@@ -20,14 +20,19 @@ class PlayerService {
       );
     }
 
-    const player = new Player({
+    let player = new Player({
       ...playerData,
       dateOfBirth: new Date(playerData.dateOfBirth),
       tournament: tournament._id,
+    });
+
+    tournament.players.push({
+      player: player._id,
       status: PLAYER_STATUS.PENDING,
     });
 
     await player.save();
+    await tournament.save();
     return player;
   }
 
@@ -36,13 +41,6 @@ class PlayerService {
       createdAt: -1,
     });
     return players;
-  }
-
-  async approvePlayer(playerId, approve) {
-    const player = await Player.findById(playerId);
-    player.status = approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED;
-    await player.save();
-    return player;
   }
 }
 
