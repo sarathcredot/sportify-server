@@ -1,5 +1,9 @@
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const m2s = require('mongoose-to-swagger');
+const Tournament = require('./src/models/Tournament');
+const Player = require('./src/models/Player');
+const Team = require('./src/models/Team');
 
 const options = {
   definition: {
@@ -24,6 +28,13 @@ const options = {
         url: "http://localhost:5000",
       },
     ],
+    components: {
+      schemas: {
+        Tournament: m2s(Tournament),
+        Player: m2s(Player),
+        Team: m2s(Team),
+      }
+    }
   },
   apis: ["./src/routes/*.js"],
 };
