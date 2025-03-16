@@ -83,7 +83,7 @@ class AuthService {
       await user.save();
 
       const token = jwt.sign(
-        { userId: user._id, phone: user.phoneNumber },
+        { userId: user._id, phone: user.phoneNumber, name: user?.fullName },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
