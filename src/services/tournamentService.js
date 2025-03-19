@@ -5,6 +5,38 @@ const { ROLES, PLAYER_STATUS } = require('../utils/constants');
 
 
 class TournamentService {
+
+  async getTournaments(sportType, location, search, page = 1, limit = 10) {
+    const query = {};
+
+    if (sportType) {
+      query.sportType = sportType;
+    }
+
+    if (location) {
+      query.location = location;
+    }
+
+    if (search) {
+      query.name = { $regex: String(search).trim(), $options: "i" };
+    }
+
+    const skip = (page - 1) * limit;
+    const tournaments = await Tournament.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Tournament.countDocuments(query);
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      tournaments,
+      total,
+      totalPages,
+    };
+  }
+
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 

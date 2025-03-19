@@ -3,6 +3,17 @@ const ResponseHandler = require('../utils/responseHandler');
 const BaseController = require('./baseController');
 
 class TournamentController extends BaseController {
+  constructor() {
+    super();
+    // Bind all methods to preserve 'this' context
+    this.createTournament = this.createTournament.bind(this);
+    this.getTournamentById = this.getTournamentById.bind(this);
+    this.updateTournamentById = this.updateTournamentById.bind(this);
+    this.deleteTournamentById = this.deleteTournamentById.bind(this);
+    this.getOrganiserTournaments = this.getOrganiserTournaments.bind(this);
+    this.getTournaments = this.getTournaments.bind(this);
+  }
+
   async createTournament(req, res) {
     try {
       const tournament = await tournamentService.createTournament(req.body, req.user);
@@ -58,6 +69,22 @@ class TournamentController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async getTournaments(req, res) {
+    try {
+      const { sportType, location, search, page = 1, limit = 10 } = req.query;
+      const tournaments = await tournamentService.getTournaments(
+        sportType, 
+        location, 
+        search, 
+        parseInt(page), 
+        parseInt(limit)
+      );
+      res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
 }
 
-module.exports = new TournamentController();
+module.exports = TournamentController;

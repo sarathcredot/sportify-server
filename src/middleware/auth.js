@@ -20,7 +20,7 @@ const auth = async (req, res, next) => {
     req.token = token;
     next();
   } catch (error) {
-    res.status(401).json(ResponseHandler.error('Please authenticate', error.message, 401));
+    res.status(401).json(ResponseHandler.error('Please authenticate', error.message, error.message, 401));
   }
 };
 

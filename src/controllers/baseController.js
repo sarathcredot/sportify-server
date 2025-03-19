@@ -1,3 +1,5 @@
+const ResponseHandler = require('../utils/responseHandler');
+
 class BaseController {
   handleError(res, error) {
     const errorMap = {

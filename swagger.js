@@ -4,6 +4,7 @@ const m2s = require('mongoose-to-swagger');
 const Tournament = require('./src/models/Tournament');
 const Player = require('./src/models/Player');
 const Team = require('./src/models/Team');
+const { swaggerSchema } = require('./src/schemas/tournamentSchema');
 
 const options = {
   definition: {
@@ -31,12 +32,13 @@ const options = {
     components: {
       schemas: {
         Tournament: m2s(Tournament),
+        CreateTournament: swaggerSchema,
         Player: m2s(Player),
         Team: m2s(Team),
       }
     }
   },
-  apis: ["./src/routes/*.js"],
+  apis: ["./src/routes/*.js", "./src/routes/organiser/*.js"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

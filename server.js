@@ -27,6 +27,7 @@ app.use('/media', express.static(path.join(__dirname, 'media')));
 app.use('/api/tournaments', require('./src/routes/tournament'));
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/upload', require('./src/routes/fileUpload'));
+app.use('/api/organiser', require('./src/routes/organiser'));
 
 app.use(errorHandler);
 

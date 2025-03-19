@@ -1,12 +1,16 @@
 const express = require("express");
-const tournamentController = require("../controllers/tournamentController");
 const playerController = require("../controllers/playerController");
 const teamController = require("../controllers/teamController");
+const TournamentController = require("../controllers/tournamentController");
 
 const router = express.Router();
+const tournamentController = new TournamentController();
 
 /**
  * @swagger
+ * tags:
+ *   name: Tournaments
+ *   description: Tournament endpoints
  * components:
  *   schemas:
  *     Tournament:
