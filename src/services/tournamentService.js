@@ -1,8 +1,7 @@
 const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
-const { ROLES, PLAYER_STATUS } = require('../utils/constants');
-
+const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require('../utils/constants');
 
 class TournamentService {
 
@@ -119,6 +118,25 @@ class TournamentService {
     );
     if (!tournament) {
       throw new NotFoundError('Tournament or player not found');
+    }
+    return tournament;
+  }
+
+  async approveTeamInTournament(tournamentId, teamId, approve) {
+    const tournament = await Tournament.findOneAndUpdate(
+      {
+        _id: tournamentId,
+        'teams.team': teamId
+      },
+      {
+        $set: {
+          'teams.$.status': approve ? TEAM_STATUS.APPROVED : TEAM_STATUS.REJECTED
+        }
+      },
+      { new: true }
+    );
+    if (!tournament) {
+      throw new NotFoundError('Tournament or team not found');
     }
     return tournament;
   }

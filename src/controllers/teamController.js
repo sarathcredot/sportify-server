@@ -2,6 +2,7 @@ const { parsePhoneNumber } = require("libphonenumber-js");
 const ResponseHandler = require("../utils/responseHandler");
 const teamService = require("../services/teamService");
 const BaseController = require('./baseController');
+const tournamentService = require("../services/tournamentService");
 
 class TeamController extends BaseController {
   async registerTeam(req, res) {
@@ -36,10 +37,10 @@ class TeamController extends BaseController {
   }
 
   async approveTeam(req, res) {
-    const { teamId } = req.params;
+    const { tournamentId, teamId } = req.params;
     const { approve } = req.body;
     
-    const team = await teamService.approveTeam(teamId, approve);
+    const team = await tournamentService.approveTeamInTournament(tournamentId, teamId, approve);
     res.status(200).json(ResponseHandler.success(`${approve ? "Team approved successfully": "Team rejected successfully"}`, team));
   }
 } 

@@ -75,12 +75,6 @@ class TeamService {
     return await this.registerTeam(teamData, user);
   }
 
-  async approveTeam(teamId, approve) {
-    const team = await Team.findById(teamId);
-    team.status = approve ? TEAM_STATUS.APPROVED : TEAM_STATUS.REJECTED;
-    await team.save();
-    return team;
-  }
 }
 
 module.exports = new TeamService();

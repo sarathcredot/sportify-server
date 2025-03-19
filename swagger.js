@@ -5,6 +5,8 @@ const Tournament = require('./src/models/Tournament');
 const Player = require('./src/models/Player');
 const Team = require('./src/models/Team');
 const { swaggerSchema } = require('./src/schemas/tournamentSchema');
+const { createTeamSchema, approveTeamSchema } = require('./src/schemas/teamSchema');
+const { createPlayerSchema, approvePlayerSchema } = require('./src/schemas/playerSchema');
 
 const options = {
   definition: {
@@ -31,10 +33,58 @@ const options = {
     ],
     components: {
       schemas: {
+        ApiResponse: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              example: 'success'
+            },
+            message: {
+              type: 'string'
+            },
+            data: {
+              type: 'object'
+            },
+            timestamp: {
+              type: 'string',
+              format: 'date-time'
+            },
+            statusCode: {
+              type: 'integer'
+            }
+          }
+        },
+        ErrorResponse: {
+          type: 'object',
+          properties: {
+            status: {
+              type: 'string',
+              example: 'error'
+            },
+            message: {
+              type: 'string'
+            },
+            error: {
+              type: 'object'
+            },
+            timestamp: {
+              type: 'string',
+              format: 'date-time'
+            },
+            statusCode: {
+              type: 'integer'
+            }
+          }
+        },
         Tournament: m2s(Tournament),
         CreateTournament: swaggerSchema,
         Player: m2s(Player),
         Team: m2s(Team),
+        CreateTeam: createTeamSchema,
+        ApproveTeam: approveTeamSchema,
+        ApprovePlayer: approvePlayerSchema,
+        CreatePlayer: createPlayerSchema
       }
     }
   },

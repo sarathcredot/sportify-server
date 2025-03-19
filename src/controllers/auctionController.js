@@ -13,6 +13,24 @@ class AuctionController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async getPlayers(req, res) {
+    try {
+      const players = await auctionService.getPlayers();
+      res.status(200).json(ResponseHandler.success("Players retrieved", players));
+    } catch (error) {
+      this.handleError(res, error);   
+    }
+  }
+
+  async getTeams(req, res) {
+    try {
+      const teams = await auctionService.getTeams();
+      res.status(200).json(ResponseHandler.success("Teams retrieved", teams));
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
 }
 
 module.exports = new AuctionController();
