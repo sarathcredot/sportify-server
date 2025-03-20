@@ -51,7 +51,8 @@ class PlayerController {
   async getPlayersByTournamentId(req, res) {
     try {
       const { tournamentId } = req.params;
-      const players = await playerService.getPlayersByTournamentId(tournamentId);
+      const { status } = req.query;
+      const players = await playerService.getPlayersByTournamentId(tournamentId, status);
       res.status(200).json(ResponseHandler.success('Players retrieved successfully', players));
     } catch (error) {
       if (error.name === 'NotFoundError') {

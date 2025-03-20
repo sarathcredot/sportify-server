@@ -154,7 +154,7 @@ router.delete(
  * @swagger
  * /organiser/tournaments/{tournamentId}/players:
  *   post:
- *     summary: Register a new player for a tournament
+ *     summary: Create a new player for a tournament
  *     tags: [Organiser]
  *     parameters:
  *       - in: path
@@ -200,6 +200,12 @@ router.post(
  *         schema:
  *           type: string
  *         description: Tournament ID
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Player status
  *     responses:
  *       200:
  *         description: List of players

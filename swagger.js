@@ -1,12 +1,16 @@
 const swaggerJSDoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const m2s = require('mongoose-to-swagger');
+const { createSchema } = require('zod-openapi');
 const Tournament = require('./src/models/Tournament');
 const Player = require('./src/models/Player');
 const Team = require('./src/models/Team');
-const { swaggerSchema } = require('./src/schemas/tournamentSchema');
+const { createTournamentSchema } = require('./src/schemas/tournamentSchema');
 const { createTeamSchema, approveTeamSchema } = require('./src/schemas/teamSchema');
 const { createPlayerSchema, approvePlayerSchema } = require('./src/schemas/playerSchema');
+
+const { schema: createTournamentApiSchema } = createSchema(createTournamentSchema);
+const { schema: createPlayerApiSchema } = createSchema(createPlayerSchema);
 
 const options = {
   definition: {
@@ -85,13 +89,13 @@ const options = {
           }
         },
         Tournament: m2s(Tournament),
-        CreateTournament: swaggerSchema,
+        CreateTournament: createTournamentApiSchema,
         Player: m2s(Player),
         Team: m2s(Team),
         CreateTeam: createTeamSchema,
         ApproveTeam: approveTeamSchema,
         ApprovePlayer: approvePlayerSchema,
-        CreatePlayer: createPlayerSchema
+        CreatePlayer: createPlayerApiSchema
       }
     },
     security: [{

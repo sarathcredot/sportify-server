@@ -1,7 +1,7 @@
 const { z } = require("zod");
 const { SPORT_TYPES, CRICKET_MATCH_TYPES, FOOTBALL_MATCH_TYPES, CRICKET_BALL_TYPES, FOOTBALL_BALL_TYPES, SPORTS_NAMES } = require('../utils/constants');
 const { dateSchema } = require("../utils/schemaUtils");
-const { extendZodWithOpenApi, createSchema } = require('zod-openapi');
+const { extendZodWithOpenApi } = require('zod-openapi');
 
 extendZodWithOpenApi(z);
 
@@ -226,9 +226,6 @@ console.log("form data",JSON.stringify(data))
   }
 });
 
-
-const { schema, components } = createSchema(createTournamentSchema);
-
 module.exports = {
-  createTournamentSchema, swaggerSchema: schema, swaggerComponents: components
+  createTournamentSchema
 };

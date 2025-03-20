@@ -6,6 +6,9 @@ const {
   SPORTS_NAMES,
 } = require("../utils/constants");
 const { dateSchema } = require("../utils/schemaUtils");
+const { extendZodWithOpenApi, createSchema } = require('zod-openapi');
+
+extendZodWithOpenApi(z);
 
 const getPlayerCategories = (sport) => {
   console.log(sport, "SPORT IN THE GET PLAYER CATEGORIESS")
@@ -21,19 +24,38 @@ const getPlayerCategories = (sport) => {
 
 const createPlayerSchema = z
   .object({
-    firstName: z.string().nonempty("First name is required"),
-    lastName: z.string().nonempty("Last name is required"),
-    photoUrl: z.string().nonempty("Player photo is required"),
-    dateOfBirth: dateSchema,
-    contactNumber: z.string().nonempty("Contact number is required"),
-    email: z.string().email("Invalid email address").optional(),
-    sport: z.enum(SPORT_TYPES, {
-      errorMap: () => ({ message: "Invalid sport type" }),
+    firstName: z.string().nonempty("First name is required").openapi({
+      example: "John",
+      description: "First name of the player",
     }),
-    playerCategory: z.string(),
-    cricHeroesId: z.string().optional(),
-    notes: z.string().optional(),
-    // tournamentId: z.string().nonempty("Tournament ID is required"),
+    lastName: z.string().nonempty("Last name is required").openapi({
+      example: "Doe",
+      description: "Last name of the player",
+    }),
+    photoUrl: z.string().nonempty("Player photo is required").openapi({
+      example: "https://example.com/photo.jpg",
+      description: "Photo URL of the player",
+    }),
+    dateOfBirth: dateSchema.openapi({
+      description: "Date of birth of the player",
+      example: "2000-01-01",
+    }),
+    contactNumber: z.string().nonempty("Contact number is required").openapi({
+      description: "Contact number of the player",
+      example: "+919876543210",
+    }),
+    email: z.string().email("Invalid email address").optional().openapi({
+      description: "Email address of the player",
+      example: "john.doe@example.com",
+    }),
+    playerCategory: z.string().openapi({
+      description: "Category of the player",
+      example: CRICKET_PLAYER_CATEGORIES.BATSMAN,
+    }),
+    cricHeroesId: z.string().optional().openapi({
+      description: "CricHeroes ID of the player",
+      example: "1234567890",
+    }),
   })
   .superRefine(
     (data, ctx) => {
@@ -43,7 +65,11 @@ const createPlayerSchema = z
     {
       message: "Invalid player category for selected sport",
     }
-  );
+  ).openapi({
+    summary: "Create a new player",
+    description: "Create a new player for a tournament",
+    security: [{ bearerAuth: [] }],
+  });
 
 const approvePlayerSchema = z.object({
   approve: z.boolean(),

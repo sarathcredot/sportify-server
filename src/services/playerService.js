@@ -37,23 +37,22 @@ class PlayerService {
   }
 
   async createPlayer(playerData) {
-    let tournament = await Tournament.findById(playerData.tournamentId);
+    let tournament = await Tournament.findById(playerData.tournamentId).populate('players.player');
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
-    if (playerData.sport !== tournament.sportType) {
-      throw new ValidationError(
-        "Player sport type does not match tournament sport type"
-      );
-    }
-
-    if (tournament.players.find(player => player.player.contactNumber === playerData.contactNumber)) {
+    const existingPlayer = tournament.players.find(player => {
+      const populatedPlayer = player.player;
+      return populatedPlayer && populatedPlayer.contactNumber === playerData.contactNumber;
+    });
+    if (existingPlayer) {
       throw new ValidationError("Player already registered in tournament");
     }
 
     let player = new Player({
       ...playerData,
+      sport: tournament.sportType,
       dateOfBirth: new Date(playerData.dateOfBirth)
     });
 
@@ -82,12 +81,19 @@ class PlayerService {
     return player;
   }
 
-  async getPlayersByTournamentId(tournamentId) {
-    let tournament = await Tournament.findById(tournamentId?.toString()).lean() || null;
+  async getPlayersByTournamentId(tournamentId, status) {
+    let tournament = await Tournament.findById(tournamentId?.toString()).lean().populate('players.player').select(status ? { 'players': { $elemMatch: { status } } } : null) || null;
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
+    
     let players = tournament.players?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) ?? [];
+    
+    // Filter by status if provided
+    if (status) {
+      players = players.filter(player => player.status === status);
+    }
+    
     return players;
   }
 
