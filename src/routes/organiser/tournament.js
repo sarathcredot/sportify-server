@@ -119,13 +119,6 @@ router.get(
   tournamentController.getTournamentById
 );
 
-// router.put(
-//   '/:id',
-//   validate(updateTournamentSchema),
-//   checkOwnership(Tournament),
-//   tournamentController.updateTournamentById
-// );
-
 /**
  * @swagger
  * /organiser/tournaments/{id}:
@@ -191,7 +184,7 @@ router.delete(
 router.post(
   '/:tournamentId/players',
   validate(createPlayerSchema),
-  playerController.registerPlayer
+  playerController.createPlayer
 );
 
 /**

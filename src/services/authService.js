@@ -49,7 +49,7 @@ class AuthService {
       }
       await user.save();
       await this.sendOTP(normalizedPhone, countryCode, otp);
-      return { success: true, message: 'OTP sent successfully' };
+      return { message: 'OTP sent successfully' };
     } catch (error) {
       throw new Error(error.message || 'Failed to initiate authentication');
     }

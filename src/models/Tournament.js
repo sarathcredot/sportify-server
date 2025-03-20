@@ -124,6 +124,7 @@ const TournamentSchema = new mongoose.Schema({
     required: true,
   },
   players: [{
+    playerId: String,
     player: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Player'
@@ -156,7 +157,15 @@ const TournamentSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "Player",
     }],
-  }]
+  }],
+  playerIdCounter: {
+    type: Number,
+    default: 0
+  },
+  playerIdPrefix: {
+    type: String,
+    default: ""
+  }
 }, {
   timestamps: true
 });

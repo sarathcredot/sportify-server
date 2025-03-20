@@ -28,10 +28,17 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:5000",
+        url: "http://localhost:5000/api/",
       },
     ],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT'
+        }
+      },
       schemas: {
         ApiResponse: {
           type: 'object',
@@ -86,7 +93,10 @@ const options = {
         ApprovePlayer: approvePlayerSchema,
         CreatePlayer: createPlayerSchema
       }
-    }
+    },
+    security: [{
+      bearerAuth: []
+    }]
   },
   apis: ["./src/routes/*.js", "./src/routes/organiser/*.js"],
 };

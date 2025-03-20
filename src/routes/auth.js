@@ -114,7 +114,7 @@ router.post(
  *               otp:
  *                 type: string
  *                 description: The OTP sent to the user's phone number
- *                 example: "123456"
+ *                 example: "12345"
  *     responses:
  *       200:
  *         description: OTP verified successfully
