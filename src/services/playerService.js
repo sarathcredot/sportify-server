@@ -5,8 +5,8 @@ const { PLAYER_STATUS } = require("../utils/constants");
 const { Types } = require("mongoose");
 
 class PlayerService {
-  async registerPlayer(playerData, user) {
-    let tournament = await Tournament.findById(playerData.tournamentId);
+  async registerPlayer(playerData) {
+    let tournament = await Tournament.findById(playerData.tournamentId).populate('players.player');
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
@@ -15,14 +15,17 @@ class PlayerService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    if (playerData.sport !== tournament.sportType) {
-      throw new ValidationError(
-        "Player sport type does not match tournament sport type"
-      );
+    const existingPlayer = tournament.players.find(player => {
+      const populatedPlayer = player.player;
+      return populatedPlayer && populatedPlayer.contactNumber === playerData.contactNumber;
+    });
+    if (existingPlayer) {
+      throw new ValidationError("Player already registered in tournament");
     }
 
     let player = new Player({
       ...playerData,
+      sport: tournament.sportType,
       dateOfBirth: new Date(playerData.dateOfBirth)
     });
 

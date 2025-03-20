@@ -11,7 +11,7 @@ class PlayerController {
         tournamentId: req.params.tournamentId
       };
       
-      const player = await playerService.registerPlayer(playerData, req.user);
+      const player = await playerService.registerPlayer(playerData);
       
       res.status(201).json(
         ResponseHandler.success('Player registered successfully', player)
