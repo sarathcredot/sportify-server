@@ -6,7 +6,7 @@ const tournamentsRouter = require('./organiser/tournament');
 
 
 router.use(auth);
-router.use(checkIsOrganiser);
+router.use(checkIsOrganiser());
 
 /**
  * @swagger
