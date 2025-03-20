@@ -107,25 +107,41 @@ const createTournamentSchema = z.object({
     maxPlayersPerTeam: z.number().int().positive().openapi({
       example: 11,
     }),
-    teamRegistrationFee: z.number().int().positive().openapi({
-      example: 1000,
-    }),
-    playerRegistrationFee: z.number().int().positive().openapi({
-      example: 100,
-    }),
     teamRegistrationFeeEnabled: z.boolean().default(false).openapi({
       example: false,
+    }),
+    teamRegistrationFee: z.number().int().min(0).openapi({
+      example: 1000,
     }),
     playerRegistrationFeeEnabled: z.boolean().default(false).openapi({
       example: false,
     }),
+    playerRegistrationFee: z.number().int().min(0).openapi({
+      example: 100,
+    }),
   })
-  .openapi()
   .superRefine((data, ctx) => {
     validateMatchType(data, ctx);
     validateBallType(data, ctx);
     validateOvers(data, ctx);
-  }),
+
+    if (data.teamRegistrationFeeEnabled && data.teamRegistrationFee <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Team registration fee must be a positive integer when enabled",
+        path: ["settings", "teamRegistrationFee"],
+      });
+    }
+
+    if (data.playerRegistrationFeeEnabled && data.playerRegistrationFee <= 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Player registration fee must be a positive integer when enabled",
+        path: ["settings", "playerRegistrationFee"],
+      });
+    }
+  })
+  .openapi(),
   organiserDetails: z.object({
     name: z.string().nonempty("Organiser name is required").openapi({
       example: "Organiser Name",
@@ -152,13 +168,6 @@ const createTournamentSchema = z.object({
     auctionTime: z.string().openapi({
       example: "10:00",
     }),
-    // .refine((time) => {
-    //   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-    //   return timeRegex.test(time);
-    // }, {
-    //   message: "Invalid time format, should be HH:mm",
-    //   path: ["auctionTime"],
-    // }),
     auctionLocation: z.string().openapi({
       example: "Auction Location",
     }),
@@ -182,7 +191,41 @@ const createTournamentSchema = z.object({
   .openapi(),
 }).superRefine((data, ctx) => {
   validateAuction(data, ctx);
+console.log("form data",JSON.stringify(data))
+  // Ensure auction data is required if auctionEnabled is true
+  if (data.settings.auctionEnabled) {
+    if (!data.auction) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Auction details are required when auction is enabled",
+        path: ["auction"],
+      });
+    } else {
+      // Ensure all required fields are present in the auction object
+      const requiredAuctionFields = [
+        "auctionDate",
+        "auctionTime",
+        "auctionLocation",
+        "biddingPointPerTeam",
+        "minBidPerPlayer",
+        "maxBidPerPlayer",
+        "bidIncreaseBy",
+        "biddingTimerLimit",
+      ];
+
+      requiredAuctionFields.forEach((field) => {
+        if (!data.auction[field]) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${field} is required when auction is enabled`,
+            path: ["auction", field],
+          });
+        }
+      });
+    }
+  }
 });
+
 
 const { schema, components } = createSchema(createTournamentSchema);
 
