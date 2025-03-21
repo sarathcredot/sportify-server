@@ -1,12 +1,14 @@
 const express = require("express");
-const playerController = require("../controllers/playerController");
-const teamController = require("../controllers/teamController");
+const PlayerController = require("../controllers/playerController");
+const TeamController = require("../controllers/teamController");
 const TournamentController = require("../controllers/tournamentController");
 const { createPlayerSchema } = require("../schemas/playerSchema");
 const validate = require("../utils/validate");
 
 const router = express.Router();
 const tournamentController = new TournamentController();
+const playerController = new PlayerController();
+const teamController = new TeamController();
 
 /**
  * @swagger

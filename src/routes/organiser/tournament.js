@@ -5,12 +5,14 @@ const { createTournamentSchema } = require('../../schemas/tournamentSchema');
 const checkOwnership = require('../../middleware/checkOwnership');
 const Tournament = require('../../models/Tournament');
 const { createPlayerSchema, approvePlayerSchema } = require('../../schemas/playerSchema');
-const playerController = require('../../controllers/playerController');
-const teamController = require('../../controllers/teamController');
+const PlayerController = require('../../controllers/playerController');
+const TeamController = require('../../controllers/teamController');
 const { createTeamSchema, approveTeamSchema } = require('../../schemas/teamSchema');
 
 const router = express.Router();
 const tournamentController = new TournamentController();
+const playerController = new PlayerController();
+const teamController = new TeamController();
 
 /**
  * @swagger
@@ -235,6 +237,30 @@ router.get(
  *   post:
  *     summary: Approve a player
  *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *       - in: path
+ *         name: playerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Player ID
+ *     responses:
+ *       200:
+ *         description: Player approved successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Player not found
+ *       500:
+ *         description: Internal server error
  */
 router.post(
   '/:tournamentId/players/:playerId/approve',
@@ -252,7 +278,7 @@ router.post(
 router.post(
   '/:tournamentId/teams',
   validate(createTeamSchema),
-  teamController.registerTeam
+  teamController.createTeam
 ); 
 
 /**

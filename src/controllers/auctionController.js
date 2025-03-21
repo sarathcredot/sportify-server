@@ -3,12 +3,18 @@ const ResponseHandler = require("../utils/responseHandler");
 const BaseController = require("./baseController");
 
 class AuctionController extends BaseController {
+
+  constructor() {
+    super();
+    this.getAuction = this.getAuction.bind(this);
+    this.getPlayers = this.getPlayers.bind(this);
+    this.getTeams = this.getTeams.bind(this);
+  }
+
   async getAuction(req, res) {
     try {
       const auction = await auctionService.getAuction(req.params.id);
-      res
-        .status(200)
-        .json(ResponseHandler.success("Auction retrieved", auction));
+      this.handleSuccess(res, auction, "Auction retrieved");
     } catch (error) {
       this.handleError(res, error);
     }
@@ -17,7 +23,7 @@ class AuctionController extends BaseController {
   async getPlayers(req, res) {
     try {
       const players = await auctionService.getPlayers();
-      res.status(200).json(ResponseHandler.success("Players retrieved", players));
+      this.handleSuccess(res, players, "Players retrieved");
     } catch (error) {
       this.handleError(res, error);   
     }
@@ -26,11 +32,11 @@ class AuctionController extends BaseController {
   async getTeams(req, res) {
     try {
       const teams = await auctionService.getTeams();
-      res.status(200).json(ResponseHandler.success("Teams retrieved", teams));
+      this.handleSuccess(res, teams, "Teams retrieved");
     } catch (error) {
       this.handleError(res, error);
     }
   }
 }
 
-module.exports = new AuctionController();
+module.exports = AuctionController;

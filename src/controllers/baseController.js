@@ -13,6 +13,12 @@ class BaseController {
       ResponseHandler.error(error.message, null, statusCode)
     );
   }
+
+  handleSuccess(res, data, message = null, statusCode = 200) {
+    res.status(statusCode).json(
+      ResponseHandler.success(message, data)
+    );
+  }
 }
 
 module.exports = BaseController; 
