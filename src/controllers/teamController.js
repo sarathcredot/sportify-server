@@ -18,6 +18,7 @@ class TeamController extends BaseController {
         .status(201)
         .json(ResponseHandler.success("Team registered successfully", team));
     } catch (error) {
+      console.log("team create error",error)
       this.handleError(res, error);
     }
   }
