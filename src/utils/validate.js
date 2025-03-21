@@ -1,4 +1,5 @@
 const { z } = require('zod');
+const ResponseHandler = require('./responseHandler');
 
 const validate = (schema) => (req, res, next) => {
   try {
@@ -6,8 +7,8 @@ const validate = (schema) => (req, res, next) => {
     next();
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.log("valida",error.errors)
-      return res.status(400).json({ errors: error.errors });
+      console.log("validation error", error.errors)
+      return res.status(400).json(ResponseHandler.error("Validation error", error.errors, 400));
     }
     next(error);
   }

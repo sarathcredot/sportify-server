@@ -5,6 +5,28 @@ const BaseController = require('./baseController');
 const tournamentService = require("../services/tournamentService");
 
 class TeamController extends BaseController {
+
+  constructor() {
+    super();
+    this.createTeam = this.createTeam.bind(this);
+    this.registerTeam = this.registerTeam.bind(this);
+    this.getTeamsByTournamentId = this.getTeamsByTournamentId.bind(this);
+    this.approveTeam = this.approveTeam.bind(this);
+  }
+
+  async createTeam(req, res) {
+    try {
+      const { tournamentId } = req.params;
+      const teamData = {
+        ...req.body,
+      };
+      const team = await teamService.createTeam(teamData, tournamentId);
+      this.handleSuccess(res, team, 'Team created successfully');
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
   async registerTeam(req, res) {
     try {
       const teamData = {
@@ -27,23 +49,22 @@ class TeamController extends BaseController {
     try {
       const { tournamentId } = req.params;
       const teams = await teamService.getTeamsByTournamentId(tournamentId);
-      res
-        .status(200)
-        .json(ResponseHandler.success("Teams retrieved successfully", teams));
+      this.handleSuccess(res, teams, 'Teams retrieved successfully');
     } catch (error) {
-      res
-        .status(500)
-        .json(ResponseHandler.error("Server error", error.message, 500));
+      this.handleError(res, error);
     }
   }
 
   async approveTeam(req, res) {
-    const { tournamentId, teamId } = req.params;
-    const { approve } = req.body;
-    
-    const team = await tournamentService.approveTeamInTournament(tournamentId, teamId, approve);
-    res.status(200).json(ResponseHandler.success(`${approve ? "Team approved successfully": "Team rejected successfully"}`, team));
+    try {
+      const { tournamentId, teamId } = req.params;
+      const { approve } = req.body;
+      const team = await tournamentService.approveTeamInTournament(tournamentId, teamId, approve);
+      this.handleSuccess(res, team, `${approve ? "Team approved successfully": "Team rejected successfully"}`);
+    } catch (error) {
+      this.handleError(res, error);
+    }
   }
 } 
 
-module.exports = new TeamController();
+module.exports = TeamController;

@@ -7,8 +7,13 @@ const { parsePhoneNumber } = require("libphonenumber-js");
 const { Types } = require("mongoose");
 
 class TeamService {
-  async registerTeam(teamData, user) {
-    const tournament = await Tournament.findById(teamData.tournamentId);
+
+  async createTeam(teamData, tournamentId) {
+    return await this.registerTeam(teamData, tournamentId, TEAM_STATUS.APPROVED);
+  }
+
+  async registerTeam(teamData, tournamentId, status = TEAM_STATUS.PENDING) {
+    const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
@@ -17,17 +22,9 @@ class TeamService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    // if (playerData.sport !== tournament.sportType) {
-    //   throw new ValidationError(
-    //     "Player sport type does not match tournament sport type"
-    //   );
-    // }
-
     const team = new Team({
       ...teamData,
-      tournament: tournament._id,
-      manager: user._id,
-      status: TEAM_STATUS.PENDING,
+      status: status,
     });
 
     await team.save();
@@ -72,7 +69,7 @@ class TeamService {
       });
     }
 
-    return await this.registerTeam(teamData, user);
+    return await this.registerTeam(teamData, teamData.tournamentId, user);
   }
 
 }
