@@ -105,7 +105,14 @@ router.post('/', validate(createTournamentSchema), tournamentController.createTo
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Tournament'
+ *                allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Tournament'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -214,9 +221,14 @@ router.post(
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Player'
+ *                allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Player'
  *       401:
  *         description: Unauthorized
  *       403:
@@ -272,8 +284,30 @@ router.post(
  * @swagger
  * /organiser/tournaments/{tournamentId}/teams:
  *   post:
- *     summary: Register a new team for a tournament
+ *     summary: Create a new team for a tournament
  *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateTeam'
+ *     responses:
+ *       201:
+ *         description: Team registered successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
  */
 router.post(
   '/:tournamentId/teams',
@@ -287,6 +321,33 @@ router.post(
  *   get:
  *     summary: Get teams by tournament ID
  *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     responses:
+ *       200:
+ *         description: List of teams
+ *         content:
+ *           application/json:
+ *             schema:
+ *                allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Team'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
  */
 router.get(
   '/:tournamentId/teams',
@@ -299,6 +360,22 @@ router.get(
  *   post:
  *     summary: Approve a team
  *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *       - in: path
+ *         name: teamId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Team ID
+ *     responses:
+ *       200:
+ *         description: Team approved successfully
  */
 router.post(
   '/:tournamentId/teams/:teamId/approve',

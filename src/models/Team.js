@@ -13,11 +13,6 @@ const teamSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    status: {
-      type: String,
-      enum: TEAM_STATUS_TYPES,
-      default: TEAM_STATUS.PENDING
-    },
     players: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "Player",

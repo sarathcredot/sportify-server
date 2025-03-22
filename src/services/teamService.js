@@ -9,10 +9,6 @@ const { Types } = require("mongoose");
 class TeamService {
 
   async createTeam(teamData, tournamentId) {
-    return await this.registerTeam(teamData, tournamentId, TEAM_STATUS.APPROVED);
-  }
-
-  async registerTeam(teamData, tournamentId, status = TEAM_STATUS.PENDING) {
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
@@ -24,17 +20,23 @@ class TeamService {
 
     const team = new Team({
       ...teamData,
-      status: status,
     });
 
     await team.save();
+    tournament.teams.push({
+      team: team._id,
+      status: TEAM_STATUS.APPROVED,
+    });
+    await tournament.save();
     return team;
   }
 
   async getTeamsByTournamentId(tournamentId) {
-    const teams = await Team.find({ tournament: new Types.ObjectId(tournamentId) }).sort({
-      createdAt: -1,
-    });
+    const tournament = await Tournament.findById(tournamentId).populate("teams.team");
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
+    const teams = tournament.teams.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return teams;
   }
 
