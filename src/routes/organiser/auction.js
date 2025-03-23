@@ -49,4 +49,8 @@ router.get('/teams', (req, res) => {
   auctionController.getTeams(req, res);
 });
 
+router.get('/start', (req, res) => {
+  auctionController.startAuction(req, res);
+});
+
 module.exports = router;

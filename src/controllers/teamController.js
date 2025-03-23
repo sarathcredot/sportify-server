@@ -65,6 +65,17 @@ class TeamController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async refundTeam(req, res) {
+    try {
+      const { tournamentId, teamId } = req.params;
+      const { refund } = req.body;
+      const team = await tournamentService.refundTeamInTournament(tournamentId, teamId, refund);
+      this.handleSuccess(res, team, `${refund ? "Team refunded successfully": "Team not refunded"}`);
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
 } 
 
 module.exports = TeamController;

@@ -128,6 +128,26 @@ class TournamentService {
       throw new NotFoundError('Tournament or player not found');
     }
     return tournamentPlayer;
+  } 
+
+  async refundPlayerInTournament(tournamentId, playerId, refund) {
+    const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
+      {
+        tournament: tournamentId,
+        player: playerId
+      },
+      {
+        $set: {
+          status: PLAYER_STATUS.REFUNDED
+        }
+      },  
+      { new: true }
+    );
+
+    if (!tournamentPlayer) {
+      throw new NotFoundError('Tournament or player not found');
+    }
+    return tournamentPlayer;
   }
 
   async approveTeamInTournament(tournamentId, teamId, approve) {
@@ -150,6 +170,26 @@ class TournamentService {
     return tournamentTeam;
   }
 
+  async refundTeamInTournament(tournamentId, teamId, refund) {
+    const tournamentTeam = await TournamentTeams.findOneAndUpdate(
+      {
+        tournament: tournamentId,
+        team: teamId
+      },
+      {
+        $set: {
+          status: TEAM_STATUS.REFUNDED
+        }
+      },
+      { new: true }
+    );
+
+    if (!tournamentTeam) {
+      throw new NotFoundError('Tournament or team not found');
+    }
+    return tournamentTeam;
+  }
+  
   validateTournamentData(data) {
     if (new Date(data.startDate) < new Date()) {
       throw new ValidationError("Start date cannot be in the past");

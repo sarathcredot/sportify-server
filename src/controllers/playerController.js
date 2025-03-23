@@ -61,6 +61,17 @@ class PlayerController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async refundPlayer(req, res) {
+    try {
+      const { tournamentId, playerId } = req.params;
+      const { refund } = req.body;
+      const player = await tournamentService.refundPlayerInTournament(tournamentId, playerId, refund);
+      this.handleSuccess(res, player, `${refund ? "Player refunded successfully": "Player not refunded"}`);
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
 }
 
 module.exports = PlayerController; 
