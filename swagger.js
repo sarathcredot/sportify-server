@@ -5,10 +5,12 @@ const { createSchema } = require('zod-openapi');
 const Tournament = require('./src/models/Tournament');
 const Player = require('./src/models/Player');
 const Team = require('./src/models/Team');
+const TournamentPlayers = require('./src/models/TournamentPlayers');
+const TournamentTeams = require('./src/models/TournamentTeams');
+const Auction = require('./src/models/Auction');
 const { createTournamentSchema } = require('./src/schemas/tournamentSchema');
 const { createTeamSchema, approveTeamSchema } = require('./src/schemas/teamSchema');
 const { createPlayerSchema, approvePlayerSchema } = require('./src/schemas/playerSchema');
-
 const { schema: createTournamentApiSchema } = createSchema(createTournamentSchema);
 const { schema: createPlayerApiSchema } = createSchema(createPlayerSchema);
 
@@ -95,7 +97,10 @@ const options = {
         CreateTeam: createTeamSchema,
         ApproveTeam: approveTeamSchema,
         ApprovePlayer: approvePlayerSchema,
-        CreatePlayer: createPlayerApiSchema
+        CreatePlayer: createPlayerApiSchema,
+        TournamentPlayers: m2s(TournamentPlayers),
+        TournamentTeams: m2s(TournamentTeams),
+        Auction: m2s(Auction),
       }
     },
     security: [{

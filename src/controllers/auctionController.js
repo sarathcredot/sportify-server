@@ -21,8 +21,9 @@ class AuctionController extends BaseController {
   }
 
   async getPlayers(req, res) {
+    const { tournamentId } = req.params;
     try {
-      const players = await auctionService.getPlayers();
+      const players = await auctionService.getPlayers(tournamentId);
       this.handleSuccess(res, players, "Players retrieved");
     } catch (error) {
       this.handleError(res, error);   
@@ -30,8 +31,9 @@ class AuctionController extends BaseController {
   }
 
   async getTeams(req, res) {
+    const { tournamentId } = req.params;
     try {
-      const teams = await auctionService.getTeams();
+      const teams = await auctionService.getTeams(tournamentId);
       this.handleSuccess(res, teams, "Teams retrieved");
     } catch (error) {
       this.handleError(res, error);

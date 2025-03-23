@@ -1,5 +1,6 @@
 const Team = require("../models/Team");
 const Tournament = require("../models/Tournament");
+const TournamentTeams = require("../models/TournamentTeams");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const authService = require("./authService");
 const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
@@ -23,26 +24,31 @@ class TeamService {
     });
 
     await team.save();
-    tournament.teams.push({
+
+    // Create tournament team entry
+    await TournamentTeams.create({
+      tournament: tournament._id,
       team: team._id,
       status: TEAM_STATUS.APPROVED,
     });
-    await tournament.save();
+
     return team;
   }
 
   async getTeamsByTournamentId(tournamentId, status, search) {
-    const tournament = await Tournament.findById(tournamentId).populate("teams.team").select("-teams.team.players");
-    if (!tournament) {
-      throw new NotFoundError("Tournament not found");
-    }
-    let teams = tournament.teams.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    let query = { tournament: tournamentId };
     if (status) {
-      teams = teams.filter(team => team.status === status);
+      query.status = status;
     }
+
     if (search) {
-      teams = teams.filter(team => team.team.name.toLowerCase().includes(search.toLowerCase()));
+      query.team.name = { $regex: search, $options: 'i' };
     }
+
+    let teams = await TournamentTeams.find(query)
+      .populate('team')
+      .sort({ createdAt: -1 });
+
     return teams;
   }
 

@@ -123,41 +123,6 @@ const TournamentSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  players: [{
-    playerId: String,
-    player: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Player'
-    },
-    currentBid: {
-      amount: Number,
-      team: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team'
-      },
-      bidTime: { type: Date }
-    },
-    status: {
-      type: String,
-      enum: PLAYER_STATUS_TYPES,
-      default: PLAYER_STATUS.PENDING,
-    },
-  }],
-  teams: [{
-    team: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Team'
-    },
-    status: {
-      type: String,
-      enum: TEAM_STATUS_TYPES,
-      default: TEAM_STATUS.PENDING
-    },
-    players: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Player",
-    }],
-  }],
   playerIdCounter: {
     type: Number,
     default: 0
@@ -167,7 +132,22 @@ const TournamentSchema = new mongoose.Schema({
     default: ""
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Add virtual fields for both players and teams
+TournamentSchema.virtual('players', {
+  ref: 'TournamentPlayers',
+  localField: '_id',
+  foreignField: 'tournament'
+});
+
+TournamentSchema.virtual('teams', {
+  ref: 'TournamentTeams',
+  localField: '_id',
+  foreignField: 'tournament'
 });
 
 module.exports = mongoose.model("Tournament", TournamentSchema);

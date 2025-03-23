@@ -2,6 +2,8 @@ const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
 const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
 const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require('../utils/constants');
+const TournamentPlayers = require("../models/TournamentPlayers");
+const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
 
@@ -109,41 +111,43 @@ class TournamentService {
   }
 
   async approvePlayerInTournament(tournamentId, playerId, approve) {
-    const tournament = await Tournament.findOneAndUpdate(
+    const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
       {
-        _id: tournamentId,
-        'players.player': playerId
+        tournament: tournamentId,
+        player: playerId
       },
       {
         $set: {
-          'players.$.status': approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED
+          status: approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED
         }
       },
       { new: true }
     );
-    if (!tournament) {
+
+    if (!tournamentPlayer) {
       throw new NotFoundError('Tournament or player not found');
     }
-    return tournament;
+    return tournamentPlayer;
   }
 
   async approveTeamInTournament(tournamentId, teamId, approve) {
-    const tournament = await Tournament.findOneAndUpdate(
+    const tournamentTeam = await TournamentTeams.findOneAndUpdate(
       {
-        _id: tournamentId,
-        'teams.team': teamId
+        tournament: tournamentId,
+        team: teamId
       },
       {
         $set: {
-          'teams.$.status': approve ? TEAM_STATUS.APPROVED : TEAM_STATUS.REJECTED
+          status: approve ? TEAM_STATUS.APPROVED : TEAM_STATUS.REJECTED
         }
       },
       { new: true }
     );
-    if (!tournament) {
+
+    if (!tournamentTeam) {
       throw new NotFoundError('Tournament or team not found');
     }
-    return tournament;
+    return tournamentTeam;
   }
 
   validateTournamentData(data) {

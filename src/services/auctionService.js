@@ -1,6 +1,6 @@
 const Tournament = require("../models/Tournament");
-const Player = require("../models/Player");
-const Team = require("../models/Team");
+const TournamentPlayers = require("../models/TournamentPlayers");
+const TournamentTeams = require("../models/TournamentTeams");
 const Auction = require("../models/Auction");
 
 class AuctionService {
@@ -10,14 +10,18 @@ class AuctionService {
   }
 
   async getPlayers(tournamentId) {
-    const tournament = await Tournament.findById(tournamentId);
-    const players = tournament.players.filter((player) => player.isApproved);
+    const players = await TournamentPlayers.find({
+      tournament: tournamentId,
+      status: 'APPROVED'
+    }).populate('player');
     return players;
   }
 
   async getTeams(tournamentId) {
-    const tournament = await Tournament.findById(tournamentId);
-    const teams = tournament.teams.filter((team) => team.isApproved);
+    const teams = await TournamentTeams.find({
+      tournament: tournamentId,
+      status: 'APPROVED'
+    }).populate('team');
     return teams;
   }
 }
