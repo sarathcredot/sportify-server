@@ -31,12 +31,18 @@ class TeamService {
     return team;
   }
 
-  async getTeamsByTournamentId(tournamentId) {
-    const tournament = await Tournament.findById(tournamentId).populate("teams.team");
+  async getTeamsByTournamentId(tournamentId, status, search) {
+    const tournament = await Tournament.findById(tournamentId).populate("teams.team").select("-teams.team.players");
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
-    const teams = tournament.teams.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    let teams = tournament.teams.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (status) {
+      teams = teams.filter(team => team.status === status);
+    }
+    if (search) {
+      teams = teams.filter(team => team.team.name.toLowerCase().includes(search.toLowerCase()));
+    }
     return teams;
   }
 

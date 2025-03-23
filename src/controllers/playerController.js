@@ -43,8 +43,8 @@ class PlayerController extends BaseController {
   async getPlayersByTournamentId(req, res) {
     try {
       const { tournamentId } = req.params;
-      const { status } = req.query;
-      const players = await playerService.getPlayersByTournamentId(tournamentId, status);
+      const { status, search } = req.query;
+      const players = await playerService.getPlayersByTournamentId(tournamentId, status, search);
       this.handleSuccess(res, players, 'Players retrieved successfully');
     } catch (error) {
       this.handleError(res, error);

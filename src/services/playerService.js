@@ -84,7 +84,7 @@ class PlayerService {
     return player;
   }
 
-  async getPlayersByTournamentId(tournamentId, status) {
+  async getPlayersByTournamentId(tournamentId, status, search) {
     let tournament = await Tournament.findById(tournamentId?.toString()).lean().populate('players.player').select(status ? { 'players': { $elemMatch: { status } } } : null) || null;
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
@@ -95,6 +95,10 @@ class PlayerService {
     // Filter by status if provided
     if (status) {
       players = players.filter(player => player.status === status);
+    }
+
+    if (search) {
+      players = players.filter(player => player.player.name.toLowerCase().includes(search.toLowerCase()));
     }
     
     return players;

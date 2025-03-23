@@ -215,6 +215,12 @@ router.post(
  *         schema:
  *           type: string
  *         description: Player status
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Search query
  *     responses:
  *       200:
  *         description: List of players
@@ -328,6 +334,18 @@ router.post(
  *         schema:
  *           type: string
  *         description: Tournament ID
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Team status
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Search query
  *     responses:
  *       200:
  *         description: List of teams
