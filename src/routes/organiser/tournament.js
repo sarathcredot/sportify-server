@@ -7,7 +7,7 @@ const Tournament = require('../../models/Tournament');
 const { createPlayerSchema, approvePlayerSchema, refundPlayerSchema } = require('../../schemas/playerSchema');
 const PlayerController = require('../../controllers/playerController');
 const TeamController = require('../../controllers/teamController');
-const { createTeamSchema, approveTeamSchema } = require('../../schemas/teamSchema');
+const { createTeamSchema, approveTeamSchema, refundTeamSchema } = require('../../schemas/teamSchema');
 
 const router = express.Router();
 const tournamentController = new TournamentController();
