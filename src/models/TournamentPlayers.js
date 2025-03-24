@@ -7,7 +7,10 @@ const TournamentPlayersSchema = new mongoose.Schema({
     ref: 'Tournament',
     required: true
   },
-  playerId: String,
+  playerId: {
+    type: String,
+    required: true
+  },
   player: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Player'

@@ -65,11 +65,9 @@ class PlayerService {
       sport: tournament.sportType,
       dateOfBirth: new Date(playerData.dateOfBirth)
     });
-
-    let playerId = await this.generatePlayerId(tournament);
-    
     await player.save();
-
+    
+    let playerId = await this.generatePlayerId(tournament);
     // Create tournament player entry
     await TournamentPlayers.create({
       tournament: tournament._id,
@@ -101,8 +99,8 @@ class PlayerService {
   async generatePlayerId(tournament) {
     let words = tournament.name.split(' ');
     let prefix;
-    if (tournament.playerIdPrefix) {
-      prefix = tournament.playerIdPrefix;
+    if (tournament.idPrefix) {
+      prefix = tournament.idPrefix;
     } else {
       if (words.length >= 3) {
         prefix = words
@@ -116,11 +114,11 @@ class PlayerService {
     }
 
     tournament.playerIdCounter = (tournament.playerIdCounter || 0) + 1;
-    if (tournament.playerIdPrefix !== prefix) {
+    if (tournament.idPrefix !== prefix) {
       tournament.playerIdCounter = 0;
     } 
-    let playerId = prefix + String(tournament.playerIdCounter).padStart(4, '0');
-    tournament.playerIdPrefix = prefix;
+    let playerId = prefix + 'P' + String(tournament.playerIdCounter).padStart(4, '0');
+    tournament.idPrefix = prefix;
     await tournament.save();
     return playerId;
   }
