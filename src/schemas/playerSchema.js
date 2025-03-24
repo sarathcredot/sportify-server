@@ -75,7 +75,12 @@ const approvePlayerSchema = z.object({
   approve: z.boolean(),
 });
 
+const refundPlayerSchema = z.object({
+  refund: z.boolean(),
+});
+
 module.exports = {
   createPlayerSchema,
   approvePlayerSchema,
+  refundPlayerSchema,
 };

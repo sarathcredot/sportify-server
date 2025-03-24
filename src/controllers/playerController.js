@@ -43,8 +43,8 @@ class PlayerController extends BaseController {
   async getPlayersByTournamentId(req, res) {
     try {
       const { tournamentId } = req.params;
-      const { status } = req.query;
-      const players = await playerService.getPlayersByTournamentId(tournamentId, status);
+      const { status, search } = req.query;
+      const players = await playerService.getPlayersByTournamentId(tournamentId, status, search);
       this.handleSuccess(res, players, 'Players retrieved successfully');
     } catch (error) {
       this.handleError(res, error);
@@ -57,6 +57,17 @@ class PlayerController extends BaseController {
       const { approve } = req.body;
       const player = await tournamentService.approvePlayerInTournament(tournamentId, playerId, approve);
       this.handleSuccess(res, player, `${approve ? "Player approved successfully": "Player rejected successfully"}`);
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async refundPlayer(req, res) {
+    try {
+      const { tournamentId, playerId } = req.params;
+      const { refund } = req.body;
+      const player = await tournamentService.refundPlayerInTournament(tournamentId, playerId, refund);
+      this.handleSuccess(res, player, `${refund ? "Player refunded successfully": "Player not refunded"}`);
     } catch (error) {
       this.handleError(res, error);
     }

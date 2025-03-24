@@ -1,12 +1,13 @@
 const Player = require("../models/Player");
 const Tournament = require("../models/Tournament");
+const TournamentPlayers = require("../models/TournamentPlayers");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const { PLAYER_STATUS } = require("../utils/constants");
 const { Types } = require("mongoose");
 
 class PlayerService {
   async registerPlayer(playerData) {
-    let tournament = await Tournament.findById(playerData.tournamentId).populate('players.player');
+    const tournament = await Tournament.findById(playerData.tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
@@ -15,10 +16,12 @@ class PlayerService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    const existingPlayer = tournament.players.find(player => {
-      const populatedPlayer = player.player;
-      return populatedPlayer && populatedPlayer.contactNumber === playerData.contactNumber;
-    });
+    // Check if player already registered
+    const existingPlayer = await TournamentPlayers.findOne({
+      tournament: tournament._id,
+      'player.contactNumber': playerData.contactNumber
+    }).populate('player');
+    
     if (existingPlayer) {
       throw new ValidationError("Player already registered in tournament");
     }
@@ -29,26 +32,30 @@ class PlayerService {
       dateOfBirth: new Date(playerData.dateOfBirth)
     });
 
-    tournament.players.push({
+    await player.save();
+
+    // Create tournament player entry
+    await TournamentPlayers.create({
+      tournament: tournament._id,
       player: player._id,
       status: PLAYER_STATUS.PENDING,
     });
 
-    await player.save();
-    await tournament.save();
     return player;
   }
 
   async createPlayer(playerData) {
-    let tournament = await Tournament.findById(playerData.tournamentId).populate('players.player');
+    const tournament = await Tournament.findById(playerData.tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
-    const existingPlayer = tournament.players.find(player => {
-      const populatedPlayer = player.player;
-      return populatedPlayer && populatedPlayer.contactNumber === playerData.contactNumber;
-    });
+    // Check if player already registered
+    const existingPlayer = await TournamentPlayers.findOne({
+      tournament: tournament._id,
+      'player.contactNumber': playerData.contactNumber
+    }).populate('player');
+
     if (existingPlayer) {
       throw new ValidationError("Player already registered in tournament");
     }
@@ -59,43 +66,33 @@ class PlayerService {
       dateOfBirth: new Date(playerData.dateOfBirth)
     });
 
-    let words = tournament.name.split(' ');
-    let prefix;
-    if (words.length >= 3) {
-      prefix = words
-        .slice(0, 3)
-        .map(word => word[0])
-        .join('')
-        .toUpperCase();
-    } else {
-      prefix = words[0].substring(0, 3).toUpperCase();
-    }
-    
     let playerId = await this.generatePlayerId(tournament);
     
-    tournament.players.push({
+    await player.save();
+
+    // Create tournament player entry
+    await TournamentPlayers.create({
+      tournament: tournament._id,
       playerId: playerId,
       player: player._id,
       status: PLAYER_STATUS.APPROVED,
     });
 
-    await player.save();
-    await tournament.save();
     return player;
   }
 
-  async getPlayersByTournamentId(tournamentId, status) {
-    let tournament = await Tournament.findById(tournamentId?.toString()).lean().populate('players.player').select(status ? { 'players': { $elemMatch: { status } } } : null) || null;
-    if (!tournament) {
-      throw new NotFoundError("Tournament not found");
-    }
-    
-    let players = tournament.players?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) ?? [];
-    
-    // Filter by status if provided
+  async getPlayersByTournamentId(tournamentId, status, search) {
+    let query = { tournament: tournamentId };
     if (status) {
-      players = players.filter(player => player.status === status);
+      query.status = status;
     }
+    if (search) {
+      query.player.name = { $regex: search, $options: 'i' };
+    }
+
+    let players = await TournamentPlayers.find(query)
+      .populate('player')
+      .sort({ createdAt: -1 });
     
     return players;
   }

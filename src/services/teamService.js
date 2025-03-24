@@ -1,5 +1,6 @@
 const Team = require("../models/Team");
 const Tournament = require("../models/Tournament");
+const TournamentTeams = require("../models/TournamentTeams");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const authService = require("./authService");
 const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
@@ -9,10 +10,6 @@ const { Types } = require("mongoose");
 class TeamService {
 
   async createTeam(teamData, tournamentId) {
-    return await this.registerTeam(teamData, tournamentId, TEAM_STATUS.APPROVED);
-  }
-
-  async registerTeam(teamData, tournamentId, status = TEAM_STATUS.PENDING) {
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
@@ -24,17 +21,34 @@ class TeamService {
 
     const team = new Team({
       ...teamData,
-      status: status,
     });
 
     await team.save();
+
+    // Create tournament team entry
+    await TournamentTeams.create({
+      tournament: tournament._id,
+      team: team._id,
+      status: TEAM_STATUS.APPROVED,
+    });
+
     return team;
   }
 
-  async getTeamsByTournamentId(tournamentId) {
-    const teams = await Team.find({ tournament: new Types.ObjectId(tournamentId) }).sort({
-      createdAt: -1,
-    });
+  async getTeamsByTournamentId(tournamentId, status, search) {
+    let query = { tournament: tournamentId };
+    if (status) {
+      query.status = status;
+    }
+
+    if (search) {
+      query.team.name = { $regex: search, $options: 'i' };
+    }
+
+    let teams = await TournamentTeams.find(query)
+      .populate('team')
+      .sort({ createdAt: -1 });
+
     return teams;
   }
 

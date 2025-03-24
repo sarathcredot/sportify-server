@@ -73,6 +73,7 @@ const TEAM_STATUS = {
   PENDING: "pending",
   APPROVED: "approved",
   REJECTED: "rejected",
+  REFUNDED: "refunded",
 };
 
 const PLAYER_STATUS = {
@@ -82,6 +83,7 @@ const PLAYER_STATUS = {
   BIDDING: "bidding",
   SOLD: "sold",
   UNSOLD: "unsold",
+  REFUNDED: "refunded",
 };
 
 const TEAM_STATUS_TYPES = Object.values(TEAM_STATUS);

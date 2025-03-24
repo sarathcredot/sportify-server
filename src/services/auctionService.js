@@ -1,8 +1,8 @@
 const Tournament = require("../models/Tournament");
-const Player = require("../models/Player");
-const Team = require("../models/Team");
+const TournamentPlayers = require("../models/TournamentPlayers");
+const TournamentTeams = require("../models/TournamentTeams");
 const Auction = require("../models/Auction");
-
+const { AUCTION_STATUS } = require("../utils/constants");
 class AuctionService {
   async getAuction(tournamentId) {
     const auction = await Auction.findOne({ tournament: tournamentId });
@@ -10,15 +10,39 @@ class AuctionService {
   }
 
   async getPlayers(tournamentId) {
-    const tournament = await Tournament.findById(tournamentId);
-    const players = tournament.players.filter((player) => player.isApproved);
+    const players = await TournamentPlayers.find({
+      tournament: tournamentId,
+      status: 'APPROVED'
+    }).populate('player');
     return players;
   }
 
   async getTeams(tournamentId) {
-    const tournament = await Tournament.findById(tournamentId);
-    const teams = tournament.teams.filter((team) => team.isApproved);
+    const teams = await TournamentTeams.find({
+      tournament: tournamentId,
+      status: 'APPROVED'
+    }).populate('team');
     return teams;
+  }
+
+  async startAuction(tournamentId) {
+    const auction = await Auction.findOneAndUpdate({ tournament: tournamentId }, { status: AUCTION_STATUS.LIVE }, { new: true });
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    // return random player
+    const players = await TournamentPlayers.find({ tournament: tournamentId, status: 'APPROVED' }).populate('player');
+    const randomPlayer = players[Math.floor(Math.random() * players.length)];
+    auction.currentBiddingPlayer = randomPlayer;
+    await auction.save();
+    return auction;
+  }
+
+  async placeBid(tournamentId, playerId, bidAmount) {
+    const auction = await Auction.findOne({ tournament: tournamentId });
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
   }
 }
 
