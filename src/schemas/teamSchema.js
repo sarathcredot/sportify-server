@@ -5,7 +5,7 @@ extendZodWithOpenApi(z);
 
 const createTeamSchema = z.object({
   name: z.string().nonempty("Team name is required"),
-  managerName: z.string().nonempty("Team manager name is required"),
+  manager: z.string().nonempty("Team manager required"),
   logoUrl: z.string().nonempty("Team photo is required"),
   phoneNumber: z.string().nonempty("Contact number is required"),
   email: z.string().email("Invalid email address").optional(),

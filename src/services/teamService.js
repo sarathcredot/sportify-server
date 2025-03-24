@@ -10,8 +10,11 @@ const { Types } = require("mongoose");
 class TeamService {
 
   async createTeam(teamData, tournamentId) {
+    console.log("tournemant cretae func", tournamentId)
     const tournament = await Tournament.findById(tournamentId);
+    //  console.log("tournemt",tournament)
     if (!tournament) {
+
       throw new NotFoundError("Tournament not found");
     }
 

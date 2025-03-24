@@ -15,8 +15,10 @@ class TeamController extends BaseController {
   }
 
   async createTeam(req, res) {
+    console.log("team create", req.body)
     try {
       const { tournamentId } = req.params;
+      console.log("tournement is", tournamentId)
       const teamData = {
         ...req.body,
       };
@@ -40,7 +42,7 @@ class TeamController extends BaseController {
         .status(201)
         .json(ResponseHandler.success("Team registered successfully", team));
     } catch (error) {
-      console.log("team create error",error)
+      console.log("team create error", error)
       this.handleError(res, error);
     }
   }
@@ -61,7 +63,7 @@ class TeamController extends BaseController {
       const { tournamentId, teamId } = req.params;
       const { approve } = req.body;
       const team = await tournamentService.approveTeamInTournament(tournamentId, teamId, approve);
-      this.handleSuccess(res, team, `${approve ? "Team approved successfully": "Team rejected successfully"}`);
+      this.handleSuccess(res, team, `${approve ? "Team approved successfully" : "Team rejected successfully"}`);
     } catch (error) {
       this.handleError(res, error);
     }
@@ -72,11 +74,11 @@ class TeamController extends BaseController {
       const { tournamentId, teamId } = req.params;
       const { refund } = req.body;
       const team = await tournamentService.refundTeamInTournament(tournamentId, teamId, refund);
-      this.handleSuccess(res, team, `${refund ? "Team refunded successfully": "Team not refunded"}`);
+      this.handleSuccess(res, team, `${refund ? "Team refunded successfully" : "Team not refunded"}`);
     } catch (error) {
       this.handleError(res, error);
     }
   }
-} 
+}
 
 module.exports = TeamController;

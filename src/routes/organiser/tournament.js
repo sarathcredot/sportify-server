@@ -487,10 +487,10 @@ router.post(
  *       500:
  *         description: Internal server error
  */
-router.post(
-  '/:tournamentId/teams/:teamId/refund',
-  validate(refundTeamSchema),
-  teamController.refundTeam
-);
+// router.post(
+//   '/:tournamentId/teams/:teamId/refund',
+//   validate(refundTeamSchema),
+//   teamController.refundTeam
+// );
 
 module.exports = router;
