@@ -16,7 +16,12 @@ const approveTeamSchema = z.object({
   approve: z.boolean(),
 }).openapi();
 
+const refundTeamSchema = z.object({
+  refund: z.boolean(),
+}).openapi();
+
 module.exports = {
   createTeamSchema,
   approveTeamSchema,
+  refundTeamSchema,
 };
