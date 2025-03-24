@@ -45,11 +45,17 @@ class TeamService {
     }
 
     if (search) {
+      query.team = query.team || {};
       query.team.name = { $regex: search, $options: 'i' };
     }
 
     let teams = await TournamentTeams.find(query)
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: {
+          path: 'manager'
+        }
+      })
       .sort({ createdAt: -1 });
 
     return teams;

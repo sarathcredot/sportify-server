@@ -87,6 +87,7 @@ class PlayerService {
       query.status = status;
     }
     if (search) {
+      query.player = query.player || {};
       query.player.name = { $regex: search, $options: 'i' };
     }
 
