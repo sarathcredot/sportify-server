@@ -48,6 +48,7 @@ class TeamController extends BaseController {
   }
 
   async getTeamsByTournamentId(req, res) {
+    console.log("fillter", req.query)
     try {
       const { tournamentId } = req.params;
       const { status, search } = req.query;
@@ -68,6 +69,7 @@ class TeamController extends BaseController {
       this.handleError(res, error);
     }
   }
+
 
   async refundTeam(req, res) {
     try {
