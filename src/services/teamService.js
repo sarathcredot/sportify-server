@@ -28,9 +28,12 @@ class TeamService {
 
     await team.save();
 
+    const teamId = await this.generateTeamId(tournament);
+
     // Create tournament team entry
     await TournamentTeams.create({
       tournament: tournament._id,
+      teamId: teamId,
       team: team._id,
       status: TEAM_STATUS.APPROVED,
     });
@@ -45,11 +48,17 @@ class TeamService {
     }
 
     if (search) {
+      query.team = query.team || {};
       query.team.name = { $regex: search, $options: 'i' };
     }
 
     let teams = await TournamentTeams.find(query)
-      .populate('team')
+      .populate({
+        path: 'team',
+        populate: {
+          path: 'manager'
+        }
+      })
       .sort({ createdAt: -1 });
 
     return teams;
@@ -89,6 +98,27 @@ class TeamService {
     return await this.registerTeam(teamData, teamData.tournamentId, user);
   }
 
+  async generateTeamId(tournament) {
+    let words = tournament.name.split(' ');
+    let prefix;
+    if (tournament.idPrefix) {
+      prefix = tournament.idPrefix;
+    } else {
+      if (words.length >= 3) {
+        prefix = words
+          .slice(0, 3)
+        .map(word => word[0])
+        .join('')
+        .toUpperCase();
+      } else {
+        prefix = words[0].substring(0, 3).toUpperCase();
+      }
+    }
+    let teamId = prefix + 'T' + String(tournament.teamIdCounter).padStart(4, '0');
+    tournament.teamIdCounter = (tournament.teamIdCounter || 0) + 1;
+    await tournament.save();
+    return teamId;
+  }
 }
 
 module.exports = new TeamService();

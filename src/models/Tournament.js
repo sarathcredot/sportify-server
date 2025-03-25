@@ -127,7 +127,11 @@ const TournamentSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  playerIdPrefix: {
+  teamIdCounter: {
+    type: Number,
+    default: 0
+  },
+  idPrefix: {
     type: String,
     default: ""
   }
