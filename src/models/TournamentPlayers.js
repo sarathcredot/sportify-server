@@ -23,8 +23,7 @@ const TournamentPlayersSchema = new mongoose.Schema({
     team: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Team'
-    },
-    required: false
+    }
   },
   status: {
     type: String,
