@@ -48,11 +48,6 @@ class TeamService {
       query.status = status;
     }
 
-    if (search) {
-      query.team = query.team || {};
-      query.team.name = { $regex: search, $options: 'i' };
-    }
-
     let teams = await TournamentTeams.find(query)
       .populate({
         path: 'team',
@@ -61,7 +56,10 @@ class TeamService {
         }
       })
       .sort({ createdAt: -1 });
-    console.log("teams data", teams)
+
+    if (search) {
+      teams = teams.filter(team => team.team.name.toLowerCase().includes(search.toLowerCase()));
+    }
     return teams;
   }
 

@@ -84,15 +84,14 @@ class PlayerService {
     if (status) {
       query.status = status;
     }
-    if (search) {
-      query.player = query.player || {};
-      query.player.name = { $regex: search, $options: 'i' };
-    }
 
     let players = await TournamentPlayers.find(query)
       .populate('player')
       .sort({ createdAt: -1 });
-    
+
+    if (search) {
+      players = players.filter(player => player.player.name.toLowerCase().includes(search.toLowerCase()));
+    }
     return players;
   }
 
