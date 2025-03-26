@@ -123,28 +123,28 @@ const createTournamentSchema = z.object({
       example: 100,
     }),
   })
-  .superRefine((data, ctx) => {
-    validateMatchType(data, ctx);
-    validateBallType(data, ctx);
-    validateOvers(data, ctx);
+    .superRefine((data, ctx) => {
+      validateMatchType(data, ctx);
+      validateBallType(data, ctx);
+      validateOvers(data, ctx);
 
-    if (data.teamRegistrationFeeEnabled && data.teamRegistrationFee <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Team registration fee must be a positive integer when enabled",
-        path: ["settings", "teamRegistrationFee"],
-      });
-    }
+      if (data.teamRegistrationFeeEnabled && data.teamRegistrationFee <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Team registration fee must be a positive integer when enabled",
+          path: ["settings", "teamRegistrationFee"],
+        });
+      }
 
-    if (data.playerRegistrationFeeEnabled && data.playerRegistrationFee <= 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Player registration fee must be a positive integer when enabled",
-        path: ["settings", "playerRegistrationFee"],
-      });
-    }
-  })
-  .openapi(),
+      if (data.playerRegistrationFeeEnabled && data.playerRegistrationFee <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Player registration fee must be a positive integer when enabled",
+          path: ["settings", "playerRegistrationFee"],
+        });
+      }
+    })
+    .openapi(),
   organiserDetails: z.object({
     name: z.string().nonempty("Organiser name is required").openapi({
       example: "Organiser Name",
@@ -190,11 +190,11 @@ const createTournamentSchema = z.object({
       example: 10,
     }),
   })
-  .optional()
-  .openapi(),
+    .optional()
+    .openapi(),
 }).superRefine((data, ctx) => {
   validateAuction(data, ctx);
-console.log("form data",JSON.stringify(data))
+  console.log("form data", JSON.stringify(data))
   // Ensure auction data is required if auctionEnabled is true
   if (data.settings.auctionEnabled) {
     if (!data.auction) {
