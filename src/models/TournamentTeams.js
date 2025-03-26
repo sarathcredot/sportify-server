@@ -23,7 +23,17 @@ const TournamentTeamsSchema = new mongoose.Schema({
   players: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Player",
-  }]
+  }],
+  wonBids: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Bid",
+  }],
+  remainingPoints: {
+    type: Number,
+    default: 0,
+    min: 0,
+    required: true
+  }
 }, {
   timestamps: true
 });

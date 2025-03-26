@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const AuctionController = require('../../controllers/auctionController');
-
+const validate = require('../../utils/validate');
+const { placeBidSchema } = require('../../schemas/auctionSchema');
 
 const auctionController = new AuctionController();
 
@@ -78,8 +79,6 @@ router.post('/:auctionId/start', (req, res) => {
   auctionController.startAuction(req, res);
 });
 
-
-
 /**
  * @swagger
  * /organiser/auction/place-bid:
@@ -111,8 +110,77 @@ router.post('/:auctionId/start', (req, res) => {
  *                 - type: object
  *         description: Bid placed
  */
-router.post('/place-bid', (req, res) => {
-  auctionController.placeBid(req, res);
-});
+router.post("/:auctionId/place-bid", validate(placeBidSchema), auctionController.placeBid);
 
-module.exports = router;
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/mark-player-sold:
+ *   post:
+ *     summary: Mark a player as sold
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:   
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Player marked as sold
+ */
+router.post("/:auctionId/mark-player-sold", auctionController.markPlayerSold);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/mark-player-unsold:
+ *   post:
+ *     summary: Mark a player as unsold
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:   
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Player marked as unsold
+ */
+router.post("/:auctionId/mark-player-unsold", auctionController.markPlayerUnsold);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/bid-history:
+ *   get:
+ *     summary: Get bid history
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         allOf:
+ *                           - $ref: '#/components/schemas/Bid'
+ *                           - type: object
+ *                             properties:
+ *                               placedBy:
+ *                                 $ref: '#/components/schemas/TournamentTeams'
+ *         description: Bid history
+ */ 
+router.get("/:auctionId/bid-history", auctionController.getBidHistory);
+
+module.exports = router;  

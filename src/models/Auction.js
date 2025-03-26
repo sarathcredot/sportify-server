@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { PLAYER_AUCTION_STATUS_TYPES, AUCTION_STATUS_TYPES, PLAYER_AUCTION_STATUS, AUCTION_STATUS, TEAM_STATUS_TYPES, TEAM_STATUS } = require('../utils/constants');
 
 const auctionSchema = new mongoose.Schema({
+  tournament: { type: mongoose.Schema.Types.ObjectId, ref: 'Tournament', required: true },
   auctionDate: { type: Date, required: true },
   auctionTime: { type: String, required: true },
   auctionLocation: { type: String, required: true },
