@@ -61,7 +61,7 @@ class TeamService {
         }
       })
       .sort({ createdAt: -1 });
-
+    console.log("teams data", teams)
     return teams;
   }
 
@@ -108,9 +108,9 @@ class TeamService {
       if (words.length >= 3) {
         prefix = words
           .slice(0, 3)
-        .map(word => word[0])
-        .join('')
-        .toUpperCase();
+          .map(word => word[0])
+          .join('')
+          .toUpperCase();
       } else {
         prefix = words[0].substring(0, 3).toUpperCase();
       }
