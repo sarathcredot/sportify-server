@@ -8,6 +8,7 @@ const Team = require('./src/models/Team');
 const TournamentPlayers = require('./src/models/TournamentPlayers');
 const TournamentTeams = require('./src/models/TournamentTeams');
 const Auction = require('./src/models/Auction');
+const Bid = require('./src/models/Bid');
 const { createTournamentSchema } = require('./src/schemas/tournamentSchema');
 const { createTeamSchema, approveTeamSchema } = require('./src/schemas/teamSchema');
 const { createPlayerSchema, approvePlayerSchema } = require('./src/schemas/playerSchema');
@@ -101,6 +102,7 @@ const options = {
         TournamentPlayers: m2s(TournamentPlayers),
         TournamentTeams: m2s(TournamentTeams),
         Auction: m2s(Auction),
+        Bid: m2s(Bid),
       }
     },
     security: [{

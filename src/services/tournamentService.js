@@ -41,28 +41,23 @@ class TournamentService {
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 
-    let auction = null;
-
-    if (tournamentData?.settings?.auctionEnabled) {
-
-      auction = new Auction(tournamentData?.auction);
-
-      auction = await auction.save();
-      console.log(auction?._id, "AUCTION ID");
-    }
     let obj = {
       ...tournamentData,
-      auction: auction?._id,
       organiser: user._id,
       createdBy: user?._id,
     };
 
-    if (auction?._id) {
-      obj.auction = auction?._id;
-    }
-
     const tournament = new Tournament(obj);
-    return await tournament.save();
+    await tournament.save();
+
+    if (tournamentData?.settings?.auctionEnabled) {
+      let auction = new Auction({
+        ...tournamentData?.auction,
+        tournament: tournament?._id,
+      });
+      auction = await auction.save();
+    }
+    return tournament;
   }
 
   async getTournamentById(id) {

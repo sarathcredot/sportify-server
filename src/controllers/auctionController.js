@@ -41,9 +41,9 @@ class AuctionController extends BaseController {
   }
 
   async startAuction(req, res) {
-    const { tournamentId } = req.params;
+    const { auctionId } = req.params;
     try {
-      const auction = await auctionService.startAuction(tournamentId);
+      const auction = await auctionService.startAuction(auctionId);
       this.handleSuccess(res, auction, "Auction started");
     } catch (error) {
       this.handleError(res, error);
@@ -51,11 +51,40 @@ class AuctionController extends BaseController {
   }
 
   async placeBid(req, res) {
-    const { tournamentId, playerId } = req.params;
-    const { bidAmount } = req.body;
+    const { auctionId } = req.params;
     try {
-      const bid = await auctionService.placeBid(tournamentId, playerId, bidAmount);
+      const bid = await auctionService.placeBid(auctionId, req.body);
       this.handleSuccess(res, bid, "Bid placed");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async markPlayerSold(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const auction = await auctionService.markPlayerSold(auctionId, req.body);
+      this.handleSuccess(res, auction, "Player marked as sold");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async markPlayerUnsold(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const auction = await auctionService.markPlayerUnsold(auctionId, req.body);
+      this.handleSuccess(res, auction, "Player marked as unsold");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getBidHistory(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const bidHistory = await auctionService.getBidHistory(auctionId);
+      this.handleSuccess(res, bidHistory, "Bid history retrieved");
     } catch (error) {
       this.handleError(res, error);
     }

@@ -21,7 +21,7 @@ const BidSchema = new mongoose.Schema({
     ref: 'TournamentTeams',
     required: true
   },
-  amount: {
+  points: {
     type: Number,
     required: true
   },

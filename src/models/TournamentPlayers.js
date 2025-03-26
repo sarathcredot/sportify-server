@@ -15,6 +15,10 @@ const TournamentPlayersSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Player'
   },
+  team: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TournamentTeams'
+  },
   currentBid: {
     bid: {
       type: mongoose.Schema.Types.ObjectId,
@@ -22,7 +26,7 @@ const TournamentPlayersSchema = new mongoose.Schema({
     },
     team: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Team'
+      ref: 'TournamentTeams'
     }
   },
   status: {
