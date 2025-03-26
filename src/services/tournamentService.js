@@ -61,13 +61,14 @@ class TournamentService {
   }
 
   async getTournamentById(id) {
-    const tournament = await Tournament.findById(id).populate("auction");
+    const tournament = await Tournament.findById(id);
+    const auction = await Auction.findOne({ tournament: id });
 
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
-    return tournament;
+    return { ...tournament, auction: auction };
   }
 
   async updateTournament(id, updateData, user) {
