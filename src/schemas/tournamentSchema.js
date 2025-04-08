@@ -107,7 +107,7 @@ const createTournamentSchema = z.object({
     maxPlayersAllowed: z.number().int().positive().openapi({
       example: 100,
     }),
-    playersPerTeam: z.number().int().positive().openapi({
+    maxPlayersPerTeam: z.number().int().positive().openapi({
       example: 10,
     }),
     teamRegistrationFeeEnabled: z.boolean().default(false).openapi({

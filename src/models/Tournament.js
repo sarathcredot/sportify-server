@@ -76,7 +76,7 @@ const TournamentSchema = new mongoose.Schema({
     auctionEnabled: { type: Boolean, default: false },
     maxTeamAllowed: { type: Number, required: true },
     maxPlayersAllowed: { type: Number, required: true },
-    playersPerTeam: { type: Number, required: true },
+    maxPlayersPerTeam: { type: Number, required: true },
     teamRegistrationFeeEnabled: { type: Boolean, default: false },
     playerRegistrationFeeEnabled: { type: Boolean, default: false },
     teamRegistrationFee: {
