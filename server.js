@@ -14,11 +14,23 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// CORS Configuration
+const corsOptions = {
+  origin: [
+    'https://sportifypro.vercel.app',
+    'http://localhost:3000'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true, // Enable if you need to handle cookies/auth
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-app.options('*', cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use('/media', express.static(path.join(__dirname, 'media')));
@@ -28,7 +40,6 @@ app.use('/api/tournaments', require('./src/routes/tournament'));
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/upload', require('./src/routes/fileUpload'));
 app.use('/api/organiser', require('./src/routes/organiser'));
-
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

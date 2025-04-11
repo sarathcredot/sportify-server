@@ -34,11 +34,12 @@ class PlayerService {
 
     await player.save();
 
-    console.log("player created", player)
+    let playerId = await this.generatePlayerId(tournament);
     // Create tournament player entry
     await TournamentPlayers.create({
       tournament: tournament._id,
       player: player._id,
+      playerId: playerId,
       status: PLAYER_STATUS.PENDING,
     });
 

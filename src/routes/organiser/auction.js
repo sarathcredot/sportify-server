@@ -8,7 +8,7 @@ const auctionController = new AuctionController();
 
 /**
  * @swagger
- * /organiser/auction/players:
+ * /organiser/auction/{auctionId}/players:
  *   get:
  *     summary: Get all players for the auction
  *     tags: [Organiser]
@@ -24,13 +24,13 @@ const auctionController = new AuctionController();
  *                 $ref: '#/components/schemas/Player'
  *         description: List of players
  */
-router.get('/players', (req, res) => {
+router.get('/:auctionId/players', (req, res) => {
   auctionController.getPlayers(req, res);
 });
 
 /**
  * @swagger
- * /organiser/auction/teams:
+ * /organiser/auction/{auctionId}/teams:
  *   get:
  *     summary: Get all teams for the auction
  *     tags: [Organiser]
@@ -46,13 +46,13 @@ router.get('/players', (req, res) => {
  *                 $ref: '#/components/schemas/Team'
  *         description: List of teams
  */
-router.get('/teams', (req, res) => {
+router.get('/:auctionId/teams', (req, res) => {
   auctionController.getTeams(req, res);
 });
 
 /**
  * @swagger
- * /organiser/auction/start:
+ * /organiser/auction/{auctionId}/start:
  *   post:
  *     summary: Start the auction
  *     tags: [Organiser]
@@ -81,7 +81,7 @@ router.post('/:auctionId/start', (req, res) => {
 
 /**
  * @swagger
- * /organiser/auction/place-bid:
+ * /organiser/auction/{auctionId}/place-bid:
  *   post:
  *     summary: Place a bid
  *     tags: [Organiser]

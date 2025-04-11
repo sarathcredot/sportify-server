@@ -11,17 +11,19 @@ class AuctionService {
     return auction;
   }
 
-  async getPlayers(tournamentId) {
+  async getPlayers(auctionId) {
+    const tournament = await Tournament.findOne({ auction: auctionId });
     const players = await TournamentPlayers.find({
-      tournament: tournamentId,
+      tournament: tournament._id,
       status: 'APPROVED'
     }).populate('player');
     return players;
   }
 
-  async getTeams(tournamentId) {
+  async getTeams(auctionId) {
+    const tournament = await Tournament.findOne({ auction: auctionId });
     const teams = await TournamentTeams.find({
-      tournament: tournamentId,
+      tournament: tournament._id,
       status: 'APPROVED'
     }).populate('team');
     return teams;
