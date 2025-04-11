@@ -68,7 +68,7 @@ class TournamentService {
       throw new NotFoundError("Tournament not found");
     }
 
-    return { ...tournament, auction: auction };
+    return { tournament, auction: auction };
   }
 
   async updateTournament(id, updateData, user) {

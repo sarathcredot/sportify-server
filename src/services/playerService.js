@@ -21,7 +21,7 @@ class PlayerService {
       tournament: tournament._id,
       'player.contactNumber': playerData.contactNumber
     }).populate('player');
-    
+
     if (existingPlayer) {
       throw new ValidationError("Player already registered in tournament");
     }
@@ -34,6 +34,7 @@ class PlayerService {
 
     await player.save();
 
+    console.log("player created", player)
     // Create tournament player entry
     await TournamentPlayers.create({
       tournament: tournament._id,
@@ -66,7 +67,7 @@ class PlayerService {
       dateOfBirth: new Date(playerData.dateOfBirth)
     });
     await player.save();
-    
+
     let playerId = await this.generatePlayerId(tournament);
     // Create tournament player entry
     await TournamentPlayers.create({
@@ -104,18 +105,18 @@ class PlayerService {
       if (words.length >= 3) {
         prefix = words
           .slice(0, 3)
-        .map(word => word[0])
-        .join('')
-        .toUpperCase();
-    } else {
+          .map(word => word[0])
+          .join('')
+          .toUpperCase();
+      } else {
         prefix = words[0].substring(0, 3).toUpperCase();
-      } 
+      }
     }
 
     tournament.playerIdCounter = (tournament.playerIdCounter || 0) + 1;
     if (tournament.idPrefix !== prefix) {
       tournament.playerIdCounter = 0;
-    } 
+    }
     let playerId = prefix + 'P' + String(tournament.playerIdCounter).padStart(4, '0');
     tournament.idPrefix = prefix;
     await tournament.save();
