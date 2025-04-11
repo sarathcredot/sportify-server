@@ -268,6 +268,17 @@ router.get(
  *         schema:
  *           type: string
  *         description: Player ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               approve:
+ *                 type: boolean
+ *                 description: Approve player
+ *                 example: true
  *     responses:
  *       200:
  *         description: Player approved successfully
