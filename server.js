@@ -5,15 +5,21 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression');
 const connectDB = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
 const setupSwagger = require('./swagger');
+const { apiLimiter, corsOptions, helmetConfig, requestSizeLimit } = require('./src/config/security');
+const { cacheMiddleware } = require('./src/config/cache');
+const { logger, stream, morganFormat } = require('./src/config/logger');
 
 const app = express();
 
-// Connect to MongoDB
 connectDB();
 
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection:', { reason, promise });
+});
 // CORS Configuration
 const corsOptions = {
   origin: [
@@ -29,20 +35,52 @@ const corsOptions = {
   optionsSuccessStatus: 200 // For legacy browser support
 };
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+app.use(helmet(helmetConfig));
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
-app.use(helmet());
-app.use(morgan('dev'));
-app.use('/media', express.static(path.join(__dirname, 'media')));
 
-// Routes
-app.use('/api/tournaments', require('./src/routes/tournament'));
+app.use(compression({
+  level: 6,
+  threshold: 0,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
+
+app.use(express.json({ limit: requestSizeLimit }));
+app.use(express.urlencoded({ extended: true, limit: requestSizeLimit }));
+app.use('/api/', apiLimiter);
+app.use(morgan(morganFormat, { stream }));
+
+app.use('/media', express.static(path.join(__dirname, 'media'), {
+  maxAge: '1d',
+  etag: true,
+  lastModified: true
+}));
+
+const tournamentRoutes = require('./src/routes/tournament');
+const organiserRoutes = require('./src/routes/organiser');
+
+if (process.env.NODE_ENV === 'production') {
+  app.use('/api/tournaments', cacheMiddleware(300), tournamentRoutes);
+  app.use('/api/organiser', cacheMiddleware(300), organiserRoutes);
+} else {
+  app.use('/api/tournaments', tournamentRoutes);
+  app.use('/api/organiser', organiserRoutes);
+}
+
 app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/upload', require('./src/routes/fileUpload'));
-app.use('/api/organiser', require('./src/routes/organiser'));
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
@@ -50,7 +88,15 @@ const PORT = process.env.PORT || 5000;
 setupSwagger(app);
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received. Shutting down gracefully');
+  server.close(() => {
+    logger.info('Process terminated');
+  });
 });
 
 // Socket.IO setup
