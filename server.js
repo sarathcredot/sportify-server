@@ -9,7 +9,7 @@ const compression = require('compression');
 const connectDB = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
 const setupSwagger = require('./swagger');
-const { apiLimiter, corsOptions, helmetConfig, requestSizeLimit } = require('./src/config/security');
+const { apiLimiter, helmetConfig, requestSizeLimit } = require('./src/config/security');
 const { cacheMiddleware } = require('./src/config/cache');
 const { logger, stream, morganFormat } = require('./src/config/logger');
 
