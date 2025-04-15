@@ -4,6 +4,7 @@ const ResponseHandler = require('../utils/responseHandler');
 
 exports.sendOTP = async (req, res) => {
   try {
+    console.log("auth req")
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -12,6 +13,7 @@ exports.sendOTP = async (req, res) => {
     const result = await authService.initiateAuth(phoneNumber, countryCode);
     res.json(ResponseHandler.success("OTP sent successfully", result));
   } catch (error) {
+    console.log("auth error 2",error)
     this.handleError(res, error);
   }
 };
@@ -48,6 +50,7 @@ exports.verifyOTP = async (req, res) => {
 };
 
 exports.handleError = (res, message, error) => {
+  
   const errorMap = {
     ValidationError: 400,
     NotFoundError: 404,
