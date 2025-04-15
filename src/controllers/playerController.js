@@ -13,7 +13,7 @@ class PlayerController extends BaseController {
     this.getPlayersByTournamentId = this.getPlayersByTournamentId.bind(this);
     this.approvePlayer = this.approvePlayer.bind(this);
   }
-  
+
   async registerPlayer(req, res) {
     try {
       const playerData = {
@@ -52,11 +52,12 @@ class PlayerController extends BaseController {
   }
 
   async approvePlayer(req, res) {
+    console.log("aprove player", req.body)
     try {
       const { tournamentId, playerId } = req.params;
       const { approve } = req.body;
       const player = await tournamentService.approvePlayerInTournament(tournamentId, playerId, approve);
-      this.handleSuccess(res, player, `${approve ? "Player approved successfully": "Player rejected successfully"}`);
+      this.handleSuccess(res, player, `${approve ? "Player approved successfully" : "Player rejected successfully"}`);
     } catch (error) {
       this.handleError(res, error);
     }
@@ -67,7 +68,7 @@ class PlayerController extends BaseController {
       const { tournamentId, playerId } = req.params;
       const { refund } = req.body;
       const player = await tournamentService.refundPlayerInTournament(tournamentId, playerId, refund);
-      this.handleSuccess(res, player, `${refund ? "Player refunded successfully": "Player not refunded"}`);
+      this.handleSuccess(res, player, `${refund ? "Player refunded successfully" : "Player not refunded"}`);
     } catch (error) {
       this.handleError(res, error);
     }
