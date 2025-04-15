@@ -13,8 +13,11 @@ const apiLimiter = rateLimit({
 const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = [
-      'https://sportifypro.vercel.app',
-      'http://localhost:5000'
+    'https://sportifypro.vercel.app',
+      'http://192.168.29.18:3000',
+      'https://6sm9fkjp-3000.inc1.devtunnels.ms',
+      'http://localhost:5000',
+      'http://localhost:3000',
     ];
     
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -32,7 +35,7 @@ const corsOptions = {
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
   credentials: true,
   maxAge: 600, // Cache preflight requests for 10 minutes
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 200
 };
 
 const helmetConfig = {
