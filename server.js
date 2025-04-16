@@ -20,7 +20,6 @@ connectDB();
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection:', { reason, promise });
 });
-<<<<<<< HEAD
 // CORS Configuration
 const corsOptions = {
   origin: [
@@ -35,8 +34,6 @@ const corsOptions = {
   credentials: true, // Enable if you need to handle cookies/auth
   optionsSuccessStatus: 200 // For legacy browser support
 };
-=======
->>>>>>> ba157d1d45c869b3ec407e555ee6f7c3853cc950
 
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught Exception:', error);
