@@ -96,8 +96,8 @@ class PlayerService {
         player.player.firstName.toLowerCase().includes(search.toLowerCase()) || 
         player.player.lastName.toLowerCase().includes(search.toLowerCase()) ||
         player.player.contactNumber.toLowerCase().includes(search.toLowerCase()) ||
-        player.player.email.toLowerCase().includes(search.toLowerCase()) ||
-        player.player.playerId.toLowerCase().includes(search.toLowerCase())
+        player.player.email.toLowerCase().includes(search.toLowerCase())
+        // player.playerId.toLowerCase().includes(search.toLowerCase())
       );
     }
     return players;
