@@ -2,6 +2,7 @@ const Tournament = require('../models/Tournament');
 const ResponseHandler = require('../utils/responseHandler');
 
 const checkOwnership = (model) => {
+  
   return async (req, res, next) => {
     try {
       const { id } = req.params;
@@ -14,6 +15,7 @@ const checkOwnership = (model) => {
       }
       next();
     } catch (error) {
+     
       res.status(500).json(ResponseHandler.error('Server error', error.message, 500));
     }
   };
