@@ -50,7 +50,6 @@ class TournamentController extends BaseController {
   }
 
   async deleteTournamentById(req, res) {
-
     try {
       const { id } = req.params;
       const tournament = await tournamentService.deleteTournamentById(id);
@@ -76,11 +75,10 @@ class TournamentController extends BaseController {
 
   async getTournaments(req, res) {
     try {
-      const { sportType, location, search, page = 1, limit = 10 } = req.query;
+      const { search, organiserId, page = 1, limit = 10 } = req.query;
       const tournaments = await tournamentService.getTournaments(
-        sportType,
-        location,
         search,
+        organiserId,
         parseInt(page),
         parseInt(limit)
       );

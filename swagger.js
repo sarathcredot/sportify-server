@@ -107,9 +107,20 @@ const options = {
     },
     security: [{
       bearerAuth: []
-    }]
+    }],
+    tags: [
+      {
+        name: 'Admin',
+        description: 'Admin related endpoints'
+      }
+    ]
   },
-  apis: ["./src/routes/*.js", "./src/routes/organiser/*.js"],
+  apis: [
+    "./src/routes/*.js",
+    "./src/routes/admin/*.js",
+    "./src/routes/organiser/*.js",
+    "./src/routes/tournament/*.js"
+  ],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
