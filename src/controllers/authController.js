@@ -57,8 +57,8 @@ exports.handleError = (res, message, error) => {
     UnauthorizedError: 401,
   };
   
-  const statusCode = errorMap[error.name] || 500;
+  const statusCode = errorMap[error?.name] || 500;
   res.status(statusCode).json(
-    ResponseHandler.error(message, error.message, statusCode)
+    ResponseHandler.error(message, error?.message, statusCode)
   );
 }
