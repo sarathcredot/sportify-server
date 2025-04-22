@@ -68,7 +68,7 @@ class TournamentService {
       throw new NotFoundError("Tournament not found");
     }
 
-    return { ...tournament, auction: auction };
+    return { tournament, auction: auction };
   }
 
   async updateTournament(id, updateData, user) {
@@ -124,7 +124,7 @@ class TournamentService {
       throw new NotFoundError('Tournament or player not found');
     }
     return tournamentPlayer;
-  } 
+  }
 
   async refundPlayerInTournament(tournamentId, playerId, refund) {
     const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
@@ -136,7 +136,7 @@ class TournamentService {
         $set: {
           status: PLAYER_STATUS.REFUNDED
         }
-      },  
+      },
       { new: true }
     );
 
@@ -185,7 +185,7 @@ class TournamentService {
     }
     return tournamentTeam;
   }
-  
+
   validateTournamentData(data) {
     if (new Date(data.startDate) < new Date()) {
       throw new ValidationError("Start date cannot be in the past");

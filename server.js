@@ -9,7 +9,7 @@ const compression = require('compression');
 const connectDB = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
 const setupSwagger = require('./swagger');
-const { apiLimiter, corsOptions, helmetConfig, requestSizeLimit } = require('./src/config/security');
+const { apiLimiter, helmetConfig, requestSizeLimit } = require('./src/config/security');
 const { cacheMiddleware } = require('./src/config/cache');
 const { logger, stream, morganFormat } = require('./src/config/logger');
 
@@ -20,6 +20,20 @@ connectDB();
 process.on('unhandledRejection', (reason, promise) => {
   logger.error('Unhandled Rejection:', { reason, promise });
 });
+// CORS Configuration
+const corsOptions = {
+  origin: [
+    'https://sportifypro.vercel.app',
+    'http://localhost:3000',
+    'http://192.168.29.18:3000',
+    'https://6sm9fkjp-3000.inc1.devtunnels.ms',
+    'https://5pf6w2vt-3000.inc1.devtunnels.ms'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true, // Enable if you need to handle cookies/auth
+  optionsSuccessStatus: 200 // For legacy browser support
+};
 
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught Exception:', error);
