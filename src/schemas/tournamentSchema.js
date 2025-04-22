@@ -268,6 +268,11 @@ const updateTournamentSchema = z.object({
     bidIncreaseBy: z.number().optional(),
     biddingTimerLimit: z.number().optional(),
   }).optional(),
+}).openapi({
+  example: {
+    name: "Tournament Name",
+    description: "Tournament Description",
+  }
 });
 
 module.exports = {
