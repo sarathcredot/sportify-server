@@ -107,6 +107,8 @@ class TournamentService {
   }
 
   async approvePlayerInTournament(tournamentId, playerId, approve) {
+
+    const plyaerdata=await TournamentPlayers.findOne({tournament:tournamentId,player:playerId})
     const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
       {
         tournament: tournamentId,
@@ -119,6 +121,8 @@ class TournamentService {
       },
       { new: true }
     );
+
+    console.log("get data",plyaerdata)
 
     if (!tournamentPlayer) {
       throw new NotFoundError('Tournament or player not found');

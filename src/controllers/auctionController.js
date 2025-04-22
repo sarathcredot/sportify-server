@@ -21,6 +21,7 @@ class AuctionController extends BaseController {
   }
 
   async getPlayers(req, res) {
+    console.log("auction players")
     const { auctionId } = req.params;
     try {
       const players = await auctionService.getPlayers(auctionId);
