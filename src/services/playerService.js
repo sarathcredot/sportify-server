@@ -41,6 +41,10 @@ class PlayerService {
       player: player._id,
       playerId: playerId,
       status: PLAYER_STATUS.PENDING,
+      firstName: player.firstName,
+      lastName: player.lastName,
+      contactNumber: player.contactNumber,
+      email: player.email,
     });
 
     return player;
@@ -76,12 +80,16 @@ class PlayerService {
       playerId: playerId,
       player: player._id,
       status: PLAYER_STATUS.APPROVED,
+      firstName: player.firstName,
+      lastName: player.lastName,
+      contactNumber: player.contactNumber,
+      email: player.email,
     });
 
     return player;
   }
 
-  async getPlayersByTournamentId(tournamentId, status, search) {
+  async getPlayersByTournamentId(tournamentId, status, search, page, limit) {
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
@@ -97,11 +105,26 @@ class PlayerService {
       ];
     }
 
-    const players = await TournamentPlayers.find(query)
-      .populate('player')
-      .sort({ createdAt: -1 });
+    const skip = (page - 1) * limit;
 
-    return players;
+    const [players, total] = await Promise.all([
+      TournamentPlayers.find(query)
+        .populate('player')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      TournamentPlayers.countDocuments(query)
+    ]);
+
+    return {
+      players: players,
+      pagination: {
+        total,
+        page: parseInt(page),
+        pages: Math.ceil(total / limit),
+        limit: parseInt(limit)
+      }
+    };
   }
 
   async generatePlayerId(tournament) {
