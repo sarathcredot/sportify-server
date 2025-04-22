@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const checkIsOrganiser = require('../middleware/checkIsOrganiser');
 const router = express.Router();
 const tournamentsRouter = require('./organiser/tournament');
+const auctionRouter = require('./organiser/auction');
 const TeamManagerController = require('../controllers/teamManagerController');
 
 const teamManagerController = new TeamManagerController();
@@ -26,6 +27,8 @@ router.use(checkIsOrganiser());
  */
 
 router.use('/tournaments', tournamentsRouter);
+
+router.use('/auction', auctionRouter);
 
 /**
  * @swagger

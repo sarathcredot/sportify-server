@@ -73,16 +73,16 @@ class AuctionService {
     if (pointsAfterBid < minBidPoints) {
       throw new BadRequestError('Team remaining points are less than the minimum bid points');
     }
-    const bid = new Bid({
+    const bidObject = new Bid({
       tournament: auction.tournament,
       auction: auction._id,
       player: bid.playerId,
       placedBy: bid.placedBy,
       points: bid.points,
     });
-    await bid.save();
+    await bidObject.save();
     auction.currentBiddingPlayer.currentBid = {
-      bid: bid._id,
+      bid: bidObject._id,
       team: auction.currentBiddingPlayer.team,
     };
     await auction.save();
