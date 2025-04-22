@@ -87,19 +87,20 @@ class PlayerService {
       query.status = status;
     }
 
-    let players = await TournamentPlayers.find(query)
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { contactNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { playerId: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const players = await TournamentPlayers.find(query)
       .populate('player')
       .sort({ createdAt: -1 });
 
-    if (search) {
-      players = players.filter(player => 
-        player.player.firstName.toLowerCase().includes(search.toLowerCase()) || 
-        player.player.lastName.toLowerCase().includes(search.toLowerCase()) ||
-        player.player.contactNumber.toLowerCase().includes(search.toLowerCase()) ||
-        player.player.email.toLowerCase().includes(search.toLowerCase())
-        // player.playerId.toLowerCase().includes(search.toLowerCase())
-      );
-    }
     return players;
   }
 
