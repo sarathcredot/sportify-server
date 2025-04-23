@@ -15,6 +15,20 @@ const tournamentController = new TournamentController();
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: search
+ *         in: query
+ *         description: Search query
+ *         schema:
+ *           type: string
+ *       - name: page
+ *         in: query
+ *         description: Page number
+ *         schema:
+ *           type: number
+ *       - name: limit
+ *         in: query
+ *         description: Limit
  *     responses:
  *       200:
  *         description: List of tournaments
@@ -158,7 +172,7 @@ router.patch('/:id', validate(updateTournamentSchema), tournamentController.upda
  */
 router.get(
   '/:id',
-  checkOwnership(Tournament),
+  // checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
 

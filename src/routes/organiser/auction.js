@@ -14,6 +14,11 @@ const auctionController = new AuctionController();
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
  *     responses:
  *       200:
  *         content:
@@ -36,6 +41,11 @@ router.get('/:auctionId/players', (req, res) => {
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
  *     responses:
  *       200:
  *         content:
