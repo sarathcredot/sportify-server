@@ -94,6 +94,7 @@ class AuthService {
         token,
         user: {
           id: user._id,
+          fullName: user.fullName,
           phoneNumber: user.phoneNumber,
           countryCode: user.countryCode,
           role: user.role

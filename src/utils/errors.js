@@ -19,8 +19,16 @@ class UnauthorizedError extends Error {
   }
 }
 
+class BadRequestError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'BadRequestError';
+  }
+}
+
 module.exports = {
   ValidationError,
   NotFoundError,
-  UnauthorizedError
+  UnauthorizedError,
+  BadRequestError
 }; 

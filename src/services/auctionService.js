@@ -3,7 +3,8 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
-const { AUCTION_STATUS, PLAYER_STATUS } = require("../utils/constants");
+const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
+const { NotFoundError, BadRequestError } = require("../utils/errors");
 
 class AuctionService {
   async getAuction(tournamentId) {
@@ -12,19 +13,25 @@ class AuctionService {
   }
 
   async getPlayers(auctionId) {
-    const tournament = await Tournament.findOne({ auction: auctionId });
+    const auction = await Auction.findById(auctionId);
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
     const players = await TournamentPlayers.find({
-      tournament: tournament._id,
-      status: 'APPROVED'
+      tournament: auction.tournament,
+      status: PLAYER_STATUS.APPROVED
     }).populate('player');
     return players;
   }
 
   async getTeams(auctionId) {
-    const tournament = await Tournament.findOne({ auction: auctionId });
+    const auction = await Auction.findById(auctionId);
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
     const teams = await TournamentTeams.find({
-      tournament: tournament._id,
-      status: 'APPROVED'
+      tournament: auction.tournament,
+      status: TEAM_STATUS.APPROVED
     }).populate('team');
     return teams;
   }
