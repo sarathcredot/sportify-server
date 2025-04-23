@@ -172,7 +172,7 @@ router.patch('/:id', validate(updateTournamentSchema), tournamentController.upda
  */
 router.get(
   '/:id',
-  checkOwnership(Tournament),
+  // checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
 
