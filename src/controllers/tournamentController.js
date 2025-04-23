@@ -50,7 +50,6 @@ class TournamentController extends BaseController {
   }
 
   async deleteTournamentById(req, res) {
-
     try {
       const { id } = req.params;
       const tournament = await tournamentService.deleteTournamentById(id);
@@ -65,9 +64,9 @@ class TournamentController extends BaseController {
 
   async getOrganiserTournaments(req, res) {
     try {
-      const { sportType, location, search } = req.query;
+      const { sportType, location, search, page = 1, limit = 10 } = req.query;
       const user = req.user;
-      const tournaments = await tournamentService.getOrganiserTournaments(user, sportType, location, search);
+      const tournaments = await tournamentService.getOrganiserTournaments(user, sportType, location, search, parseInt(page), parseInt(limit));
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
     } catch (error) {
       this.handleError(res, error);
@@ -76,11 +75,10 @@ class TournamentController extends BaseController {
 
   async getTournaments(req, res) {
     try {
-      const { sportType, location, search, page = 1, limit = 10 } = req.query;
+      const { search, organiserId, page = 1, limit = 10 } = req.query;
       const tournaments = await tournamentService.getTournaments(
-        sportType,
-        location,
         search,
+        organiserId,
         parseInt(page),
         parseInt(limit)
       );

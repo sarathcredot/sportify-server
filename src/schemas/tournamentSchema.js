@@ -229,6 +229,53 @@ const createTournamentSchema = z.object({
   }
 });
 
+const updateTournamentSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  logoUrl: z.string().optional(),
+  bannerUrl: z.string().optional(),
+  startDate: dateSchema.optional(),
+  endDate: dateSchema.optional(),
+  sportType: z.enum(SPORT_TYPES).optional(),
+  location: z.string().optional(),
+  ground: z.string().optional(),
+  settings: z.object({
+    matchType: z.string().optional(),
+    ballType: z.string().optional(),
+    overs: z.string().optional(),
+    auctionEnabled: z.boolean().optional(),
+    maxTeamAllowed: z.number().int().positive().optional(),
+    maxPlayersAllowed: z.number().int().positive().optional(),
+    maxPlayersPerTeam: z.number().int().positive().optional(),
+    teamRegistrationFeeEnabled: z.boolean().optional(),
+    teamRegistrationFee: z.number().int().min(0).optional(),
+    playerRegistrationFeeEnabled: z.boolean().optional(),
+    playerRegistrationFee: z.number().int().min(0).optional(),
+  }).optional(),
+  organiserDetails: z.object({
+    name: z.string().optional(),
+    phoneNumber: z.string().optional(),
+    alternatePhoneNumber: z.string().optional(),
+    email: z.string().email().optional(),
+  }).optional(),
+  auction: z.object({
+    auctionDate: dateSchema.optional(),
+    auctionTime: z.string().optional(),
+    auctionLocation: z.string().optional(),
+    biddingPointPerTeam: z.number().optional(),
+    minBidPerPlayer: z.number().optional(),
+    maxBidPerPlayer: z.number().optional(),
+    bidIncreaseBy: z.number().optional(),
+    biddingTimerLimit: z.number().optional(),
+  }).optional(),
+}).openapi({
+  example: {
+    name: "Tournament Name",
+    description: "Tournament Description",
+  }
+});
+
 module.exports = {
-  createTournamentSchema
+  createTournamentSchema,
+  updateTournamentSchema
 };

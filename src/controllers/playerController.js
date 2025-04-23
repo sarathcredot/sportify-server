@@ -44,7 +44,9 @@ class PlayerController extends BaseController {
     try {
       const { tournamentId } = req.params;
       const { status, search } = req.query;
-      const players = await playerService.getPlayersByTournamentId(tournamentId, status, search);
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+      const players = await playerService.getPlayersByTournamentId(tournamentId, status, search, page, limit);
       this.handleSuccess(res, players, 'Players retrieved successfully');
     } catch (error) {
       this.handleError(res, error);

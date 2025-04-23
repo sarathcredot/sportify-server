@@ -41,6 +41,10 @@ class PlayerService {
       player: player._id,
       playerId: playerId,
       status: PLAYER_STATUS.PENDING,
+      firstName: player.firstName,
+      lastName: player.lastName,
+      contactNumber: player.contactNumber,
+      email: player.email,
     });
 
     return player;
@@ -76,31 +80,51 @@ class PlayerService {
       playerId: playerId,
       player: player._id,
       status: PLAYER_STATUS.APPROVED,
+      firstName: player.firstName,
+      lastName: player.lastName,
+      contactNumber: player.contactNumber,
+      email: player.email,
     });
 
     return player;
   }
 
-  async getPlayersByTournamentId(tournamentId, status, search) {
+  async getPlayersByTournamentId(tournamentId, status, search, page, limit) {
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
     }
 
-    let players = await TournamentPlayers.find(query)
-      .populate('player')
-      .sort({ createdAt: -1 });
-
     if (search) {
-      players = players.filter(player => 
-        player.player.firstName.toLowerCase().includes(search.toLowerCase()) || 
-        player.player.lastName.toLowerCase().includes(search.toLowerCase()) ||
-        player.player.contactNumber.toLowerCase().includes(search.toLowerCase()) ||
-        player.player.email.toLowerCase().includes(search.toLowerCase())
-        // player.playerId.toLowerCase().includes(search.toLowerCase())
-      );
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { contactNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { playerId: { $regex: search, $options: 'i' } }
+      ];
     }
-    return players;
+
+    const skip = (page - 1) * limit;
+
+    const [players, total] = await Promise.all([
+      TournamentPlayers.find(query)
+        .populate('player')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      TournamentPlayers.countDocuments(query)
+    ]);
+
+    return {
+      players: players,
+      pagination: {
+        total,
+        page: parseInt(page),
+        pages: Math.ceil(total / limit),
+        limit: parseInt(limit)
+      }
+    };
   }
 
   async generatePlayerId(tournament) {

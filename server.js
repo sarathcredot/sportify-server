@@ -69,13 +69,15 @@ app.use('/media', express.static(path.join(__dirname, 'media'), {
 
 const tournamentRoutes = require('./src/routes/tournament');
 const organiserRoutes = require('./src/routes/organiser');
-
+const adminRoutes = require('./src/routes/admin');
 if (process.env.NODE_ENV === 'production') {
   app.use('/api/tournaments', cacheMiddleware(300), tournamentRoutes);
   app.use('/api/organiser', cacheMiddleware(300), organiserRoutes);
+  app.use('/api/admin', cacheMiddleware(300), adminRoutes);
 } else {
   app.use('/api/tournaments', tournamentRoutes);
   app.use('/api/organiser', organiserRoutes);
+  app.use('/api/admin', adminRoutes);
 }
 
 app.use('/api/auth', require('./src/routes/auth'));

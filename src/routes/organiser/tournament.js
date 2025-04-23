@@ -221,6 +221,18 @@ router.post(
  *         schema:
  *           type: string
  *         description: Search query
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *         description: Limit
  *     responses:
  *       200:
  *         description: List of players

@@ -7,19 +7,14 @@ const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
 
-  async getTournaments(sportType, location, search, page = 1, limit = 10) {
-    const query = {};
-
-    if (sportType) {
-      query.sportType = sportType;
-    }
-
-    if (location) {
-      query.location = location;
-    }
-
+  async getTournaments(search, organiserId, page, limit) {
+    const query = {}; 
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
+    }
+
+    if (organiserId) {
+      query.createdBy = organiserId;
     }
 
     const skip = (page - 1) * limit;
@@ -71,7 +66,7 @@ class TournamentService {
     return { tournament, auction: auction };
   }
 
-  async updateTournament(id, updateData, user) {
+  async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
 
     if (!this.canUserModifyTournament(tournament, user)) {
@@ -87,7 +82,19 @@ class TournamentService {
     );
   }
 
-  async getOrganiserTournaments(user, sportType, location, search) {
+  async deleteTournamentById(id, user) {
+    const tournament = await this.getTournamentById(id);
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
+    if (!this.canUserModifyTournament(tournament, user)) {
+      throw new UnauthorizedError("Not authorized to modify this tournament");
+    }
+    await Tournament.findByIdAndDelete(id);
+    return tournament;
+  }
+
+  async getOrganiserTournaments(user, sportType, location, search, page, limit) {
     const query = { createdBy: user._id };
 
     if (sportType) {
@@ -102,8 +109,22 @@ class TournamentService {
       query.name = { $regex: String(search).trim(), $options: "i" };
     }
 
-    const tournaments = await Tournament.find(query).sort({ createdAt: -1 });
-    return tournaments;
+    const skip = (page - 1) * limit;
+    const tournaments = await Tournament.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Tournament.countDocuments(query);
+    return {
+      tournaments,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async approvePlayerInTournament(tournamentId, playerId, approve) {
