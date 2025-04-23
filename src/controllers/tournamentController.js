@@ -64,7 +64,8 @@ class TournamentController extends BaseController {
 
   async getOrganiserTournaments(req, res) {
     try {
-      const { sportType, location, search, page = 1, limit = 10 } = req.query;
+      const { sportType, location, search, page , limit } = req.query;
+      console.log("limit", limit, "page", page)
       const user = req.user;
       const tournaments = await tournamentService.getOrganiserTournaments(user, sportType, location, search, parseInt(page), parseInt(limit));
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
