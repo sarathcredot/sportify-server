@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { parsePhoneNumber } = require('libphonenumber-js');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { ROLES } = require('../utils/constants');
 
@@ -83,7 +84,7 @@ class AuthService {
       await user.save();
 
       const token = jwt.sign(
-        { userId: user._id, phone: user.phoneNumber, name: user?.fullName },
+        { userId: user._id, phone: user.phoneNumber, name: user?.fullName, role: user.role },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -100,6 +101,44 @@ class AuthService {
       };
     } catch (error) {
       throw new Error(error.message || 'Failed to verify OTP');
+    }
+  }
+
+  async login(email, password) {
+    try {
+      const user = await User.findOne({ email, role: ROLES.ADMIN });
+      if (!user) {
+        throw new Error('Invalid credentials');
+      }
+      const isPasswordValid = bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new Error('Invalid credentials');
+      }
+      if (!user.isActive) {
+        throw new Error('Account is deactivated');
+      }
+      const token = jwt.sign(
+        { 
+          userId: user._id, 
+          email: user.email, 
+          role: user.role 
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      return {
+        success: true,
+        token,
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          fullName: user.fullName
+        }
+      };
+    } catch (error) {
+      throw new Error(error.message || 'Login failed');
     }
   }
 

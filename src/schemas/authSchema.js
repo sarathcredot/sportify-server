@@ -1,6 +1,11 @@
 const { z } = require("zod");
 const { OTP_LENGTH } = require("../utils/constants");
 
+const loginSchema = z.object({
+  email: z.string().nonempty({ message: "Email is required" }),
+  password: z.string().nonempty({ message: "Password is required" }),
+});
+
 const sendOTPSchema = z.object({
   phoneNumber: z.string().nonempty({ message: "Phone number is required" }),
   countryCode: z.string().nonempty({ message: "Country code is required" }),
@@ -27,4 +32,5 @@ module.exports = {
   sendOTPSchema,
   verifyOTPSchema,
   registerSchema,
+  loginSchema,
 };

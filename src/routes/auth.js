@@ -1,7 +1,7 @@
 const express = require('express');
-const { sendOTP, verifyOTP, register } = require('../controllers/authController');
+const { sendOTP, verifyOTP, register, login } = require('../controllers/authController');
 const validate = require('../utils/validate');  
-const { sendOTPSchema, verifyOTPSchema, registerSchema } = require('../schemas/authSchema');
+const { sendOTPSchema, verifyOTPSchema, registerSchema, loginSchema } = require('../schemas/authSchema');
 
 const router = express.Router();
 
@@ -130,5 +130,46 @@ router.post(
   validate(verifyOTPSchema),
   verifyOTP
 );
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login as an admin
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: The user's email
+ *                 example: "admin@sportifypro.com"
+ *               password:
+ *                 type: string
+ *                 description: The user's password
+ *                 example: "admin@123"
+ *     responses:
+ *       '200':
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         token:
+ *                           type: string
+ *                         user:
+ *                           type: object
+ */
+router.post('/login', validate(loginSchema), login);
 
 module.exports = router;

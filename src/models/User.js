@@ -7,15 +7,35 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  email: {
+    type: String,
+    required: function() {
+      return this.role === ROLES.ADMIN;
+    },
+    unique: true,
+    trim: true,
+    lowercase: true
+  },
+  password: {
+    type: String,
+    required: function() {
+      return this.role === ROLES.ADMIN;
+    },
+    minlength: 6
+  },
   phoneNumber: {
     type: String,
-    required: true,
+    required: function() {
+      return this.role !== ROLES.ADMIN;
+    },
     unique: true,
     trim: true
   },
   countryCode: {
     type: String,
-    required: true,
+    required: function() {
+      return this.role !== ROLES.ADMIN;
+    },
     trim: true
   },
   isVerified: {
@@ -30,6 +50,10 @@ const userSchema = new mongoose.Schema({
   otpData: {
     otp: String,
     expiresAt: Date
+  },
+  isActive: {
+    type: Boolean,
+    default: true
   }
 }, {
   timestamps: true
