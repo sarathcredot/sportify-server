@@ -13,6 +13,7 @@ class AuctionService {
 
   async getPlayers(auctionId) {
     const tournament = await Tournament.findOne({ auction: auctionId });
+    console.log("tournament", auctionId);
     const players = await TournamentPlayers.find({
       tournament: tournament._id,
       status: 'APPROVED'
