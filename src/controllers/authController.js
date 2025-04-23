@@ -49,6 +49,20 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
+exports.login = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { email, password } = req.body;
+    const result = await authService.login(email, password);
+    res.json(ResponseHandler.success("Login successful", result));
+  } catch (error) {
+    this.handleError(res, "Login failed", error);
+  }
+};
+
 exports.handleError = (res, message, error) => {
   
   const errorMap = {
