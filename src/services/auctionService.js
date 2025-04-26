@@ -14,13 +14,16 @@ class AuctionService {
 
   async getPlayers(auctionId) {
     const auction = await Auction.findById(auctionId);
+     
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
     const players = await TournamentPlayers.find({
       tournament: auction.tournament,
       status: PLAYER_STATUS.APPROVED
-    }).populate('player');
+     })
+     .populate('player');
+    console.log(players);
     return players;
   }
 
@@ -51,6 +54,7 @@ class AuctionService {
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
+    console.log('Auction started',players);
     return auction;
   }
 
