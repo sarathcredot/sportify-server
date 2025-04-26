@@ -20,11 +20,19 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  async getAllTeamManagersPaginated(req, res) {
+  getAllTeamManagersPaginated = async (req, res) => {
     try {
       const { search, page = 1, limit = 10 } = req.query;
-      const teamManagers = await teamManagerService.getAllTeamManagersPaginated(search, page, limit);
-      this.handleSuccess(res, teamManagers, "Team managers retrieved successfully");
+      const teamManagers = await teamManagerService.getAllTeamManagersPaginated(
+        search,
+        page,
+        limit
+      );
+      this.handleSuccess(
+        res,
+        teamManagers,
+        "Team managers retrieved successfully"
+      );
     } catch (error) {
       this.handleError(res, error);
     }
@@ -41,7 +49,10 @@ class TeamManagerController extends BaseController {
 
   updateTeamManagerById(req, res) {
     try {
-      const teamManager = teamManagerService.updateTeamManagerById(req.params.id, req.body);
+      const teamManager = teamManagerService.updateTeamManagerById(
+        req.params.id,
+        req.body
+      );
       this.handleSuccess(res, teamManager, "Team manager updated successfully");
     } catch (error) {
       this.handleError(res, error);
@@ -51,7 +62,11 @@ class TeamManagerController extends BaseController {
   getTeamManagerById(req, res) {
     try {
       const teamManager = teamManagerService.getTeamManagerById(req.params.id);
-      this.handleSuccess(res, teamManager, "Team manager retrieved successfully");
+      this.handleSuccess(
+        res,
+        teamManager,
+        "Team manager retrieved successfully"
+      );
     } catch (error) {
       this.handleError(res, error);
     }
@@ -59,7 +74,9 @@ class TeamManagerController extends BaseController {
 
   deleteTeamManagerById(req, res) {
     try {
-      const teamManager = teamManagerService.deleteTeamManagerById(req.params.id);
+      const teamManager = teamManagerService.deleteTeamManagerById(
+        req.params.id
+      );
       this.handleSuccess(res, teamManager, "Team manager deleted successfully");
     } catch (error) {
       this.handleError(res, error);
