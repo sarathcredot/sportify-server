@@ -31,34 +31,34 @@ const TournamentSchema = new mongoose.Schema({
     matchType: {
       type: String,
       required: true,
-      validate: {
-        validator: function (value) {
-          if (this.sportType === SPORTS_NAMES.CRICKET) {
-            return Object.values(CRICKET_MATCH_TYPES).includes(value);
-          } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
-            return Object.values(FOOTBALL_MATCH_TYPES).includes(value);
-          }
-          return false;
-        },
-        message: (props) =>
-          `${props.value} is not a valid match type for the selected sport type`,
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     if (this.sportType === SPORTS_NAMES.CRICKET) {
+      //       return Object.values(CRICKET_MATCH_TYPES).includes(value);
+      //     } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
+      //       return Object.values(FOOTBALL_MATCH_TYPES).includes(value);
+      //     }
+      //     return false;
+      //   },
+      //   message: (props) =>
+      //     `${props.value} is not a valid match type for the selected sport type`,
+      // },
     },
     ballType: {
       type: String,
       required: true,
-      validate: {
-        validator: function (value) {
-          if (this.sportType === SPORTS_NAMES.CRICKET) {
-            return Object.values(CRICKET_BALL_TYPES).includes(value);
-          } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
-            return Object.values(FOOTBALL_BALL_TYPES).includes(value);
-          }
-          return false;
-        },
-        message: (props) =>
-          `${props.value} is not a valid ball type for the selected sport type`,
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     if (this.sportType === SPORTS_NAMES.CRICKET) {
+      //       return Object.values(CRICKET_BALL_TYPES).includes(value);
+      //     } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
+      //       return Object.values(FOOTBALL_BALL_TYPES).includes(value);
+      //     }
+      //     return false;
+      //   },
+      //   message: (props) =>
+      //     `${props.value} is not a valid ball type for the selected sport type`,
+      // },
     },
     overs: {
       type: String,
@@ -133,6 +133,31 @@ const TournamentSchema = new mongoose.Schema({
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
+});
+
+
+TournamentSchema.pre('validate', function (next) {
+  if (!this.settings) {
+    return next();
+  }
+  // Validate matchType based on sportType
+  if (this.sportType === SPORTS_NAMES.CRICKET) {
+    if (!Object.values(CRICKET_MATCH_TYPES).includes(this.settings.matchType)) {
+      return next(new Error(`${this.settings.matchType} is not a valid match type for Cricket.`));
+    }
+    if (!Object.values(CRICKET_BALL_TYPES).includes(this.settings.ballType)) {
+      return next(new Error(`${this.settings.ballType} is not a valid ball type for Cricket.`));
+    }
+  } else if (this.sportType === SPORTS_NAMES.FOOTBALL) {
+    if (!Object.values(FOOTBALL_MATCH_TYPES).includes(this.settings.matchType)) {
+      return next(new Error(`${this.settings.matchType} is not a valid match type for Football.`));
+    }
+    if (!Object.values(FOOTBALL_BALL_TYPES).includes(this.settings.ballType)) {
+      return next(new Error(`${this.settings.ballType} is not a valid ball type for Football.`));
+    }
+  }
+
+  next();
 });
 
 // Add virtual fields for both players and teams

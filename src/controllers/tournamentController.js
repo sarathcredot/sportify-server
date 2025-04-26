@@ -39,6 +39,8 @@ class TournamentController extends BaseController {
     try {
       const { id } = req.params;
       const updates = req.body;
+      console.log(id, ' = PARAMS.ID')
+      console.log(updates, ' = REQ.BODY')
       const tournament = await tournamentService.updateTournamentById(id, updates);
       if (!tournament) {
         return res.status(404).json(ResponseHandler.error('Tournament not found', null, 404));

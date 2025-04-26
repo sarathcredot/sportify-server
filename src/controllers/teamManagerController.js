@@ -47,7 +47,7 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  updateTeamManagerById(req, res) {
+  updateTeamManagerById = (req, res) => {
     try {
       const teamManager = teamManagerService.updateTeamManagerById(
         req.params.id,
