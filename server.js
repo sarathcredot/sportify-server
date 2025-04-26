@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const connectDB = require('./src/config/database');
 const errorHandler = require('./src/middleware/errorHandler');
+const requestLogger = require('./src/middleware/requestLogger');
 const setupSwagger = require('./swagger');
 const { apiLimiter, helmetConfig, requestSizeLimit } = require('./src/config/security');
 const { cacheMiddleware } = require('./src/config/cache');
@@ -84,6 +85,7 @@ app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/upload', require('./src/routes/fileUpload'));
 
 app.use(errorHandler);
+app.use(requestLogger);
 
 const PORT = process.env.PORT || 5000;
 

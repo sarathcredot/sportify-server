@@ -3,6 +3,8 @@ const auth = require('../middleware/auth');
 const checkIsAdmin = require('../middleware/checkIsAdmin');
 const router = express.Router();
 const tournamentsRouter = require('./admin/tournament');
+const teamManagersRouter = require('./admin/teammanagers');
+
 
 router.use(auth);
 router.use(checkIsAdmin());
@@ -23,6 +25,6 @@ router.use(checkIsAdmin());
  */
 
 router.use('/tournaments', tournamentsRouter);
-// router.use('/auction', auctionRouter);
+router.use('/teammanagers', teamManagersRouter);
 
 module.exports = router;
