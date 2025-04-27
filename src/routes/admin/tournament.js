@@ -52,46 +52,46 @@ const tournamentController = new TournamentController();
  */
 router.get('/', tournamentController.getTournaments);
 
-/**
- * @swagger
- * /admin/tournaments:
- *   post:
- *     summary: Create a new tournament
- *     tags: [Admin]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateTournament'
- *     responses:
- *       201:
- *         description: Tournament created successfully
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       $ref: '#/components/schemas/Tournament'
- *       401:
- *         description: Unauthorized
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ErrorResponse'
- *                 - type: object
- *                   properties:
- *                     statusCode:
- *                       type: integer
- *                       example: 401
- */
-router.post('/', validate(createTournamentSchema), tournamentController.createTournament);
+// /**
+//  * @swagger
+//  * /admin/tournaments:
+//  *   post:
+//  *     summary: Create a new tournament
+//  *     tags: [Admin]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             $ref: '#/components/schemas/CreateTournament'
+//  *     responses:
+//  *       201:
+//  *         description: Tournament created successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               allOf:
+//  *                 - $ref: '#/components/schemas/ApiResponse'
+//  *                 - type: object
+//  *                   properties:
+//  *                     data:
+//  *                       $ref: '#/components/schemas/Tournament'
+//  *       401:
+//  *         description: Unauthorized
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               allOf:
+//  *                 - $ref: '#/components/schemas/ErrorResponse'
+//  *                 - type: object
+//  *                   properties:
+//  *                     statusCode:
+//  *                       type: integer
+//  *                       example: 401
+//  */
+// router.post('/', validate(createTournamentSchema), tournamentController.createTournament);
 
 /**
  * @swagger
@@ -172,7 +172,6 @@ router.patch('/:id', validate(updateTournamentSchema), tournamentController.upda
  */
 router.get(
   '/:id',
-  // checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
 
@@ -203,7 +202,6 @@ router.get(
  */
 router.delete(
   '/:id',
-  checkOwnership(Tournament),
   tournamentController.deleteTournamentById
 );
 

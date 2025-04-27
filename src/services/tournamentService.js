@@ -226,7 +226,9 @@ class TournamentService {
   }
 
   async validateUpdateData(updateData) {
-    // Implementation of validateUpdateData method
+    if (new Date(updateData.startDate) < new Date()) {
+      throw new ValidationError("Start date cannot be in the past");
+    }
   }
 }
 
