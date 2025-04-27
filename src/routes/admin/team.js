@@ -1,16 +1,16 @@
 const express = require('express');
 const validate = require('../../utils/validate'); 
-const { updateUserSchema } = require('../../schemas/authSchema'); 
-const OrganiserController = require('../../controllers/organiserController');
+const { updateTeamSchema } = require('../../schemas/teamSchema'); 
+const TeamController = require('../../controllers/teamController');
 
 const router = express.Router();
-const organiserController = new OrganiserController();
+const teamController = new TeamController();
 
 /**
  * @swagger
- * /admin/organisers/{id}:
+ * /admin/teams/{id}:
  *   patch:
- *     summary: Update organiser by ID
+ *     summary: Update team by ID
  *     tags: [Admin]
  *     parameters:
  *       - in: path
@@ -18,7 +18,7 @@ const organiserController = new OrganiserController();
  *         required: true
  *         schema:
  *           type: string
- *         description: Organiser ID 
+ *         description: Team ID 
  *     requestBody:
  *       required: true
  *       content:
@@ -27,7 +27,7 @@ const organiserController = new OrganiserController();
  *             $ref: '#/components/schemas/UpdateUser'
  *     responses:
  *       200:
- *         description: Team manager updated successfully
+ *         description: Team updated successfully
  *         content:
  *           application/json:
  *             schema:
@@ -56,13 +56,13 @@ const organiserController = new OrganiserController();
  *               allOf:
  *                 - $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/:id', validate(updateUserSchema), organiserController.updateOrganiserById);
+router.patch('/:id', validate(updateTeamSchema), teamController.updateTeamById);
 
 /**
  * @swagger
- * /admin/organisers/{id}:
+ * /admin/teams/{id}:
  *   get:
- *     summary: Get organiser by ID
+ *     summary: Get team by ID
  *     tags: [Admin]
  *     parameters:
  *       - in: path
@@ -70,10 +70,10 @@ router.patch('/:id', validate(updateUserSchema), organiserController.updateOrgan
  *         required: true
  *         schema:
  *           type: string
- *         description: Organiser ID
+ *         description: Team ID
  *     responses:
  *       200:
- *         description: Organiser details
+ *         description: Team details
  *         content:
  *           application/json:
  *             schema:
@@ -82,42 +82,26 @@ router.patch('/:id', validate(updateUserSchema), organiserController.updateOrgan
  *                 - type: object
  *                   properties:
  *                     data:
- *                       type: object
- *                       properties:
- *                         fullName:
- *                           type: string
- *                         email:
- *                           type: string
- *                         phoneNumber:
- *                           type: string
- *                         isVerified:
- *                           type: boolean
- *                         isActive:
- *                           type: boolean
- *                         teams:
- *                           type: array
- *                           items:
- *                             type: object
- *                             $ref: '#/components/schemas/Team'
+ *                       $ref: '#/components/schemas/Team'
  *       401:
  *         description: Unauthorized
  *       403:
  *         description: Forbidden
  *       404:
- *         description: Team manager not found
+ *         description: Team not found
  *       500:
  *         description: Internal server error
  */
 router.get(
   '/:id',
-  organiserController.getOrganiserById
+  teamController.getTeamById
 );
 
 /**
  * @swagger
- * /admin/organisers/{id}:
+ * /admin/teams/{id}:
  *   delete:
- *     summary: Delete organiser by ID
+ *     summary: Delete team by ID
  *     tags: [Admin]
  *     parameters:
  *       - in: path
@@ -125,22 +109,22 @@ router.get(
  *         required: true
  *         schema:
  *           type: string
- *         description: Organiser ID
+ *         description: Team ID
  *     responses:
  *       200:
- *         description: Organiser deleted successfully
+ *         description: Team deleted successfully
  *       401:
  *         description: Unauthorized
  *       403:
  *         description: Forbidden
  *       404:
- *         description: Team manager not found
+ *         description: Team not found
  *       500:
  *         description: Internal server error
  */
 router.delete(
   '/:id',
-  organiserController.deleteOrganiserById
+  teamController.deleteTeamById
 );
 
 module.exports = router;

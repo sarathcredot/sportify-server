@@ -12,6 +12,10 @@ class TeamController extends BaseController {
     this.registerTeam = this.registerTeam.bind(this);
     this.getTeamsByTournamentId = this.getTeamsByTournamentId.bind(this);
     this.approveTeam = this.approveTeam.bind(this);
+    this.refundTeam = this.refundTeam.bind(this);
+    this.getTeamById = this.getTeamById.bind(this);
+    this.updateTeamById = this.updateTeamById.bind(this);
+    this.deleteTeamById = this.deleteTeamById.bind(this);
   }
 
   async createTeam(req, res) {
@@ -70,7 +74,6 @@ class TeamController extends BaseController {
     }
   }
 
-
   async refundTeam(req, res) {
     try {
       const { tournamentId, teamId } = req.params;
@@ -81,6 +84,38 @@ class TeamController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async getTeamById(req, res) {
+    try {
+      const { id } = req.params;
+      const team = await teamService.getTeamById(id);
+      this.handleSuccess(res, team, "Team retrieved successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async updateTeamById(req, res) {
+    try {
+      const { id } = req.params;
+      const { team } = req.body;
+      const updatedTeam = await teamService.updateTeamById(id, team);
+      this.handleSuccess(res, updatedTeam, "Team updated successfully");  
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async deleteTeamById(req, res) {
+    try {
+      const { id } = req.params;
+      const deletedTeam = await teamService.deleteTeamById(id);
+      this.handleSuccess(res, deletedTeam, "Team deleted successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+  
 }
 
 module.exports = TeamController;

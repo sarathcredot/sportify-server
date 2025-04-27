@@ -162,6 +162,62 @@ class TeamService {
     await tournament.save();
     return teamId;
   }
+
+  async getTeamById(id) {
+    const team = await TournamentTeams.findById(id).populate('team');
+    if (!team) {
+      throw new NotFoundError("Team not found");
+    }
+    return team;
+  }
+
+  async updateTeamById(id, teamData) {
+    const tournamentTeam = await TournamentTeams.findById(id);
+    if (!tournamentTeam) {
+      throw new NotFoundError("Team not found");
+    }
+
+    const { name, location, logoUrl, phoneNumber, email, status } = teamData;
+
+    // Update tournament team fields
+    const updatedTournamentTeam = await TournamentTeams.findByIdAndUpdate(
+      id,
+      {
+        name,
+        phoneNumber,
+        email,
+        status
+      },
+      { new: true }
+    );
+
+    // Update team fields
+    await Team.findByIdAndUpdate(
+      tournamentTeam.team,
+      {
+        name,
+        location,
+        logoUrl,
+        phoneNumber,
+        email
+      },
+      { new: true }
+    );
+
+    return updatedTournamentTeam;
+  }
+
+  async deleteTeamById(id) {
+    const tournamentTeam = await TournamentTeams.findById(id);
+    if (!tournamentTeam) {
+      throw new NotFoundError("Team not found");
+    }
+    await Promise.all([
+      Team.findByIdAndDelete(tournamentTeam.team),
+      TournamentTeams.findByIdAndDelete(id)
+    ]);
+    return tournamentTeam;
+  }
 }
 
 module.exports = new TeamService();
