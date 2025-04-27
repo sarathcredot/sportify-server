@@ -63,6 +63,33 @@ class TeamService {
     return teams;
   }
 
+  async getTeamsByTeamManagerId(search, page, limit, teamManagerId) {
+    const query = { manager: teamManagerId };
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+    const options = {
+      sort: { createdAt: -1 },
+      skip: (page - 1) * limit,
+      limit: parseInt(limit),
+    };
+    const teams = await TournamentTeams.find(query, null, options)
+      .populate({
+        path: 'team',
+      })
+      .sort({ createdAt: -1 });
+
+    return {
+      teams: teams,
+      pagination: {
+        total: teams.length,
+        page,
+        limit,
+        pages: Math.ceil(teams.length / limit),
+      }
+    };
+  }
+
   async createTeamManager(teamManagerData) {
     return authService.createUser({
       ...teamManagerData,
