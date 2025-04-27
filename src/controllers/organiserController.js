@@ -60,9 +60,9 @@ class OrganiserController extends BaseController {
 
   async getOrganiserTournaments(req, res) {
     try {
-      const { search, page = 1, limit = 10 } = req.query;
+      const { search, page, limit } = req.query;
       const organiserId = req.user._id;
-      const organiser = await tournamentService.getOrganiserTournaments(organiserId, search, page, limit);
+      const organiser = await tournamentService.getOrganiserTournaments(organiserId, search, parseInt(page), parseInt(limit));
       this.handleSuccess(res, organiser, "Organiser tournaments retrieved successfully");
     } catch (error) {
       this.handleError(res, error);

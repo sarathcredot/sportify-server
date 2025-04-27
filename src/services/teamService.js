@@ -42,50 +42,67 @@ class TeamService {
     return team;
   }
 
-  async getTeamsByTournamentId(tournamentId, status, search) {
+  async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
     }
 
-    let teams = await TournamentTeams.find(query)
-      .populate({
-        path: 'team',
-        populate: {
+    if (search) {
+      query.teamId = { $regex: search, $options: 'i' };
+    }
+
+    const skip = (page - 1) * limit;
+
+    let [teams, total] = await Promise.all([
+      TournamentTeams.find(query)
+        .populate({
+          path: 'team',
+          populate: {
           path: 'manager'
         }
       })
-      .sort({ createdAt: -1 });
-
-    if (search) {
-      teams = teams.filter(team => team.team.name.toLowerCase().includes(search.toLowerCase()));
-    }
-    return teams;
-  }
-
-  async getTeamsByTeamManagerId(search, page, limit, teamManagerId) {
-    const query = { manager: teamManagerId };
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
-    const options = {
-      sort: { createdAt: -1 },
-      skip: (page - 1) * limit,
-      limit: parseInt(limit),
-    };
-    const teams = await TournamentTeams.find(query, null, options)
-      .populate({
-        path: 'team',
-      })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+      TournamentTeams.countDocuments(query)
+    ]);
 
     return {
       teams: teams,
       pagination: {
-        total: teams.length,
+        total: total,
         page,
         limit,
-        pages: Math.ceil(teams.length / limit),
+        pages: Math.ceil(total / limit),
+      }
+    };
+  }
+
+  async getTeamsByTeamManagerId(search, page = 1, limit = 10, teamManagerId) {
+    const query = { manager: teamManagerId };
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+    const skip = (page - 1) * limit;
+    const [teams, total] = await Promise.all([
+      TournamentTeams.find(query)
+        .populate({
+          path: 'team',
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      TournamentTeams.countDocuments(query)
+    ]);
+
+    return {
+      teams: teams,
+      pagination: {
+        total: total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
       }
     };
   }

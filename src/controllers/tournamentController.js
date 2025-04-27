@@ -1,17 +1,20 @@
 const tournamentService = require('../services/tournamentService');
+const teamService = require('../services/teamService');
+const playerService = require('../services/playerService');
 const ResponseHandler = require('../utils/responseHandler');
 const BaseController = require('./baseController');
+
 
 class TournamentController extends BaseController {
   constructor() {
     super();
-    // Bind all methods to preserve 'this' context
     this.createTournament = this.createTournament.bind(this);
     this.getTournamentById = this.getTournamentById.bind(this);
     this.updateTournamentById = this.updateTournamentById.bind(this);
     this.deleteTournamentById = this.deleteTournamentById.bind(this);
     this.getOrganiserTournaments = this.getOrganiserTournaments.bind(this);
     this.getTournaments = this.getTournaments.bind(this);
+    this.getTeamsByTournamentId = this.getTeamsByTournamentId.bind(this);
   }
 
   async createTournament(req, res) {
@@ -24,7 +27,6 @@ class TournamentController extends BaseController {
   }
 
   async getTournamentById(req, res) {
-
     try {
    
       const tournament = await tournamentService.getTournamentById(req.params.id);
@@ -66,7 +68,7 @@ class TournamentController extends BaseController {
 
   async getOrganiserTournaments(req, res) {
     try {
-      const { sportType, location, search, page = 1, limit = 10 } = req.query;
+      const { sportType, location, search, page, limit } = req.query;
       const user = req.user;
       const tournaments = await tournamentService.getOrganiserTournaments(user._id, sportType, location, search, parseInt(page), parseInt(limit));
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
@@ -85,6 +87,28 @@ class TournamentController extends BaseController {
         parseInt(limit)
       );
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getTeamsByTournamentId(req, res) {
+    try {
+      const { id } = req.params;
+      const { status, search, page, limit } = req.query;
+      const teams = await teamService.getTeamsByTournamentId(id, status, search, parseInt(page), parseInt(limit));
+      res.status(200).json(ResponseHandler.success('Teams retrieved successfully', teams));
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getPlayersByTournamentId(req, res) {
+    try {
+      const { id } = req.params;
+      const { status, search, page, limit } = req.query;
+      const players = await playerService.getPlayersByTournamentId(id, status, search, parseInt(page), parseInt(limit));
+      res.status(200).json(ResponseHandler.success('Players retrieved successfully', players));
     } catch (error) {
       this.handleError(res, error);
     }

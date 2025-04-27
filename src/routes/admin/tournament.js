@@ -177,6 +177,88 @@ router.get(
 
 /**
  * @swagger
+ * /admin/tournaments/{id}/teams:
+ *   get:
+ *     summary: Get teams by tournament ID
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     responses:
+ *       200:
+ *         description: Teams by tournament ID  
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object 
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Team'
+ *       401: 
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/:id/teams',
+  tournamentController.getTeamsByTournamentId
+);
+
+/**
+ * @swagger
+ * /admin/tournaments/{id}/players: 
+ *   get:
+ *     summary: Get players by tournament ID
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     responses:
+ *       200:
+ *         description: Players by tournament ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Player'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/:id/players',
+  tournamentController.getPlayersByTournamentId
+);
+
+/**
+ * @swagger
  * /admin/tournaments/{id}:
  *   delete:
  *     summary: Delete tournament by ID

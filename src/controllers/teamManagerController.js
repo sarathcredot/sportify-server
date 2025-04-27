@@ -63,8 +63,8 @@ class TeamManagerController extends BaseController {
 
   async getTeamManagerTeamsById(req, res) {
     try {
-      const { search, page = 1, limit = 10 } = req.query;
-      const teamManager = await teamService.getTeamsByTeamManagerId(search, page, limit, req.params.id);
+      const { search, page, limit } = req.query;
+      const teamManager = await teamService.getTeamsByTeamManagerId(search, parseInt(page), parseInt(limit), req.params.id);
       this.handleSuccess(res, teamManager, "Team manager teams retrieved successfully");
     } catch (error) {
       this.handleError(res, error);

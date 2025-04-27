@@ -115,19 +115,21 @@ class TournamentService {
     }
 
     const skip = (page - 1) * limit;
-    const tournaments = await Tournament.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
+    const [tournaments, total] = await Promise.all([
+      Tournament.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Tournament.countDocuments(query)
+    ]);
 
-    const total = await Tournament.countDocuments(query);
     return {
       tournaments,
       pagination: {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit),
+        pages: Math.ceil(total / limit),
       },
     };
   }
