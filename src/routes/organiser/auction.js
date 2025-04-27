@@ -68,6 +68,11 @@ router.get('/:auctionId/teams', (req, res) => {
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
  *     responses:
  *       200:
  *         content:
@@ -87,6 +92,60 @@ router.get('/:auctionId/teams', (req, res) => {
  */
 router.post('/:auctionId/start', (req, res) => {
   auctionController.startAuction(req, res);
+});
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/generate-random-player:
+ *   post:
+ *     summary: Generate a random player
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Random player generated
+ */
+router.post('/:auctionId/generate-random-player', (req, res) => {
+  auctionController.generateRandomPlayer(req, res);
+});
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/end:
+ *   post:
+ *     summary: End the auction
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Auction ended
+ */
+router.post('/:auctionId/end', (req, res) => {
+  auctionController.endAuction(req, res);
 });
 
 /**
