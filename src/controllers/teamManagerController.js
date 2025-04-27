@@ -45,7 +45,7 @@ class TeamManagerController extends BaseController {
 
   async updateTeamManagerById(req, res) {
     try {
-      const teamManager = await teamManagerService.updateTeamManagerById(req.params.id, req.body);
+      const teamManager = await userService.updateUserById(req.params.id, req.body, ROLES.TEAM_MANAGER);
       this.handleSuccess(res, teamManager, "Team manager updated successfully");
     } catch (error) {
       this.handleError(res, error);
@@ -54,7 +54,7 @@ class TeamManagerController extends BaseController {
 
   async getTeamManagerById(req, res) {
     try {
-      const teamManager = await teamManagerService.getTeamManagerById(req.params.id);
+      const teamManager = await userService.getUserById(req.params.id, ROLES.TEAM_MANAGER);
       this.handleSuccess(res, teamManager, "Team manager retrieved successfully");
     } catch (error) {
       this.handleError(res, error);

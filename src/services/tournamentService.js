@@ -94,8 +94,13 @@ class TournamentService {
     return tournament;
   }
 
-  async getOrganiserTournaments(user, sportType, location, search, page, limit) {
-    const query = { createdBy: user._id };
+  async getOrganiserTournamentsCount(organiserId) {
+    const tournaments = await Tournament.find({ createdBy: organiserId });
+    return tournaments.length;
+  }
+
+  async getOrganiserTournaments(organiserId, sportType, location, search, page = 1, limit = 10) {
+    const query = { createdBy: organiserId };
 
     if (sportType) {
       query.sportType = sportType;

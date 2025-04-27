@@ -16,8 +16,8 @@ class OrganiserController extends BaseController {
   
   async getOrganiserDashboard(req, res) {
     try {
-      const user = req.user;
-      const tournaments = await tournamentService.getOrganiserTournaments(user);
+      const organiser = req.user;
+      const tournaments = await tournamentService.getOrganiserTournamentsCount(organiser._id);
       
       const dashboardData = {
         totalTournaments: tournaments.length,
@@ -40,10 +40,30 @@ class OrganiserController extends BaseController {
     }
   }
 
+  async getOrganiserById(req, res) {
+    try {
+      const organiser = await userService.getUserById(req.params.id, ROLES.ORGANISER);
+      this.handleSuccess(res, organiser, "Organiser retrieved successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
   async updateOrganiserById(req, res) {
     try {
       const organiser = await userService.updateUserById(req.params.id, req.body, ROLES.ORGANISER);
       this.handleSuccess(res, organiser, "Organiser updated successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getOrganiserTournaments(req, res) {
+    try {
+      const { search, page = 1, limit = 10 } = req.query;
+      const organiserId = req.user._id;
+      const organiser = await tournamentService.getOrganiserTournaments(organiserId, search, page, limit);
+      this.handleSuccess(res, organiser, "Organiser tournaments retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
     }
@@ -59,4 +79,4 @@ class OrganiserController extends BaseController {
   }
 }
 
-module.exports = new OrganiserController();
+module.exports = OrganiserController;

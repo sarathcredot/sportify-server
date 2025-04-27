@@ -3,7 +3,7 @@ const validate = require('../../utils/validate');
 const { updateUserSchema } = require('../../schemas/authSchema'); 
 const OrganiserController = require('../../controllers/organiserController');
 
-const router = express.Router();xx
+const router = express.Router();
 const organiserController = new OrganiserController();
 
 /**

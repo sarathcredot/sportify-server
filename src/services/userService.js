@@ -34,30 +34,42 @@ class UserService {
   }
 
   async getUserById(id, role) {
-    const query = { _id: id };
-    if (role) {
-      query.role = role;
+    try {
+      const query = { _id: id };
+      if (role) {
+        query.role = role;
+      }
+      const user = await User.findOne(query);
+      return user;
+    } catch (error) {
+      throw new Error(`${role} not found`);
     }
-    const user = await User.findOne(query);
-    return user;
   }
 
   async updateUserById(id, data, role) {
-    const query = { _id: id };
-    if (role) {
-      query.role = role;
+    try {
+      const query = { _id: id };
+      if (role) {
+          query.role = role;
+      }
+      const user = await User.findOneAndUpdate(query, data, { new: true });
+      return user;
+    } catch (error) {
+      throw new Error(`${role} not found`);
     }
-    const user = await User.findOneAndUpdate(query, data, { new: true });
-    return user;
   }
 
   async deleteUserById(id, role) {
-    const query = { _id: id };
+    try {
+      const query = { _id: id };
     if (role) {
       query.role = role;
+      }
+      const user = await User.findOneAndDelete(query);
+      return user;
+    } catch (error) {
+      throw new Error(`${role} not found`);
     }
-    const user = await User.findOneAndDelete(query);
-    return user;
   }
 }
 module.exports = new UserService();
