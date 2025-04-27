@@ -220,8 +220,8 @@ class TournamentService {
 
   canUserModifyTournament(tournament, user) {
     return (
-      tournament.organiser.toString() === user._id.toString() ||
-      user.role === ROLES.ADMIN
+      tournament?.organiser?.toString() === user?._id?.toString() ||
+      user?.role === ROLES?.ADMIN
     );
   }
 

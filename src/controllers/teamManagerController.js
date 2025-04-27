@@ -23,7 +23,7 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  async getAllTeamManagersPaginated(req, res) {
+  getAllTeamManagersPaginated = async (req, res) => {
     try {
       const { search, page = 1, limit = 10 } = req.query;
       // const teamManagers = await teamManagerService.getAllTeamManagersPaginated(search, page, limit);
