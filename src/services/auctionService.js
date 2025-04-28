@@ -50,7 +50,7 @@ class AuctionService {
       throw new NotFoundError('Auction not found');
     }
     // return random player
-    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: 'APPROVED' }).populate('player');
+    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
