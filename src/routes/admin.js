@@ -4,6 +4,7 @@ const checkIsAdmin = require('../middleware/checkIsAdmin');
 const router = express.Router();
 const tournamentsRouter = require('./admin/tournament');
 const teamManagersRouter = require('./admin/teammanagers');
+const organisersRouter = require('./admin/organiser');
 
 
 router.use(auth);
@@ -26,5 +27,6 @@ router.use(checkIsAdmin());
 
 router.use('/tournaments', tournamentsRouter);
 router.use('/teammanagers', teamManagersRouter);
+router.use('/organisers', organisersRouter);
 
 module.exports = router;
