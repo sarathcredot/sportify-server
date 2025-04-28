@@ -50,11 +50,31 @@ class AuctionService {
       throw new NotFoundError('Auction not found');
     }
     // return random player
-    const players = await TournamentPlayers.find({ auction: auction._id, status: 'APPROVED' }).populate('player');
+    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: 'APPROVED' }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
     console.log('Auction started',players);
+    return auction;
+  }
+
+  async generateRandomPlayer(auctionId) {
+    const auction = await Auction.findOne({ _id: auctionId });
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: 'APPROVED' }).populate('player');
+    const randomPlayer = players[Math.floor(Math.random() * players.length)];
+    auction.currentBiddingPlayer = randomPlayer;
+    await auction.save();
+    return auction;
+  }
+
+  async endAuction(auctionId) {
+    const auction = await Auction.findOneAndUpdate({ _id: auctionId }, { status: AUCTION_STATUS.COMPLETED }, { new: true });
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
     return auction;
   }
 

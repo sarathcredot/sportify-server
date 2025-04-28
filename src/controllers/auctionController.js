@@ -9,6 +9,13 @@ class AuctionController extends BaseController {
     this.getAuction = this.getAuction.bind(this);
     this.getPlayers = this.getPlayers.bind(this);
     this.getTeams = this.getTeams.bind(this);
+    this.startAuction = this.startAuction.bind(this);
+    this.generateRandomPlayer = this.generateRandomPlayer.bind(this);
+    this.endAuction = this.endAuction.bind(this);
+    this.placeBid = this.placeBid.bind(this);
+    this.markPlayerSold = this.markPlayerSold.bind(this);
+    this.markPlayerUnsold = this.markPlayerUnsold.bind(this);
+    this.getBidHistory = this.getBidHistory.bind(this);
   }
 
   async getAuction(req, res) {
@@ -46,6 +53,26 @@ class AuctionController extends BaseController {
     try {
       const auction = await auctionService.startAuction(auctionId);
       this.handleSuccess(res, auction, "Auction started");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async generateRandomPlayer(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const auction = await auctionService.generateRandomPlayer(auctionId);
+      this.handleSuccess(res, auction, "Random player generated");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async endAuction(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const auction = await auctionService.endAuction(auctionId);
+      this.handleSuccess(res, auction, "Auction ended");
     } catch (error) {
       this.handleError(res, error);
     }

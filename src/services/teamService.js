@@ -42,25 +42,69 @@ class TeamService {
     return team;
   }
 
-  async getTeamsByTournamentId(tournamentId, status, search) {
+  async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
     }
 
-    let teams = await TournamentTeams.find(query)
-      .populate({
-        path: 'team',
-        populate: {
+    if (search) {
+      query.teamId = { $regex: search, $options: 'i' };
+    }
+
+    const skip = (page - 1) * limit;
+
+    let [teams, total] = await Promise.all([
+      TournamentTeams.find(query)
+        .populate({
+          path: 'team',
+          populate: {
           path: 'manager'
         }
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+      TournamentTeams.countDocuments(query)
+    ]);
 
+    return {
+      teams: teams,
+      pagination: {
+        total: total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      }
+    };
+  }
+
+  async getTeamsByTeamManagerId(search, page = 1, limit = 10, teamManagerId) {
+    const query = { manager: teamManagerId };
     if (search) {
-      teams = teams.filter(team => team.team.name.toLowerCase().includes(search.toLowerCase()));
+      query.name = { $regex: search, $options: 'i' };
     }
-    return teams;
+    const skip = (page - 1) * limit;
+    const [teams, total] = await Promise.all([
+      TournamentTeams.find(query)
+        .populate({
+          path: 'team',
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      TournamentTeams.countDocuments(query)
+    ]);
+
+    return {
+      teams: teams,
+      pagination: {
+        total: total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      }
+    };
   }
 
   async createTeamManager(teamManagerData) {
@@ -117,6 +161,62 @@ class TeamService {
     tournament.teamIdCounter = (tournament.teamIdCounter || 0) + 1;
     await tournament.save();
     return teamId;
+  }
+
+  async getTeamById(id) {
+    const team = await TournamentTeams.findById(id).populate('team');
+    if (!team) {
+      throw new NotFoundError("Team not found");
+    }
+    return team;
+  }
+
+  async updateTeamById(id, teamData) {
+    const tournamentTeam = await TournamentTeams.findById(id);
+    if (!tournamentTeam) {
+      throw new NotFoundError("Team not found");
+    }
+
+    const { name, location, logoUrl, phoneNumber, email, status } = teamData;
+
+    // Update tournament team fields
+    const updatedTournamentTeam = await TournamentTeams.findByIdAndUpdate(
+      id,
+      {
+        name,
+        phoneNumber,
+        email,
+        status
+      },
+      { new: true }
+    );
+
+    // Update team fields
+    await Team.findByIdAndUpdate(
+      tournamentTeam.team,
+      {
+        name,
+        location,
+        logoUrl,
+        phoneNumber,
+        email
+      },
+      { new: true }
+    );
+
+    return updatedTournamentTeam;
+  }
+
+  async deleteTeamById(id) {
+    const tournamentTeam = await TournamentTeams.findById(id);
+    if (!tournamentTeam) {
+      throw new NotFoundError("Team not found");
+    }
+    await Promise.all([
+      Team.findByIdAndDelete(tournamentTeam.team),
+      TournamentTeams.findByIdAndDelete(id)
+    ]);
+    return tournamentTeam;
   }
 }
 

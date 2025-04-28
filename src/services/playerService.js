@@ -89,7 +89,7 @@ class PlayerService {
     return player;
   }
 
-  async getPlayersByTournamentId(tournamentId, status, search, page, limit) {
+  async getPlayersByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
@@ -120,9 +120,9 @@ class PlayerService {
       players: players,
       pagination: {
         total,
-        page: parseInt(page),
-        pages: Math.ceil(total / limit),
-        limit: parseInt(limit)
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
       }
     };
   }

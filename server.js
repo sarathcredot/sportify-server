@@ -30,7 +30,7 @@ const corsOptions = {
     'https://6sm9fkjp-3000.inc1.devtunnels.ms',
     'https://5pf6w2vt-3000.inc1.devtunnels.ms'
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true, // Enable if you need to handle cookies/auth
   optionsSuccessStatus: 200 // For legacy browser support
@@ -61,6 +61,7 @@ app.use(express.json({ limit: requestSizeLimit }));
 app.use(express.urlencoded({ extended: true, limit: requestSizeLimit }));
 app.use('/api/', apiLimiter);
 app.use(morgan(morganFormat, { stream }));
+app.use(morgan("dev"));
 
 app.use('/media', express.static(path.join(__dirname, 'media'), {
   maxAge: '1d',

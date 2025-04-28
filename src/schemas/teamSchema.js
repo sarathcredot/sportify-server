@@ -12,6 +12,19 @@ const createTeamSchema = z.object({
   location: z.string().optional(),
 }).openapi();
 
+const updateTeamSchema = z.object({
+  name: z.string().nonempty("Team name is required"),
+  location: z.string().optional(),
+  logoUrl: z.string().nonempty("Team photo is required"),
+  phoneNumber: z.string().nonempty("Contact number is required"),
+  email: z.string().email("Invalid email address").optional(),
+  status: z.string().optional().refine((status) => {
+    return Object.values(TEAM_STATUS).includes(status);
+  }, {
+    message: "Invalid status"
+  }),
+}).openapi();
+
 const approveTeamSchema = z.object({
   approve: z.boolean(),
 }).openapi();
@@ -24,4 +37,5 @@ module.exports = {
   createTeamSchema,
   approveTeamSchema,
   refundTeamSchema,
+  updateTeamSchema
 };

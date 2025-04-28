@@ -41,8 +41,8 @@ class TeamManagerService {
     if (teamManager.role !== ROLES.TEAM_MANAGER) {
       throw new Error("Team manager not found");
     }
-    const teams = await Team.find({ manager: id });
-    return { ...teamManager, teams };
+    // const teams = await Team.find({ manager: id });
+    return teamManager;
   }
 
   async deleteTeamManagerById(id) {

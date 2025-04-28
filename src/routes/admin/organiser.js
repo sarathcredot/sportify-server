@@ -1,16 +1,16 @@
 const express = require('express');
 const validate = require('../../utils/validate'); 
 const { updateUserSchema } = require('../../schemas/authSchema'); 
-const TeamManagerController = require('../../controllers/teamManagerController');   
+const OrganiserController = require('../../controllers/organiserController');
 
 const router = express.Router();
-const teamManagerController = new TeamManagerController();
+const organiserController = new OrganiserController();
 
 /**
  * @swagger
- * /admin/teammanagers:
+ * /admin/organisers:
  *   get:
- *     summary: Get all team managers for the admin
+ *     summary: Get all organisers for the admin
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
@@ -60,13 +60,13 @@ const teamManagerController = new TeamManagerController();
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/', teamManagerController.getAllTeamManagersPaginated);
+router.get('/', organiserController.getAllOrganisersPaginated);
 
 /**
  * @swagger
- * /admin/teammanagers/{id}:
+ * /admin/organisers/{id}:
  *   patch:
- *     summary: Update team manager by ID
+ *     summary: Update organiser by ID
  *     tags: [Admin]
  *     parameters:
  *       - in: path
@@ -74,13 +74,13 @@ router.get('/', teamManagerController.getAllTeamManagersPaginated);
  *         required: true
  *         schema:
  *           type: string
- *         description: Team manager ID 
+ *         description: Organiser ID 
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateTeamManager'
+ *             $ref: '#/components/schemas/UpdateUser'
  *     responses:
  *       200:
  *         description: Team manager updated successfully
@@ -112,13 +112,13 @@ router.get('/', teamManagerController.getAllTeamManagersPaginated);
  *               allOf:
  *                 - $ref: '#/components/schemas/ErrorResponse'
  */
-router.patch('/:id', validate(updateUserSchema), teamManagerController.updateTeamManagerById);
+router.patch('/:id', validate(updateUserSchema), organiserController.updateOrganiserById);
 
 /**
  * @swagger
- * /admin/teammanagers/{id}:
+ * /admin/organisers/{id}:
  *   get:
- *     summary: Get team manager by ID
+ *     summary: Get organiser by ID
  *     tags: [Admin]
  *     parameters:
  *       - in: path
@@ -126,10 +126,10 @@ router.patch('/:id', validate(updateUserSchema), teamManagerController.updateTea
  *         required: true
  *         schema:
  *           type: string
- *         description: Team manager ID
+ *         description: Organiser ID
  *     responses:
  *       200:
- *         description: Team manager details
+ *         description: Organiser details
  *         content:
  *           application/json:
  *             schema:
@@ -166,72 +166,14 @@ router.patch('/:id', validate(updateUserSchema), teamManagerController.updateTea
  */
 router.get(
   '/:id',
-  teamManagerController.getTeamManagerById
+  organiserController.getOrganiserById
 );
 
 /**
  * @swagger
- * /admin/teammanagers/{id}/teams:
- *   get:
- *     summary: Get team manager teams by ID
- *     tags: [Admin]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Team manager ID
- *       - name: search
- *         in: query
- *         description: Search query
- *         schema:
- *           type: string
- *       - name: page
- *         in: query
- *         description: Page number
- *         schema:
- *           type: number
- *       - name: limit
- *         in: query
- *         description: Limit
- *     responses:
- *       200:
- *         description: Team manager teams
- *         content:
- *           application/json:
- *             schema:
- *               allOf:
- *                 - $ref: '#/components/schemas/ApiResponse'
- *                 - type: object
- *                   properties:
- *                     data:
- *                       type: object
- *                       properties:
- *                         teams:
- *                           type: array
- *                           items:
- *                             type: object
- *                             $ref: '#/components/schemas/Team'
- *                         pagination:
- *                           type: object
- *                           $ref: '#/components/schemas/Pagination'
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden
- *       404:
- *         description: Team manager not found
- *       500: 
- *         description: Internal server error
- */
-router.get('/:id/teams', teamManagerController.getTeamManagerTeamsById);
-
-/**
- * @swagger
- * /admin/teammanagers/{id}:
+ * /admin/organisers/{id}:
  *   delete:
- *     summary: Delete team manager by ID
+ *     summary: Delete organiser by ID
  *     tags: [Admin]
  *     parameters:
  *       - in: path
@@ -239,10 +181,10 @@ router.get('/:id/teams', teamManagerController.getTeamManagerTeamsById);
  *         required: true
  *         schema:
  *           type: string
- *         description: Team manager ID
+ *         description: Organiser ID
  *     responses:
  *       200:
- *         description: Team manager deleted successfully
+ *         description: Organiser deleted successfully
  *       401:
  *         description: Unauthorized
  *       403:
@@ -254,7 +196,7 @@ router.get('/:id/teams', teamManagerController.getTeamManagerTeamsById);
  */
 router.delete(
   '/:id',
-  teamManagerController.deleteTeamManagerById
+  organiserController.deleteOrganiserById
 );
 
 module.exports = router;
