@@ -62,7 +62,6 @@ class AuctionController extends BaseController {
     const { auctionId } = req.params;
     try {
       const auction = await auctionService.generateRandomPlayer(auctionId);
-      console.log("random player",auction);
       this.handleSuccess(res, auction, "Random player generated");
     } catch (error) {
       this.handleError(res, error);
@@ -111,8 +110,9 @@ class AuctionController extends BaseController {
 
   async getBidHistory(req, res) {
     const { auctionId } = req.params;
+    const { player } = req.query;
     try {
-      const bidHistory = await auctionService.getBidHistory(auctionId);
+      const bidHistory = await auctionService.getBidHistory(auctionId, player);
       this.handleSuccess(res, bidHistory, "Bid history retrieved");
     } catch (error) {
       this.handleError(res, error);
