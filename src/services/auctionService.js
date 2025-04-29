@@ -63,6 +63,9 @@ class AuctionService {
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
+    if (auction.status !== AUCTION_STATUS.LIVE) {
+      throw new BadRequestError('Auction is not live');
+    }
     const currentBiddingPlayer = auction.currentBiddingPlayer;
     if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
       throw new BadRequestError('Current bidding player is not sold or unsold yet');
