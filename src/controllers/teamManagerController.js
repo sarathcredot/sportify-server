@@ -23,7 +23,7 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  async getAllTeamManagersPaginated(req, res) {
+ getAllTeamManagersPaginated = async (req, res) => {
     try {
       const { search, page = 1, limit = 10 } = req.query;
       // const teamManagers = await teamManagerService.getAllTeamManagersPaginated(search, page, limit);
@@ -43,7 +43,7 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  async updateTeamManagerById(req, res) {
+   updateTeamManagerById = async (req, res) =>  {
     try {
       const teamManager = await userService.updateUserById(req.params.id, req.body, ROLES.TEAM_MANAGER);
       this.handleSuccess(res, teamManager, "Team manager updated successfully");
@@ -71,7 +71,7 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  async deleteTeamManagerById(req, res) {
+   deleteTeamManagerById = async(req, res) => {
     try {
       const teamManager = await teamManagerService.deleteTeamManagerById(req.params.id);
       this.handleSuccess(res, teamManager, "Team manager deleted successfully");
