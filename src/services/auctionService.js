@@ -59,9 +59,13 @@ class AuctionService {
   }
 
   async generateRandomPlayer(auctionId) {
-    const auction = await Auction.findOne({ _id: auctionId });
+    const auction = await Auction.findOne({ _id: auctionId }).populate('currentBiddingPlayer');
     if (!auction) {
       throw new NotFoundError('Auction not found');
+    }
+    const currentBiddingPlayer = auction.currentBiddingPlayer;
+    if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
+      throw new BadRequestError('Current bidding player is not sold or unsold yet');
     }
     const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
