@@ -88,11 +88,11 @@ class AuctionService {
     if (auction.status !== AUCTION_STATUS.LIVE) {
       throw new BadRequestError('Auction is not live');
     }
-    if (auction.currentBiddingPlayer!== bid.playerId) {
+    if (auction.currentBiddingPlayer.id!== bid.playerId) {
       throw new BadRequestError('You are not allowed to bid on this player');
     }
     const currentBid = auction.currentBiddingPlayer.currentBid;
-    if (bid.points <= currentBid.bid.points) {
+    if ( currentBid.bid && bid.points <= currentBid.bid.points) {
       throw new BadRequestError('Bid points must be greater than the current bid points');
     }
     const team = await TournamentTeams.findById(bid.placedBy);
