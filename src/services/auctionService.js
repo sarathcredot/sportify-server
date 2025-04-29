@@ -39,8 +39,19 @@ class AuctionService {
     return teams;
   }
 
-  async getBidHistory(auctionId) {
-    const bids = await Bid.find({ auction: auctionId }).populate('placedBy').sort({ points: -1 });
+  async getBidHistory(auctionId, player) {
+    const query = { auction: auctionId };
+    if (player) {
+      query.player = player;
+    }
+    const bids = await Bid.find(query)
+      .populate({
+        path: 'placedBy',
+        populate: {
+          path: 'team'
+        }
+      })
+      .sort({ points: -1 });
     return bids;
   }
 
