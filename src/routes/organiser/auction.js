@@ -117,7 +117,7 @@ router.post('/:auctionId/start', (req, res) => {
  *                 - type: object
  *         description: Random player generated
  */
-router.post('/:auctionId/generate-random-player', (req, res) => {
+router.get('/:auctionId/generate-random-player', (req, res) => {
   auctionController.generateRandomPlayer(req, res);
 });
 

@@ -62,6 +62,7 @@ class AuctionController extends BaseController {
     const { auctionId } = req.params;
     try {
       const auction = await auctionService.generateRandomPlayer(auctionId);
+      console.log("random player",auction);
       this.handleSuccess(res, auction, "Random player generated");
     } catch (error) {
       this.handleError(res, error);

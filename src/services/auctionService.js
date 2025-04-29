@@ -14,15 +14,15 @@ class AuctionService {
 
   async getPlayers(auctionId) {
     const auction = await Auction.findById(auctionId);
-     
+
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
     const players = await TournamentPlayers.find({
       tournament: auction.tournament,
       status: PLAYER_STATUS.APPROVED
-     })
-     .populate('player');
+    })
+      .populate('player');
     console.log(players);
     return players;
   }
@@ -54,7 +54,7 @@ class AuctionService {
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
-    console.log('Auction started',players);
+    console.log('Auction started', players);
     return auction;
   }
 
@@ -63,8 +63,9 @@ class AuctionService {
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: 'APPROVED' }).populate('player');
+    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
+    console.log('Random player', randomPlayer);
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
     return auction;
@@ -87,7 +88,7 @@ class AuctionService {
     if (auction.status !== AUCTION_STATUS.LIVE) {
       throw new BadRequestError('Auction is not live');
     }
-    if (auction.currentBiddingPlayer.player.id !== bid.playerId) {
+    if (auction.currentBiddingPlayer!== bid.playerId) {
       throw new BadRequestError('You are not allowed to bid on this player');
     }
     const currentBid = auction.currentBiddingPlayer.currentBid;
