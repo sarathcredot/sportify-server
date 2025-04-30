@@ -14,15 +14,15 @@ class AuctionService {
 
   async getPlayers(auctionId) {
     const auction = await Auction.findById(auctionId);
-     
+
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
     const players = await TournamentPlayers.find({
       tournament: auction.tournament,
       status: PLAYER_STATUS.APPROVED
-     })
-     .populate('player');
+    })
+      .populate('player');
     console.log(players);
     return players;
   }
@@ -39,8 +39,19 @@ class AuctionService {
     return teams;
   }
 
-  async getBidHistory(auctionId) {
-    const bids = await Bid.find({ auction: auctionId }).populate('placedBy').sort({ points: -1 });
+  async getBidHistory(auctionId, player) {
+    const query = { auction: auctionId };
+    if (player) {
+      query.player = player;
+    }
+    const bids = await Bid.find(query)
+      .populate({
+        path: 'placedBy',
+        populate: {
+          path: 'team'
+        }
+      })
+      .sort({ points: -1 });
     return bids;
   }
 
@@ -54,17 +65,25 @@ class AuctionService {
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
-    console.log('Auction started',players);
+    console.log('Auction started', players);
     return auction;
   }
 
   async generateRandomPlayer(auctionId) {
-    const auction = await Auction.findOne({ _id: auctionId });
+    const auction = await Auction.findOne({ _id: auctionId }).populate('currentBiddingPlayer');
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: 'APPROVED' }).populate('player');
+    if (auction.status !== AUCTION_STATUS.LIVE) {
+      throw new BadRequestError('Auction is not live');
+    }
+    const currentBiddingPlayer = auction.currentBiddingPlayer;
+    if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
+      throw new BadRequestError('Current bidding player is not sold or unsold yet');
+    }
+    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
+    console.log('Random player', randomPlayer);
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
     return auction;
@@ -87,12 +106,12 @@ class AuctionService {
     if (auction.status !== AUCTION_STATUS.LIVE) {
       throw new BadRequestError('Auction is not live');
     }
-    if (auction.currentBiddingPlayer.player.id !== bid.playerId) {
+    if (auction.currentBiddingPlayer.id!== bid.playerId) {
       throw new BadRequestError('You are not allowed to bid on this player');
     }
-    const currentBid = auction.currentBiddingPlayer.currentBid;
-    if (bid.points <= currentBid.bid.points) {
-      throw new BadRequestError('Bid points must be greater than the current bid points');
+    const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid);
+    if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
+      throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} greater than the current bid points`);
     }
     const team = await TournamentTeams.findById(bid.placedBy);
     if (!team) {

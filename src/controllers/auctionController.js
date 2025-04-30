@@ -110,8 +110,9 @@ class AuctionController extends BaseController {
 
   async getBidHistory(req, res) {
     const { auctionId } = req.params;
+    const { player } = req.query;
     try {
-      const bidHistory = await auctionService.getBidHistory(auctionId);
+      const bidHistory = await auctionService.getBidHistory(auctionId, player);
       this.handleSuccess(res, bidHistory, "Bid history retrieved");
     } catch (error) {
       this.handleError(res, error);

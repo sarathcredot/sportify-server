@@ -117,7 +117,7 @@ router.post('/:auctionId/start', (req, res) => {
  *                 - type: object
  *         description: Random player generated
  */
-router.post('/:auctionId/generate-random-player', (req, res) => {
+router.get('/:auctionId/generate-random-player', (req, res) => {
   auctionController.generateRandomPlayer(req, res);
 });
 
@@ -229,6 +229,15 @@ router.post("/:auctionId/mark-player-unsold", auctionController.markPlayerUnsold
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *       - name: player
+ *         in: query
+ *         required: false
+ *         description: The ID of the player
  *     responses:
  *       200:
  *         content:
