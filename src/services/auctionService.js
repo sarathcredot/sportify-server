@@ -131,11 +131,10 @@ class AuctionService {
     const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
     const pointsAfterBid = team.remainingPoints - bid.points;
     if (pointsAfterBid < minBidPoints) {
-
-      throw new BadRequestError('Team remaining points are less than the minimum bid points');
+      throw new BadRequestError(`Team remaining points are less than the minimum bid points. Minimum bid points is ${minBidPoints}`);
     }
     if (pointsAfterBid < 0) {
-      throw new BadRequestError('Team remaining points are less than the bid points');
+      throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
     }
     const bidObject = new Bid({
       tournament: auction.tournament,
