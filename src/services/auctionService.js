@@ -98,29 +98,37 @@ class AuctionService {
   }
 
   async placeBid(auctionId, bid) {
+
     const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     const tournament = await Tournament.findById(auction.tournament);
     if (!auction) {
+
       throw new NotFoundError('Auction not found');
     }
     if (auction.status !== AUCTION_STATUS.LIVE) {
+
       throw new BadRequestError('Auction is not live');
     }
-    if (auction.currentBiddingPlayer.id!== bid.playerId) {
+    if (auction.currentBiddingPlayer.id !== bid.playerId) {
+
       throw new BadRequestError('You are not allowed to bid on this player');
     }
     const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid);
+
     if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
+
       throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} greater than the current bid points`);
     }
     const team = await TournamentTeams.findById(bid.placedBy);
     if (!team) {
+
       throw new NotFoundError('Team not found');
     }
     let remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - team.players.length - 1;
     let minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
     let pointsAfterBid = team.remainingPoints - bid.points;
     if (pointsAfterBid < minBidPoints) {
+
       throw new BadRequestError('Team remaining points are less than the minimum bid points');
     }
     const bidObject = new Bid({
