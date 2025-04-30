@@ -9,7 +9,12 @@ const e = require("cors");
 
 class AuctionService {
   async getAuction(auctionId) {
-    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+    const auction = await Auction.findById(auctionId).populate({
+      path: 'currentBiddingPlayer',
+      populate: {
+        path: 'player',
+      },
+    });
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
@@ -122,7 +127,7 @@ class AuctionService {
       if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
         throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
       }
-    } 
+    }
     if (bid.points < auction.minBidPerPlayer) {
       throw new BadRequestError(`Minimum bid points is ${auction.minBidPerPlayer}`);
     }
