@@ -8,6 +8,37 @@ const auctionController = new AuctionController();
 
 /**
  * @swagger
+ * /organiser/auction/{auctionId}/:
+ *   get:
+ *     summary: Get auction details
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     auction:
+ *                       $ref: '#/components/schemas/Auction'
+ *         description: Auction details
+ */
+router.get('/:auctionId/', (req, res) => {
+  auctionController.getAuction(req, res);
+})
+
+/**
+ * @swagger
  * /organiser/auction/{auctionId}/players:
  *   get:
  *     summary: Get all players for the auction
