@@ -5,6 +5,7 @@ const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
 const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const { NotFoundError, BadRequestError } = require("../utils/errors");
+const e = require("cors");
 
 class AuctionService {
   async getAuction(tournamentId) {
@@ -109,13 +110,13 @@ class AuctionService {
     if (auction.currentBiddingPlayer.id!== bid.playerId) {
       throw new BadRequestError('You are not allowed to bid on this player');
     }
-    const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid);
-    if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
-      throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} greater than the current bid points`);
-    }
-    const team = await TournamentTeams.findById(bid.placedBy);
-    if (!team) {
-      throw new NotFoundError('Team not found');
+    if (auction.currentBiddingPlayer.currentBid) {
+      const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid);
+      if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
+        throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
+      }
+    } else if (currentBid.points < auction.minBidPoints) {
+      throw new BadRequestError(`Minimum bid points is ${auction.minBidPoints}`);
     }
     let remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - team.players.length - 1;
     let minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
