@@ -115,8 +115,11 @@ class AuctionService {
       if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
         throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
       }
-    } else if (currentBid.points < auction.minBidPoints) {
-      throw new BadRequestError(`Minimum bid points is ${auction.minBidPoints}`);
+    } else if (bid.points < auction.minBidPerPlayer) {
+      throw new BadRequestError(`Minimum bid points is ${auction.minBidPerPlayer}`);
+    }
+    if (bid.points > auction.maxBidPerPlayer) {
+      throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
     }
     let remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - team.players.length - 1;
     let minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
