@@ -125,12 +125,17 @@ class AuctionService {
     if (bid.points > auction.maxBidPerPlayer) {
       throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
     }
-    let remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - team.players.length - 1;
-    let minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
-    let pointsAfterBid = team.remainingPoints - bid.points;
+    const team = await TournamentTeams.findById(bid.placedBy);
+    const numberOfPlayersInTeam = team.players ? team.players.length : 0;
+    const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
+    const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
+    const pointsAfterBid = team.remainingPoints - bid.points;
     if (pointsAfterBid < minBidPoints) {
 
       throw new BadRequestError('Team remaining points are less than the minimum bid points');
+    }
+    if (pointsAfterBid < 0) {
+      throw new BadRequestError('Team remaining points are less than the bid points');
     }
     const bidObject = new Bid({
       tournament: auction.tournament,
