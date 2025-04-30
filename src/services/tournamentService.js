@@ -1,14 +1,17 @@
 const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
-const { ValidationError, NotFoundError, UnauthorizedError } = require('../utils/errors');
-const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require('../utils/constants');
+const {
+  ValidationError,
+  NotFoundError,
+  UnauthorizedError,
+} = require("../utils/errors");
+const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-
   async getTournaments(search, organiserId, page, limit) {
-    const query = {}; 
+    const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
     }
@@ -75,11 +78,21 @@ class TournamentService {
 
     this.validateUpdateData(updateData);
 
-    return await Tournament.findByIdAndUpdate(
+    const respo = await Tournament.findByIdAndUpdate(
       id,
       { $set: updateData },
       { new: true, runValidators: true }
     );
+
+    if (respo && updateData?.auction) {
+      const auctionRespo = await Auction.findOneAndUpdate(
+        { tournament: id },
+        { $set: updateData?.auction },
+        { new: true, runValidators: true }
+      );
+    }
+
+    return respo;
   }
 
   async deleteTournamentById(id, user) {
@@ -99,7 +112,14 @@ class TournamentService {
     return tournaments.length;
   }
 
-  async getOrganiserTournaments(organiserId, sportType, location, search, page = 1, limit = 10) {
+  async getOrganiserTournaments(
+    organiserId,
+    sportType,
+    location,
+    search,
+    page = 1,
+    limit = 10
+  ) {
     const query = { createdBy: organiserId };
 
     if (sportType) {
@@ -116,11 +136,8 @@ class TournamentService {
 
     const skip = (page - 1) * limit;
     const [tournaments, total] = await Promise.all([
-      Tournament.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Tournament.countDocuments(query)
+      Tournament.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Tournament.countDocuments(query),
     ]);
 
     return {
@@ -135,25 +152,27 @@ class TournamentService {
   }
 
   async approvePlayerInTournament(tournamentId, playerId, approve) {
-
-    const plyaerdata=await TournamentPlayers.findOne({tournament:tournamentId,player:playerId})
+    const plyaerdata = await TournamentPlayers.findOne({
+      tournament: tournamentId,
+      player: playerId,
+    });
     const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
       {
         tournament: tournamentId,
-        player: playerId
+        player: playerId,
       },
       {
         $set: {
-          status: approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED
-        }
+          status: approve ? PLAYER_STATUS.APPROVED : PLAYER_STATUS.REJECTED,
+        },
       },
       { new: true }
     );
 
-    console.log("get data",plyaerdata)
+    console.log("get data", plyaerdata);
 
     if (!tournamentPlayer) {
-      throw new NotFoundError('Tournament or player not found');
+      throw new NotFoundError("Tournament or player not found");
     }
     return tournamentPlayer;
   }
@@ -162,18 +181,18 @@ class TournamentService {
     const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
       {
         tournament: tournamentId,
-        player: playerId
+        player: playerId,
       },
       {
         $set: {
-          status: PLAYER_STATUS.REFUNDED
-        }
+          status: PLAYER_STATUS.REFUNDED,
+        },
       },
       { new: true }
     );
 
     if (!tournamentPlayer) {
-      throw new NotFoundError('Tournament or player not found');
+      throw new NotFoundError("Tournament or player not found");
     }
     return tournamentPlayer;
   }
@@ -182,18 +201,18 @@ class TournamentService {
     const tournamentTeam = await TournamentTeams.findOneAndUpdate(
       {
         tournament: tournamentId,
-        team: teamId
+        team: teamId,
       },
       {
         $set: {
-          status: approve ? TEAM_STATUS.APPROVED : TEAM_STATUS.REJECTED
-        }
+          status: approve ? TEAM_STATUS.APPROVED : TEAM_STATUS.REJECTED,
+        },
       },
       { new: true }
     );
 
     if (!tournamentTeam) {
-      throw new NotFoundError('Tournament or team not found');
+      throw new NotFoundError("Tournament or team not found");
     }
     return tournamentTeam;
   }
@@ -202,18 +221,18 @@ class TournamentService {
     const tournamentTeam = await TournamentTeams.findOneAndUpdate(
       {
         tournament: tournamentId,
-        team: teamId
+        team: teamId,
       },
       {
         $set: {
-          status: TEAM_STATUS.REFUNDED
-        }
+          status: TEAM_STATUS.REFUNDED,
+        },
       },
       { new: true }
     );
 
     if (!tournamentTeam) {
-      throw new NotFoundError('Tournament or team not found');
+      throw new NotFoundError("Tournament or team not found");
     }
     return tournamentTeam;
   }
