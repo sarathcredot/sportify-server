@@ -20,7 +20,8 @@ class AuctionController extends BaseController {
 
   async getAuction(req, res) {
     try {
-      const auction = await auctionService.getAuction(req.params.id);
+      const { auctionId } = req.params;
+      const auction = await auctionService.getAuction(auctionId);
       this.handleSuccess(res, auction, "Auction retrieved");
     } catch (error) {
       this.handleError(res, error);

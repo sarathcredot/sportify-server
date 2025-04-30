@@ -8,8 +8,11 @@ const { NotFoundError, BadRequestError } = require("../utils/errors");
 const e = require("cors");
 
 class AuctionService {
-  async getAuction(tournamentId) {
-    const auction = await Auction.findOne({ tournament: tournamentId });
+  async getAuction(auctionId) {
+    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
     return auction;
   }
 
