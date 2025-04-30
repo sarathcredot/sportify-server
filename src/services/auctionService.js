@@ -115,7 +115,7 @@ class AuctionService {
       throw new BadRequestError('You are not allowed to bid on this player');
     }
     if (auction.currentBiddingPlayer.currentBid) {
-      const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid);
+      const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid.bid);
       if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
         throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
       }
