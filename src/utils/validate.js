@@ -2,6 +2,8 @@ const { z } = require('zod');
 const ResponseHandler = require('./responseHandler');
 
 const validate = (schema) => (req, res, next) => {
+
+  
  
   try {
     schema.parse(req.body);
