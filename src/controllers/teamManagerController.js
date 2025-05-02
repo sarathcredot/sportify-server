@@ -52,7 +52,7 @@ class TeamManagerController extends BaseController {
     }
   }
 
-  async getTeamManagerById(req, res) {
+  getTeamManagerById = async (req, res) =>  {
     try {
       const teamManager = await userService.getUserById(req.params.id, ROLES.TEAM_MANAGER);
       this.handleSuccess(res, teamManager, "Team manager retrieved successfully");
