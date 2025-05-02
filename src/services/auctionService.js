@@ -68,19 +68,20 @@ class AuctionService {
     const session = await mongoose.startSession();
     try {
       await session.startTransaction();
-      const auction = await Auction.findOneAndUpdate({ _id: auctionId, status: AUCTION_STATUS.UPCOMING }, { status: AUCTION_STATUS.LIVE }, { new: true });
+      let auction = await Auction.findOneAndUpdate({ _id: auctionId, status: AUCTION_STATUS.UPCOMING }, { status: AUCTION_STATUS.LIVE }, { session });
       if (!auction) {
         throw new NotFoundError('Auction not found');
-    }
-    // Set bidding points for each team
-    await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } });
-    // return random player
-    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
+      }
+      // Set bidding points for each team
+      await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } }, { session });
+      // return random player
+      const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
       const randomPlayer = players[Math.floor(Math.random() * players.length)];
-      auction.currentBiddingPlayer = randomPlayer;
-      await auction.save({ session });
+      auction.currentBiddingPlayer = randomPlayer._id;
+      await auction.save({ session, new: true });
       await session.commitTransaction();
-      return auction;
+      const updatedAuction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+      return updatedAuction;
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -120,7 +121,7 @@ class AuctionService {
       session.endSession();
     }
   }
-  
+
   async endAuction(auctionId) {
     const auction = await Auction.findOneAndUpdate({ _id: auctionId }, { status: AUCTION_STATUS.COMPLETED }, { new: true });
     if (!auction) {
