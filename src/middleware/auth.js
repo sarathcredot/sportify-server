@@ -5,6 +5,7 @@ const ResponseHandler = require('../utils/responseHandler');
 const auth = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
+    console.log('Token:', token);
     if (!token) {
       throw new Error();
     }
