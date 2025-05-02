@@ -36,7 +36,10 @@ class TeamService {
       teamId: teamId,
       team: team._id,
       status: TEAM_STATUS.APPROVED,
-      remainingPoints: tournament.biddingPointPerTeam
+      remainingPoints: tournament.biddingPointPerTeam,
+      name: teamData.name,
+      phoneNumber: teamData.phoneNumber,
+      email: teamData.email,
     });
 
     return team;
