@@ -60,16 +60,17 @@ class AuctionService {
   }
 
   async startAuction(auctionId) {
-    const auction = await Auction.findOneAndUpdate({ _id: auctionId }, { status: AUCTION_STATUS.LIVE }, { new: true });
+    const auction = await Auction.findOneAndUpdate({ _id: auctionId, status: AUCTION_STATUS.UPCOMING }, { status: AUCTION_STATUS.LIVE }, { new: true });
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
+    // Set bidding points for each team
+    await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { biddingPoints: auction.biddingPointPerTeam } });
     // return random player
     const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
-    console.log('Auction started', players);
     return auction;
   }
 
