@@ -6,6 +6,7 @@ const Bid = require("../models/Bid");
 const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const { NotFoundError, BadRequestError } = require("../utils/errors");
 const e = require("cors");
+const mongoose = require('mongoose');
 
 class AuctionService {
   async getAuction(auctionId) {
@@ -64,40 +65,62 @@ class AuctionService {
   }
 
   async startAuction(auctionId) {
-    const auction = await Auction.findOneAndUpdate({ _id: auctionId, status: AUCTION_STATUS.UPCOMING }, { status: AUCTION_STATUS.LIVE }, { new: true });
-    if (!auction) {
-      throw new NotFoundError('Auction not found');
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+      const auction = await Auction.findOneAndUpdate({ _id: auctionId, status: AUCTION_STATUS.UPCOMING }, { status: AUCTION_STATUS.LIVE }, { new: true });
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
     }
     // Set bidding points for each team
     await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } });
     // return random player
     const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
-    const randomPlayer = players[Math.floor(Math.random() * players.length)];
-    auction.currentBiddingPlayer = randomPlayer;
-    await auction.save();
-    return auction;
+      const randomPlayer = players[Math.floor(Math.random() * players.length)];
+      auction.currentBiddingPlayer = randomPlayer;
+      await auction.save({ session });
+      await session.commitTransaction();
+      return auction;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   async generateRandomPlayer(auctionId) {
-    const auction = await Auction.findOne({ _id: auctionId }).populate('currentBiddingPlayer');
-    if (!auction) {
-      throw new NotFoundError('Auction not found');
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+      const auction = await Auction.findOne({ _id: auctionId }).populate('currentBiddingPlayer');
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+      if (auction.status !== AUCTION_STATUS.LIVE) {
+        throw new BadRequestError('Auction is not live');
+      }
+      const currentBiddingPlayer = auction.currentBiddingPlayer;
+      if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
+        throw new BadRequestError('Current bidding player is not sold or unsold yet');
+      }
+      const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
+      const randomPlayer = players[Math.floor(Math.random() * players.length)];
+      console.log('Random player', randomPlayer);
+      randomPlayer.status = PLAYER_STATUS.BIDDING;
+      await randomPlayer.save({ session });
+      auction.currentBiddingPlayer = randomPlayer;
+      await auction.save({ session });
+      await session.commitTransaction();
+      return auction;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-    if (auction.status !== AUCTION_STATUS.LIVE) {
-      throw new BadRequestError('Auction is not live');
-    }
-    const currentBiddingPlayer = auction.currentBiddingPlayer;
-    if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
-      throw new BadRequestError('Current bidding player is not sold or unsold yet');
-    }
-    const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
-    const randomPlayer = players[Math.floor(Math.random() * players.length)];
-    console.log('Random player', randomPlayer);
-    auction.currentBiddingPlayer = randomPlayer;
-    await auction.save();
-    return auction;
   }
-
+  
   async endAuction(auctionId) {
     const auction = await Auction.findOneAndUpdate({ _id: auctionId }, { status: AUCTION_STATUS.COMPLETED }, { new: true });
     if (!auction) {
@@ -107,100 +130,159 @@ class AuctionService {
   }
 
   async placeBid(auctionId, bid) {
-    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
-    const tournament = await Tournament.findById(auction.tournament);
-    if (!auction) {
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
 
-      throw new NotFoundError('Auction not found');
-    }
-    if (auction.status !== AUCTION_STATUS.LIVE) {
+      const auction = await Auction.findById(auctionId)
+        .populate('currentBiddingPlayer')
+        .session(session);
+      const tournament = await Tournament.findById(auction.tournament).session(session);
 
-      throw new BadRequestError('Auction is not live');
-    }
-    if (auction.currentBiddingPlayer.id !== bid.playerId) {
-
-      throw new BadRequestError('You are not allowed to bid on this player');
-    }
-    if (auction.currentBiddingPlayer.currentBid) {
-      const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid.bid);
-      if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
-        throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
       }
+      if (auction.status !== AUCTION_STATUS.LIVE) {
+        throw new BadRequestError('Auction is not live');
+      }
+      if (auction.currentBiddingPlayer.id !== bid.playerId) {
+        throw new BadRequestError('You are not allowed to bid on this player');
+      }
+      if (auction.currentBiddingPlayer.currentBid) {
+        const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid.bid).session(session);
+        if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
+          throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
+        }
+      }
+      if (bid.points < auction.minBidPerPlayer) {
+        throw new BadRequestError(`Minimum bid points is ${auction.minBidPerPlayer}`);
+      }
+      if (bid.points > auction.maxBidPerPlayer) {
+        throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
+      }
+
+      const team = await TournamentTeams.findById(bid.placedBy).session(session);
+      const numberOfPlayersInTeam = team.players ? team.players.length : 0;
+      const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
+      const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
+      const pointsAfterBid = team.remainingPoints - bid.points;
+      
+      if (pointsAfterBid < minBidPoints) {
+        throw new BadRequestError(`Team remaining points are less than the minimum bid points. Minimum bid points is ${minBidPoints}`);
+      }
+      if (pointsAfterBid < 0) {
+        throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
+      }
+      const bidObject = new Bid({
+        tournament: auction.tournament,
+        auction: auction._id,
+        player: bid.playerId,
+        placedBy: bid.placedBy,
+        points: bid.points,
+      });
+      await bidObject.save({ session });
+
+      const player = await TournamentPlayers.findById(auction.currentBiddingPlayer.player).session(session);
+      player.currentBid = {
+        bid: bidObject._id,
+        team: bid.placedBy,
+      };
+      await player.save({ session });
+
+      await session.commitTransaction();
+      return auction;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-    if (bid.points < auction.minBidPerPlayer) {
-      throw new BadRequestError(`Minimum bid points is ${auction.minBidPerPlayer}`);
-    }
-    if (bid.points > auction.maxBidPerPlayer) {
-      throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
-    }
-    const team = await TournamentTeams.findById(bid.placedBy);
-    const numberOfPlayersInTeam = team.players ? team.players.length : 0;
-    const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
-    const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
-    const pointsAfterBid = team.remainingPoints - bid.points;
-    if (pointsAfterBid < minBidPoints) {
-      throw new BadRequestError(`Team remaining points are less than the minimum bid points. Minimum bid points is ${minBidPoints}`);
-    }
-    if (pointsAfterBid < 0) {
-      throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
-    }
-    const bidObject = new Bid({
-      tournament: auction.tournament,
-      auction: auction._id,
-      player: bid.playerId,
-      placedBy: bid.placedBy,
-      points: bid.points,
-    });
-    await bidObject.save();
-    const player = await TournamentPlayers.findById(auction.currentBiddingPlayer.player);
-    player.currentBid = {
-      bid: bidObject._id,
-      team: bid.placedBy,
-    }; 
-    await player.save();
-    return auction;
   }
 
   async markPlayerSold(auctionId) {
-    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
-    if (!auction) {
-      throw new NotFoundError('Auction not found');
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+
+      const auction = await Auction.findById(auctionId)
+        .populate('currentBiddingPlayer')
+        .session(session);
+
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+
+      if (auction.status !== AUCTION_STATUS.LIVE) {
+        throw new BadRequestError('Auction is not live');
+      }
+
+      if (!auction.currentBiddingPlayer) {
+        throw new BadRequestError('No player to mark sold');
+      }
+
+      const player = await TournamentPlayers.findOne({ 
+        tournament: auction.tournament, 
+        player: auction.currentBiddingPlayer?.player 
+      })
+      .populate('currentBid.bid')
+      .session(session);
+
+      if (!player) {
+        throw new NotFoundError('Player not found');
+      }
+
+      player.status = PLAYER_STATUS.SOLD;
+      player.signedForPoints = player.currentBid.bid.points;
+      player.signedForTeam = player.currentBid.team;
+      await player.save({ session });
+
+      auction.currentBiddingPlayer = null;
+      await auction.save({ session });
+
+      let currentBid = player.currentBid;
+      const team = await TournamentTeams.findById(currentBid.team).session(session);
+      team.remainingPoints = team.remainingPoints - currentBid.bid.points;
+      team.players.push({
+        player: player._id,
+        signedForPoints: currentBid.bid.points
+      });
+      team.wonBids.push(currentBid.bid._id);
+      await team.save({ session });
+      await session.commitTransaction();
+      return player;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-    const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer?.player });
-    if (!player) {
-      throw new NotFoundError('Player not found');
-    }
-    player.status = PLAYER_STATUS.SOLD;
-    await player.save();
-    // update auction current bidding player
-    auction.currentBiddingPlayer = null;
-    await auction.save();
-    // update team remaining budget
-    let currentBid = player.currentBid;
-    const team = await TournamentTeams.findById(currentBid.team);
-    team.remainingPoints = team.remainingPoints - currentBid.bid.points;
-    team.players.push(player._id);
-    team.wonBids.push(currentBid.bid._id);
-    await team.save();
-    return player;
   }
 
   async markPlayerUnsold(auctionId) {
-    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
-    if (!auction) {
-      throw new NotFoundError('Auction not found');
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+      const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+      const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player });
+      if (!player) {
+        throw new NotFoundError('Player not found');
+      }
+      player.status = PLAYER_STATUS.UNSOLD;
+      await player.save({ session });
+      // update auction current bidding player
+      auction.currentBiddingPlayer = null;
+      await auction.save({ session });
+      await session.commitTransaction();
+      return player;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-    const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player });
-    if (!player) {
-      throw new NotFoundError('Player not found');
-    }
-    player.status = PLAYER_STATUS.UNSOLD;
-    await player.save();
-    // update auction current bidding player
-    auction.currentBiddingPlayer = null;
-    await auction.save();
-    return player;
   }
 }
-
 module.exports = new AuctionService();

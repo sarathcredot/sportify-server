@@ -23,9 +23,16 @@ const TournamentTeamsSchema = new mongoose.Schema({
     enum: TEAM_STATUS_TYPES,
     default: TEAM_STATUS.PENDING
   },
-  players: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Player",
+  players: [
+    {
+    player: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Player",
+    },
+    signedForPoints: {
+      type: Number,
+      default: 0,
+    }
   }],
   wonBids: [{
     type: mongoose.Schema.Types.ObjectId,

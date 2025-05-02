@@ -49,6 +49,14 @@ const TournamentPlayersSchema = new mongoose.Schema({
       ref: 'TournamentTeams'
     }
   },
+  signedForPoints: {
+    type: Number,
+    default: 0
+  },
+  signedForTeam: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TournamentTeams'
+  },
   status: {
     type: String,
     enum: PLAYER_STATUS_TYPES,
