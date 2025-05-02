@@ -49,10 +49,9 @@ class AuctionService {
   }
 
   async getBidHistory(auctionId, player) {
-    const query = { auction: auctionId };
-    if (player) {
-      query.player = player;
-    }
+    const query = { auction: auctionId, player: player };
+    console.log("history player", player)
+
     const bids = await Bid.find(query)
       .populate({
         path: 'placedBy',
@@ -163,11 +162,14 @@ class AuctionService {
   }
 
   async markPlayerSold(auctionId) {
+
     const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-    const player = await TournamentPlayers.findOne({ auction: auction._id, player: auction.currentBiddingPlayer.player });
+
+    const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer?.player });
+
     if (!player) {
       throw new NotFoundError('Player not found');
     }
@@ -192,7 +194,7 @@ class AuctionService {
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-    const player = await TournamentPlayers.findOne({ auction: auction._id, player: auction.currentBiddingPlayer.player });
+    const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player });
     if (!player) {
       throw new NotFoundError('Player not found');
     }
