@@ -93,6 +93,8 @@ class AuctionService {
     const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
     console.log('Random player', randomPlayer);
+    randomPlayer.status = PLAYER_STATUS.BIDDING;
+    await randomPlayer.save();
     auction.currentBiddingPlayer = randomPlayer;
     await auction.save();
     return auction;
@@ -162,27 +164,62 @@ class AuctionService {
   }
 
   async markPlayerSold(auctionId) {
-    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
-    if (!auction) {
-      throw new NotFoundError('Auction not found');
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+
+      const auction = await Auction.findById(auctionId)
+        .populate('currentBiddingPlayer')
+        .session(session);
+
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+
+      if (auction.status !== AUCTION_STATUS.LIVE) {
+        throw new BadRequestError('Auction is not live');
+      }
+
+      if (!auction.currentBiddingPlayer) {
+        throw new BadRequestError('No player to mark sold');
+      }
+
+      const player = await TournamentPlayers.findOne({ 
+        tournament: auction.tournament, 
+        player: auction.currentBiddingPlayer?.player 
+      })
+      .populate('currentBid.bid')
+      .session(session);
+
+      if (!player) {
+        throw new NotFoundError('Player not found');
+      }
+
+      player.status = PLAYER_STATUS.SOLD;
+      player.signedForPoints = player.currentBid.bid.points;
+      player.signedForTeam = player.currentBid.team;
+      await player.save({ session });
+
+      auction.currentBiddingPlayer = null;
+      await auction.save({ session });
+
+      let currentBid = player.currentBid;
+      const team = await TournamentTeams.findById(currentBid.team).session(session);
+      team.remainingPoints = team.remainingPoints - currentBid.bid.points;
+      team.players.push({
+        player: player._id,
+        signedForPoints: currentBid.bid.points
+      });
+      team.wonBids.push(currentBid.bid._id);
+      await team.save({ session });
+      await session.commitTransaction();
+      return player;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
     }
-    const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer?.player });
-    if (!player) {
-      throw new NotFoundError('Player not found');
-    }
-    player.status = PLAYER_STATUS.SOLD;
-    await player.save();
-    // update auction current bidding player
-    auction.currentBiddingPlayer = null;
-    await auction.save();
-    // update team remaining budget
-    let currentBid = player.currentBid;
-    const team = await TournamentTeams.findById(currentBid.team);
-    team.remainingPoints = team.remainingPoints - currentBid.bid.points;
-    team.players.push(player._id);
-    team.wonBids.push(currentBid.bid._id);
-    await team.save();
-    return player;
   }
 
   async markPlayerUnsold(auctionId) {
