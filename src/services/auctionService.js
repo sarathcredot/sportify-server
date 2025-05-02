@@ -181,6 +181,7 @@ class AuctionService {
     // update team remaining budget
     let currentBid = player.currentBid;
     const team = await TournamentTeams.findById(currentBid.team);
+    console.log("team", team);
     // First time the remaining points will be undefined, so we need to set it to the max bidding point per team
     team.remainingPoints = team.remainingPoints - currentBid.bid.points;
     team.players.push(player._id);
