@@ -134,8 +134,7 @@ class AuctionService {
   async placeBid(auctionId, bid) {
     const session = await mongoose.startSession();
     try {
-      await session.startTransaction();
-
+      session.startTransaction();
       const auction = await Auction.findById(auctionId)
         .populate('currentBiddingPlayer')
         .session(session);
@@ -150,7 +149,7 @@ class AuctionService {
       if (auction.currentBiddingPlayer.id !== bid.playerId) {
         throw new BadRequestError('You are not allowed to bid on this player');
       }
-      if (auction.currentBiddingPlayer.currentBid) {
+      if (auction.currentBiddingPlayer.currentBid && auction.currentBiddingPlayer.currentBid.bid) {
         const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid.bid).session(session);
         if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
           throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points`);
@@ -184,7 +183,7 @@ class AuctionService {
       });
       await bidObject.save({ session });
 
-      const player = await TournamentPlayers.findById(auction.currentBiddingPlayer.player).session(session);
+      const player = await TournamentPlayers.findById(bid.playerId);
       player.currentBid = {
         bid: bidObject._id,
         team: bid.placedBy,

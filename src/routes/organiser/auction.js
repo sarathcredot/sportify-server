@@ -187,6 +187,11 @@ router.post('/:auctionId/end', (req, res) => {
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
  *     requestBody:
  *       required: true
  *       content:
@@ -220,6 +225,11 @@ router.post("/:auctionId/place-bid", validate(placeBidSchema), auctionController
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
  *     responses:
  *       200:
  *         content:
@@ -240,6 +250,11 @@ router.post("/:auctionId/mark-player-sold", auctionController.markPlayerSold);
  *     tags: [Organiser]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
  *     responses:
  *       200:
  *         content:
