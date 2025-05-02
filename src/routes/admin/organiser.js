@@ -171,6 +171,48 @@ router.get(
 
 /**
  * @swagger
+ * /admin/organisers/{id}/tournaments:
+ *   get:
+ *     summary: Get all tournaments for an organiser
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Organiser ID
+ *     responses:
+ *       200:
+ *         description: List of tournaments
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         $ref: '#/components/schemas/Tournament'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/:id/tournaments',
+  organiserController.getTournamentsByOrganiserId
+);
+
+/**
+ * @swagger
  * /admin/organisers/{id}:
  *   delete:
  *     summary: Delete organiser by ID

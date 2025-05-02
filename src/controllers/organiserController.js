@@ -12,6 +12,7 @@ class OrganiserController extends BaseController {
     this.getOrganiserById = this.getOrganiserById.bind(this);
     this.updateOrganiserById = this.updateOrganiserById.bind(this);
     this.deleteOrganiserById = this.deleteOrganiserById.bind(this);
+    this.getTournamentsByOrganiserId = this.getTournamentsByOrganiserId.bind(this);
   }
   
   async getOrganiserDashboard(req, res) {
@@ -58,12 +59,12 @@ class OrganiserController extends BaseController {
     }
   }
 
-  async getOrganiserTournaments(req, res) {
+  async getTournamentsByOrganiserId(req, res) {
     try {
       const { search, page, limit } = req.query;
-      const organiserId = req.user._id;
-      const organiser = await tournamentService.getOrganiserTournaments(organiserId, search, parseInt(page), parseInt(limit));
-      this.handleSuccess(res, organiser, "Organiser tournaments retrieved successfully");
+      const { id } = req.params;
+      const tournaments = await tournamentService.getOrganiserTournaments(id, search, parseInt(page), parseInt(limit));
+      this.handleSuccess(res, tournaments, "Organiser tournaments retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
     }
