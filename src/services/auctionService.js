@@ -113,7 +113,8 @@ class AuctionService {
       auction.currentBiddingPlayer = randomPlayer;
       await auction.save({ session });
       await session.commitTransaction();
-      return auction;
+      const updatedAuction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+      return updatedAuction;
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -189,9 +190,8 @@ class AuctionService {
         team: bid.placedBy,
       };
       await player.save({ session });
-
       await session.commitTransaction();
-      return auction;
+      return bid;
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -250,7 +250,8 @@ class AuctionService {
       team.wonBids.push(currentBid.bid._id);
       await team.save({ session });
       await session.commitTransaction();
-      return player;
+      const updatedPlayer = await TournamentPlayers.findById(player._id);
+      return updatedPlayer;
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -277,7 +278,8 @@ class AuctionService {
       auction.currentBiddingPlayer = null;
       await auction.save({ session });
       await session.commitTransaction();
-      return player;
+      const updatedPlayer = await TournamentPlayers.findById(player._id);
+      return updatedPlayer;
     } catch (error) {
       await session.abortTransaction();
       throw error;
