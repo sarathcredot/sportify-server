@@ -107,7 +107,6 @@ class AuctionService {
   }
 
   async placeBid(auctionId, bid) {
-
     const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     const tournament = await Tournament.findById(auction.tournament);
     if (!auction) {
@@ -153,23 +152,21 @@ class AuctionService {
       points: bid.points,
     });
     await bidObject.save();
-    auction.currentBiddingPlayer.currentBid = {
+    const player = await TournamentPlayers.findById(auction.currentBiddingPlayer.player);
+    player.currentBid = {
       bid: bidObject._id,
-      team: auction.currentBiddingPlayer.team,
-    };
-    await auction.save();
+      team: bid.placedBy,
+    }; 
+    await player.save();
     return auction;
   }
 
   async markPlayerSold(auctionId) {
-
     const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-
     const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer?.player });
-
     if (!player) {
       throw new NotFoundError('Player not found');
     }
@@ -181,8 +178,11 @@ class AuctionService {
     // update team remaining budget
     let currentBid = player.currentBid;
     const team = await TournamentTeams.findById(currentBid.team);
+<<<<<<< HEAD
     console.log("team", team);
     // First time the remaining points will be undefined, so we need to set it to the max bidding point per team
+=======
+>>>>>>> 680151746b971342d6a85f9ad02e71cf4bc3263b
     team.remainingPoints = team.remainingPoints - currentBid.bid.points;
     team.players.push(player._id);
     team.wonBids.push(currentBid.bid._id);
