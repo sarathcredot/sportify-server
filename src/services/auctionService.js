@@ -69,7 +69,7 @@ class AuctionService {
       throw new NotFoundError('Auction not found');
     }
     // Set bidding points for each team
-    await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { biddingPoints: auction.biddingPointPerTeam } });
+    await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } });
     // return random player
     const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
     const randomPlayer = players[Math.floor(Math.random() * players.length)];
