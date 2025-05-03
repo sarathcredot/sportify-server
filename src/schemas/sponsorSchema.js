@@ -11,9 +11,28 @@ const createSponsorSchema = createSchema(z.object({
   websiteUrl: z.string().url().optional(),
   type: z.enum(SPONSOR_TYPES_VALUES),
   logoUrl: z.string().url().optional(),
+}).openapi({
+  example: {
+    name: "Sponsor Name",
+    websiteUrl: "https://example.com",
+    type: "primary",
+    logoUrl: "https://example.com/logo.png",
+  },
 }));
 
-const updateSponsorSchema = createSponsorSchema.partial();
+const updateSponsorSchema = createSchema(z.object({
+  name: z.string().min(1).optional(),
+  websiteUrl: z.string().url().optional(),
+  type: z.enum(SPONSOR_TYPES_VALUES).optional(),
+  logoUrl: z.string().url().optional(),
+}).openapi({
+  example: {
+    name: "Sponsor Name",
+    websiteUrl: "https://example.com",
+    type: "primary",
+    logoUrl: "https://example.com/logo.png",
+  },
+}));
 
 module.exports = {
   createSponsorSchema,
