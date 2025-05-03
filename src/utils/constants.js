@@ -117,6 +117,16 @@ const SPONSOR_TYPES = {
 
 const SPONSOR_TYPES_VALUES = Object.values(SPONSOR_TYPES);
 
+const TEMPLATE_TYPES = {
+  TOURNAMENT_ANNOUNCEMENT: "tournament_announcement",
+  TEAM_REGISTRATION: "team_registration",
+  TEAM_POSTER: "team_poster",
+  PLAYER_REGISTRATION: "player_registration",
+  AUCTION_ANNOUNCEMENT: "auction_announcement",
+};
+
+const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
+
 // Other constants
 const OTP_LENGTH = 5;
 const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards"];
