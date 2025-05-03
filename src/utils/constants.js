@@ -105,7 +105,17 @@ const CONCEALED_BID_REQUEST_STATUS = {
   CANCELLED: "cancelled",
 };
 
-const CONCEALED_BID_REQUEST_STATUS_TYPES = Object.values(CONCEALED_BID_REQUEST_STATUS);
+const CONCEALED_BID_REQUEST_STATUS_TYPES = Object.values(
+  CONCEALED_BID_REQUEST_STATUS
+);
+
+const SPONSOR_TYPES = {
+  TITLE_SPONSOR: "title_sponsor",
+  MAJOR_SPONSOR: "major_sponsor",
+  OTHER_SPONSOR: "other_sponsor",
+};
+
+const SPONSOR_TYPES_VALUES = Object.values(SPONSOR_TYPES);
 
 // Other constants
 const OTP_LENGTH = 5;
@@ -149,4 +159,7 @@ module.exports = {
 
   CONCEALED_BID_REQUEST_STATUS,
   CONCEALED_BID_REQUEST_STATUS_TYPES,
+
+  SPONSOR_TYPES,
+  SPONSOR_TYPES_VALUES,
 };

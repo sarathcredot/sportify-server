@@ -7,13 +7,15 @@ const Tournament = require('../../models/Tournament');
 const { createPlayerSchema, approvePlayerSchema, refundPlayerSchema } = require('../../schemas/playerSchema');
 const PlayerController = require('../../controllers/playerController');
 const TeamController = require('../../controllers/teamController');
+const SponsorController = require('../../controllers/sponsorController');
+const { createSponsorSchema, updateSponsorSchema } = require('../../schemas/sponsorSchema');
 const { createTeamSchema, approveTeamSchema, refundTeamSchema } = require('../../schemas/teamSchema');
 
 const router = express.Router();
 const tournamentController = new TournamentController();
 const playerController = new PlayerController();
 const teamController = new TeamController();
-
+const sponsorController = new SponsorController();
 /**
  * @swagger
  * /organiser/tournaments:
@@ -514,6 +516,159 @@ router.post(
   '/:tournamentId/teams/:teamId/refund',
   validate(refundTeamSchema),
   teamController.refundTeam
+);
+
+/**
+ * @swagger
+ * /organiser/tournaments/{tournamentId}/sponsors:
+ *   post:
+ *     summary: Add a sponsor to a tournament
+ *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateSponsor'
+ *     responses:
+ *       201:
+ *         description: Sponsor added successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  '/:tournamentId/sponsors',
+  validate(createSponsorSchema),
+  sponsorController.createSponsor
+);
+
+/**
+ * @swagger
+ * /organiser/tournaments/{tournamentId}/sponsors:
+ *   get:
+ *     summary: Get sponsors by tournament ID
+ *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of sponsors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Sponsor'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Tournament not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  '/:tournamentId/sponsors',
+  sponsorController.getSponsorsByTournamentId
+);
+
+/**
+ * @swagger
+ * /organiser/tournaments/{tournamentId}/sponsors/{sponsorId}:
+ *   patch:
+ *     summary: Update a sponsor by ID
+ *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *       - in: path
+ *         name: sponsorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Sponsor ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateSponsor'
+ *     responses:
+ *       200:
+ *         description: Sponsor updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Sponsor not found
+ *       500:
+ *         description: Internal server error
+ */
+router.patch(
+  '/:tournamentId/sponsors/:sponsorId',
+  validate(updateSponsorSchema),
+  sponsorController.updateSponsor
+);
+
+/**
+ * @swagger
+ * /organiser/tournaments/{tournamentId}/sponsors/{sponsorId}:
+ *   delete:
+ *     summary: Delete a sponsor from a tournament
+ *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: tournamentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *       - in: path
+ *         name: sponsorId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Sponsor ID
+ *     responses:
+ *       200:
+ *         description: Sponsor deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Sponsor not found
+ */
+router.delete(
+  '/:tournamentId/sponsors/:sponsorId',
+  sponsorController.deleteSponsor
 );
 
 module.exports = router;
