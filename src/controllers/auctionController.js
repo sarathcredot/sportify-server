@@ -16,6 +16,7 @@ class AuctionController extends BaseController {
     this.markPlayerSold = this.markPlayerSold.bind(this);
     this.markPlayerUnsold = this.markPlayerUnsold.bind(this);
     this.getBidHistory = this.getBidHistory.bind(this);
+    this.requestConceivedBid = this.requestConceivedBid.bind(this);
   }
 
   async getAuction(req, res) {
@@ -84,6 +85,16 @@ class AuctionController extends BaseController {
     try {
       const bid = await auctionService.placeBid(auctionId, req.body);
       this.handleSuccess(res, bid, "Bid placed");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async requestConceivedBid(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const bid = await auctionService.requestConceivedBid(auctionId, req.body);
+      this.handleSuccess(res, bid, "Conceived bid requested");
     } catch (error) {
       this.handleError(res, error);
     }

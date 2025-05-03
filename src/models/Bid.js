@@ -25,6 +25,34 @@ const BidSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  concealedBidRequest: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'ConcealedBidRequest',
+  },
+  isConcealedBid: {
+    type: Boolean,
+    default: false
+  },
+}, {
+  timestamps: true
+});
+
+const ConcealedBidRequestSchema = new mongoose.Schema({
+  auction: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Auction',
+    required: true
+  },
+  player: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TournamentPlayers',
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['requested', 'bids-placed', 'completed'],
+    default: 'requested'
+  },
 }, {
   timestamps: true
 });

@@ -219,6 +219,30 @@ router.post("/:auctionId/place-bid", validate(placeBidSchema), auctionController
 
 /**
  * @swagger
+ * /organiser/auction/{auctionId}/request-concealed-bid:
+ *   post:
+ *     summary: Request a concealed bid
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Conceived bid requested
+ */
+router.post("/:auctionId/request-concealed-bid", auctionController.requestConceivedBid);
+
+/**
+ * @swagger
  * /organiser/auction/{auctionId}/mark-player-sold:
  *   post:
  *     summary: Mark a player as sold

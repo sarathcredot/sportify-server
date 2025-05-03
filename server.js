@@ -13,6 +13,7 @@ const setupSwagger = require('./swagger');
 const { apiLimiter, helmetConfig, requestSizeLimit } = require('./src/config/security');
 const { cacheMiddleware } = require('./src/config/cache');
 const { logger, stream, morganFormat } = require('./src/config/logger');
+const { initializeSocket } = require('./src/config/socket');
 
 const app = express();
 
@@ -95,6 +96,9 @@ setupSwagger(app);
 const server = app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 });
+
+// Initialize Socket.IO
+initializeSocket(server);
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

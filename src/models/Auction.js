@@ -20,6 +20,7 @@ const auctionSchema = new mongoose.Schema({
   auctionStartedAt: { type: Date },
   auctionEndedAt: { type: Date },
   currentBiddingPlayer: { type: mongoose.Schema.Types.ObjectId, ref: 'TournamentPlayers' },
+  concealedBidRequest: { type: mongoose.Schema.Types.ObjectId, ref: 'ConcealedBidRequest' },
 }, {
   timestamps: true
 });
