@@ -22,6 +22,10 @@ class AuctionController extends BaseController {
     this.getConcealedBids = this.getConcealedBids.bind(this);
     this.markPlayerSoldForConcealedBid = this.markPlayerSoldForConcealedBid.bind(this);
     this.cancelConcealedBidRequest = this.cancelConcealedBidRequest.bind(this);
+    this.getGallery = this.getGallery.bind(this);
+    this.addGalleryAsset = this.addGalleryAsset.bind(this);
+    this.deleteGalleryAsset = this.deleteGalleryAsset.bind(this);
+    this.playGallery = this.playGallery.bind(this);
   }
 
   async getAuction(req, res) {
@@ -182,6 +186,46 @@ class AuctionController extends BaseController {
     try {
       const auction = await auctionService.cancelConcealedBidRequest(auctionId);
       this.handleSuccess(res, auction, "Concealed bid request cancelled");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getGallery(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const gallery = await auctionService.getGallery(auctionId);
+      this.handleSuccess(res, gallery, "Gallery retrieved");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async addGalleryAsset(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const gallery = await auctionService.addGalleryAsset(auctionId, req.body);
+      this.handleSuccess(res, gallery, "Gallery asset added");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async deleteGalleryAsset(req, res) {
+    const { auctionId, assetId } = req.params;
+    try {
+      const gallery = await auctionService.deleteGalleryAsset(auctionId, assetId);
+      this.handleSuccess(res, gallery, "Gallery asset deleted");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async playGallery(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const gallery = await auctionService.playGallery(auctionId);
+      this.handleSuccess(res, gallery, "Gallery played");
     } catch (error) {
       this.handleError(res, error);
     }

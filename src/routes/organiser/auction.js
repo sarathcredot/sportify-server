@@ -469,4 +469,119 @@ router.post("/:auctionId/mark-player-sold-for-concealed-bid", auctionController.
  */
 router.post("/:auctionId/cancel-concealed-bid", auctionController.cancelConcealedBidRequest);
 
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/gallery:
+ *   get:
+ *     summary: Get gallery
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Gallery retrieved
+ */
+router.get("/:auctionId/gallery", auctionController.getGallery);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/gallery:
+ *   post:
+ *     summary: Add a gallery asset
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               assetUrl:
+ *                 type: string
+ *               type:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Gallery asset added
+ */
+router.post("/:auctionId/gallery", auctionController.addGalleryAsset);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/gallery/{assetId}:
+ *   delete:
+ *     summary: Delete a gallery asset
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *       - name: assetId
+ *         in: path
+ *         required: true
+ *         description: The ID of the asset
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Gallery asset deleted
+ */
+router.delete("/:auctionId/gallery/:assetId", auctionController.deleteGalleryAsset);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/gallery/play:
+ *   post:
+ *     summary: Play a gallery
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Gallery played
+ */
+router.post("/:auctionId/gallery/play", auctionController.playGallery);
+
 module.exports = router;  

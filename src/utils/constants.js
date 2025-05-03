@@ -119,13 +119,19 @@ const SPONSOR_TYPES_VALUES = Object.values(SPONSOR_TYPES);
 
 // Other constants
 const OTP_LENGTH = 5;
-const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images"];
+const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos"];
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
   "image/bmp",
   "image/webp",
-  "image/tiff",
+];
+
+const ALLOWED_VIDEO_TYPES = [
+  "video/mp4",
+  "video/mpeg",
+  "video/mpg",
+  "video/webm",
 ];
 
 module.exports = {
@@ -162,4 +168,6 @@ module.exports = {
 
   SPONSOR_TYPES,
   SPONSOR_TYPES_VALUES,
+
+  ALLOWED_VIDEO_TYPES,
 };
