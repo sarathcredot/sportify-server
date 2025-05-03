@@ -241,4 +241,40 @@ router.delete(
   organiserController.deleteOrganiserById
 );
 
+/**
+ * @swagger
+ * /admin/organisers/{id}/toggle-status:
+ *   post:
+ *     summary: Toggle status of an organiser
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           properties:
+ *             isActive:
+ *               type: boolean
+ *     responses:
+ *       200:
+ *         description: Status toggled successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Organiser not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  '/:id/toggle-status',
+  organiserController.toggleStatus
+);
+
 module.exports = router;

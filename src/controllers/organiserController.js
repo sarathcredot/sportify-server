@@ -13,6 +13,7 @@ class OrganiserController extends BaseController {
     this.updateOrganiserById = this.updateOrganiserById.bind(this);
     this.deleteOrganiserById = this.deleteOrganiserById.bind(this);
     this.getTournamentsByOrganiserId = this.getTournamentsByOrganiserId.bind(this);
+    this.toggleStatus = this.toggleStatus.bind(this);
   }
   
   async getOrganiserDashboard(req, res) {
@@ -78,6 +79,18 @@ class OrganiserController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async toggleStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { isActive } = req.body;
+      const organiser = await userService.toggleStatus(id, isActive);
+      this.handleSuccess(res, organiser, "Status toggled successfully");  
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+  
 }
 
 module.exports = OrganiserController;

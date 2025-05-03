@@ -257,4 +257,40 @@ router.delete(
   teamManagerController.deleteTeamManagerById
 );
 
+/**
+ * @swagger
+ * /admin/teammanagers/{id}/toggle-status:
+ *   post:
+ *     summary: Toggle status of a team manager
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           properties:
+ *             isActive:
+ *               type: boolean
+ *     responses:
+ *       200:
+ *         description: Status toggled successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Team manager not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  '/:id/toggle-status',
+  teamManagerController.toggleStatus
+);
+
 module.exports = router;

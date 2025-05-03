@@ -71,5 +71,10 @@ class UserService {
       throw new Error(`${role} not found`);
     }
   }
+
+  async toggleStatus(id, isActive) {
+    const user = await User.findByIdAndUpdate(id, { isActive }, { new: true });
+    return user;
+  }
 }
 module.exports = new UserService();
