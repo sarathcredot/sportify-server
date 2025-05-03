@@ -52,7 +52,7 @@ class AuctionService {
   }
 
   async getBidHistory(auctionId, player) {
-    const query = { auction: auctionId, player: player };
+    const query = { auction: auctionId, player: player, isConcealedBid: false };
     console.log("history player", player)
 
     const bids = await Bid.find(query)
@@ -207,7 +207,7 @@ class AuctionService {
     }
   }
 
-  async requestConceivedBid(auctionId) {
+  async requestConcealedBid(auctionId) {
     const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     if (!auction) {
       throw new NotFoundError('Auction not found');
@@ -234,8 +234,76 @@ class AuctionService {
       auctionId: auction._id,
       playerId: auction.currentBiddingPlayer._id,
     });
-    
     return auction;
+  }
+
+  async placeConcealedBid(auctionId, bid) {
+    const auction = await Auction.findById(auctionId).populate(['currentBiddingPlayer', 'concealedBidRequest']);
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    if (auction.status !== AUCTION_STATUS.LIVE) {
+      throw new BadRequestError('Auction is not live');
+    }
+    if (!auction.concealedBidRequest) {
+      throw new BadRequestError('No concealed bid request');
+    }
+    if (!auction.currentBiddingPlayer) {
+      throw new BadRequestError('No player to place concealed bid');
+    }
+    if (auction.currentBiddingPlayer.id !== bid.playerId) {
+      throw new BadRequestError('You are not allowed to place concealed bid on this player');
+    }
+    if (auction.currentBiddingPlayer.currentBid && auction.currentBiddingPlayer.currentBid.bid) {
+      throw new BadRequestError('Player has already placed a bid');
+    }
+    if (bid.points < auction.minBidPerPlayer) {
+      throw new BadRequestError(`Minimum bid points is ${auction.minBidPerPlayer}`);
+    }
+    if (bid.points > auction.maxBidPerPlayer) {
+      throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
+    }
+    const existingBid = await Bid.findOne({ bidRequest: auction.concealedBidRequest._id, placedBy: bid.placedBy });
+    if (existingBid) {
+      throw new BadRequestError('You have already placed a bid');
+    }
+    const tournament = await Tournament.findById(auction.tournament);
+    const team = await TournamentTeams.findById(bid.placedBy);
+    const numberOfPlayersInTeam = team.players ? team.players.length : 0;
+    const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
+    const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
+    const pointsAfterBid = team.remainingPoints - bid.points;
+    if (pointsAfterBid < minBidPoints) {
+      throw new BadRequestError(`Team remaining points are less than the minimum bid points. Minimum bid points is ${minBidPoints}`);
+    }
+    if (pointsAfterBid < 0) {
+      throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
+    }
+    const bidObject = new Bid({
+      tournament: auction.tournament,
+      auction: auction._id,
+      player: bid.playerId,
+      placedBy: bid.placedBy,
+      points: bid.points,
+      isConcealedBid: true,
+      bidRequest: auction.concealedBidRequest._id,
+    });
+    await bidObject.save();
+    auction.currentBiddingPlayer.currentBid = {
+      bid: bidObject._id,
+      team: bid.placedBy,
+    };
+    await auction.currentBiddingPlayer.save();
+    return bidObject;
+  }
+
+  async getConcealedBids(auctionId) {
+    const auction = await Auction.findById(auctionId).populate('concealedBidRequest');
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    const bids = await Bid.find({ bidRequest: auction.concealedBidRequest._id, isConcealedBid: true });
+    return bids;
   }
 
   async markPlayerSold(auctionId) {

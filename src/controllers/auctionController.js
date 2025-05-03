@@ -16,7 +16,10 @@ class AuctionController extends BaseController {
     this.markPlayerSold = this.markPlayerSold.bind(this);
     this.markPlayerUnsold = this.markPlayerUnsold.bind(this);
     this.getBidHistory = this.getBidHistory.bind(this);
-    this.requestConceivedBid = this.requestConceivedBid.bind(this);
+    this.requestConcealedBid = this.requestConcealedBid.bind(this);
+    this.getRequestConcealedBid = this.getRequestConcealedBid.bind(this);
+    this.placeConcealedBid = this.placeConcealedBid.bind(this);
+    this.getConcealedBids = this.getConcealedBids.bind(this);
   }
 
   async getAuction(req, res) {
@@ -90,11 +93,11 @@ class AuctionController extends BaseController {
     }
   }
 
-  async requestConceivedBid(req, res) {
+  async requestConcealedBid(req, res) {
     const { auctionId } = req.params;
     try {
-      const bid = await auctionService.requestConceivedBid(auctionId, req.body);
-      this.handleSuccess(res, bid, "Conceived bid requested");
+      const bid = await auctionService.requestConcealedBid(auctionId, req.body);
+      this.handleSuccess(res, bid, "Concealed bid requested");
     } catch (error) {
       this.handleError(res, error);
     }
@@ -126,6 +129,36 @@ class AuctionController extends BaseController {
     try {
       const bidHistory = await auctionService.getBidHistory(auctionId, player);
       this.handleSuccess(res, bidHistory, "Bid history retrieved");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getRequestConcealedBid(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const bid = await auctionService.getRequestConcealedBid(auctionId);
+      this.handleSuccess(res, bid, "Concealed bid request retrieved");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async placeConcealedBid(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const bid = await auctionService.placeConcealedBid(auctionId, req.body);
+      this.handleSuccess(res, bid, "Concealed bid placed");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getConcealedBids(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const bids = await auctionService.getConcealedBids(auctionId);
+      this.handleSuccess(res, bids, "Concealed bids retrieved");
     } catch (error) {
       this.handleError(res, error);
     }

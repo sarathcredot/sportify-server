@@ -237,9 +237,9 @@ router.post("/:auctionId/place-bid", validate(placeBidSchema), auctionController
  *               allOf:
  *                 - $ref: '#/components/schemas/ApiResponse'
  *                 - type: object
- *         description: Conceived bid requested
+ *         description: Concealed bid requested
  */
-router.post("/:auctionId/request-concealed-bid", auctionController.requestConceivedBid);
+router.post("/:auctionId/request-concealed-bid", auctionController.requestConcealedBid);
 
 /**
  * @swagger
@@ -330,5 +330,93 @@ router.post("/:auctionId/mark-player-unsold", auctionController.markPlayerUnsold
  *         description: Bid history
  */ 
 router.get("/:auctionId/bid-history", auctionController.getBidHistory);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/request-concealed-bid:
+ *   get:
+ *     summary: Get concealed bids
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Concealed bid request
+ */
+router.get("/:auctionId/request-concealed-bid", auctionController.getRequestConcealedBid);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/concealed-bids/{concealedBidRequestId}:
+ *   get:
+ *     summary: Get concealed bids
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Concealed bids retrieved
+ */
+router.get("/:auctionId/concealed-bids", auctionController.getConcealedBids);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/place-concealed-bid:
+ *   post:
+ *     summary: Place a concealed bid
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               playerId:
+ *                 type: string
+ *               bidAmount:
+ *                 type: number
+ *               teamId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Concealed bid placed
+ */
+router.post("/:auctionId/place-concealed-bid", validate(placeBidSchema), auctionController.placeConcealedBid);
 
 module.exports = router;  
