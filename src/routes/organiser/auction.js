@@ -419,4 +419,54 @@ router.get("/:auctionId/concealed-bids", auctionController.getConcealedBids);
  */
 router.post("/:auctionId/place-concealed-bid", validate(placeBidSchema), auctionController.placeConcealedBid);
 
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/mark-player-sold-for-concealed-bid:
+ *   post:
+ *     summary: Mark a player as sold for a concealed bid
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true 
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Player marked as sold for a concealed bid
+ */
+router.post("/:auctionId/mark-player-sold-for-concealed-bid", auctionController.markPlayerSoldForConcealedBid);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/cancel-concealed-bid:
+ *   post:
+ *     summary: Cancel a concealed bid
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Concealed bid cancelled
+ */
+router.post("/:auctionId/cancel-concealed-bid", auctionController.cancelConcealedBidRequest);
+
 module.exports = router;  

@@ -20,6 +20,8 @@ class AuctionController extends BaseController {
     this.getRequestConcealedBid = this.getRequestConcealedBid.bind(this);
     this.placeConcealedBid = this.placeConcealedBid.bind(this);
     this.getConcealedBids = this.getConcealedBids.bind(this);
+    this.markPlayerSoldForConcealedBid = this.markPlayerSoldForConcealedBid.bind(this);
+    this.cancelConcealedBidRequest = this.cancelConcealedBidRequest.bind(this);
   }
 
   async getAuction(req, res) {
@@ -159,6 +161,27 @@ class AuctionController extends BaseController {
     try {
       const bids = await auctionService.getConcealedBids(auctionId);
       this.handleSuccess(res, bids, "Concealed bids retrieved");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async markPlayerSoldForConcealedBid(req, res) {
+    const { auctionId } = req.params;
+    const { teamId } = req.body;
+    try {
+      const auction = await auctionService.markPlayerSoldForConcealedBid(auctionId, teamId);
+      this.handleSuccess(res, auction, "Player marked as sold for concealed bid");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async cancelConcealedBidRequest(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const auction = await auctionService.cancelConcealedBidRequest(auctionId);
+      this.handleSuccess(res, auction, "Concealed bid request cancelled");
     } catch (error) {
       this.handleError(res, error);
     }

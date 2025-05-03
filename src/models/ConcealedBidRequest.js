@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { CONCEALED_BID_REQUEST_STATUS, CONCEALED_BID_REQUEST_STATUS_TYPES } = require("../utils/constants");
 
 const ConcealedBidRequestSchema = new mongoose.Schema(
   {
@@ -14,8 +15,8 @@ const ConcealedBidRequestSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["requested", "bids-placed", "completed"],
-      default: "requested",
+      enum: CONCEALED_BID_REQUEST_STATUS_TYPES,
+      default: CONCEALED_BID_REQUEST_STATUS.REQUESTED,
     },
   },
   {

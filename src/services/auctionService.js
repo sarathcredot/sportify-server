@@ -3,7 +3,8 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
-const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
+const ConcealedBidRequest = require("../models/ConcealedBidRequest");
+const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS, CONCEALED_BID_REQUEST_STATUS } = require("../utils/constants");
 const { NotFoundError, BadRequestError } = require("../utils/errors");
 const e = require("cors");
 const mongoose = require('mongoose');
@@ -364,6 +365,54 @@ class AuctionService {
     } finally {
       session.endSession();
     }
+  }
+
+  async markPlayerSoldForConcealedBid(auctionId, teamId) {
+    runAsTransaction(async (session) => {
+      const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer').session(session);
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+      const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player }).session(session);
+      if (!player) {
+        throw new NotFoundError('Player not found');
+      }
+      player.status = PLAYER_STATUS.SOLD;
+      await player.save({ session });
+      auction.currentBiddingPlayer = null;
+      auction.concealedBidRequest = null;
+      await auction.save({ session });
+      await session.commitTransaction();
+      const team = await TournamentTeams.findById(teamId).session(session);
+      if (!team) {
+        throw new NotFoundError('Team not found');
+      }
+      const concealedBid = await Bid.findOne({ bidRequest: auction.concealedBidRequest._id, placedBy: teamId });
+      if (!concealedBid) {
+        throw new NotFoundError('Concealed bid not found');
+      }
+      team.remainingPoints = team.remainingPoints - concealedBid.points;
+      team.players.push({
+        player: player._id,
+        signedForPoints: concealedBid.points
+      });
+      team.wonBids.push(concealedBid._id);
+      await team.save({ session });
+      await ConcealedBidRequest.findByIdAndUpdate({ auction: auction._id, player: player._id }, { status: CONCEALED_BID_REQUEST_STATUS.COMPLETED }, { session });
+      const updatedPlayer = await TournamentPlayers.findById(player._id);
+      return updatedPlayer;
+    })
+  }
+
+  async cancelConcealedBidRequest(auctionId) {
+    const auction = await Auction.findById(auctionId).populate('concealedBidRequest');
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    if (!auction.concealedBidRequest) {
+      throw new NotFoundError('Concealed bid request not found');
+    }
+    await ConcealedBidRequest.findByIdAndUpdate({ _id: auction.concealedBidRequest._id }, { status: CONCEALED_BID_REQUEST_STATUS.CANCELLED });
   }
 
   async markPlayerUnsold(auctionId) {
