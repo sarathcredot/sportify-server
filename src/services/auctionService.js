@@ -80,6 +80,9 @@ class AuctionService {
       await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } }, { session });
       // return random player
       const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
+      if (players.length === 0) {
+        throw new BadRequestError('No players to bid');
+      }
       const randomPlayer = players[Math.floor(Math.random() * players.length)];
       auction.currentBiddingPlayer = randomPlayer._id;
       await auction.save({ session, new: true });
@@ -414,6 +417,19 @@ class AuctionService {
       throw new NotFoundError('Concealed bid request not found');
     }
     await ConcealedBidRequest.findByIdAndUpdate({ _id: auction.concealedBidRequest._id }, { status: CONCEALED_BID_REQUEST_STATUS.CANCELLED });
+  }
+
+  async getSignedPlayers(auctionId, teamId) {
+    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    const query = { tournament: auction.tournament, status: PLAYER_STATUS.SOLD };
+    if (teamId) {
+      query.signedForTeam = teamId;
+    }
+    const players = await TournamentPlayers.find(query);
+    return players;
   }
 
   async markPlayerUnsold(auctionId) {
