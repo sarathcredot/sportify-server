@@ -2,7 +2,7 @@ const ClipBoard = require("../models/ClipBoard");
 
 class ClipboardService {
   async createClipboard(clipboardData) {
-    const clipBoard = await ClipBoard.create(clipboardData);
+    const clipBoard = await Promise.all([clipboardData?.map((el) => ClipBoard.create(el))]);
     return clipBoard;
   } 
 

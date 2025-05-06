@@ -5,6 +5,7 @@ const router = express.Router();
 const tournamentsRouter = require('./admin/tournament');
 const teamManagersRouter = require('./admin/teammanagers');
 const organisersRouter = require('./admin/organiser');
+const clipboardsRouter = require('./admin/clipboard');
 
 
 router.use(auth);
@@ -28,5 +29,6 @@ router.use(checkIsAdmin());
 router.use('/tournaments', tournamentsRouter);
 router.use('/teammanagers', teamManagersRouter);
 router.use('/organisers', organisersRouter);
+router.use('/clipboards', clipboardsRouter);
 
 module.exports = router;

@@ -6,7 +6,7 @@ class ClipboardController extends BaseController {
   constructor() {
     super();
     this.getAllClipBoards = this.getAllClipBoards.bind(this);
-    this.createClipBoard = this.createClipBoard.bind(this);
+    this.createClipBoard = this.createClipboard.bind(this);
     this.deleteClipBoardById = this.deleteClipBoardById.bind(this);
   }
   
@@ -22,7 +22,7 @@ class ClipboardController extends BaseController {
 
   async createClipboard(req, res) {
     try {
-      const clipBoard = await clipboardService.createClipboard(req.body);
+      const clipBoard = await clipboardService.createClipboard(req.body.clipboardData);
       this.handleSuccess(res, clipBoard, "Clip board created successfully");
     } catch (error) {
       this.handleError(res, error);

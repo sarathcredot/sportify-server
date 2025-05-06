@@ -56,6 +56,33 @@ router.post("/", imageUpload.single("media"), async (req, res) => {
   }
 });
 
+router.post("/multiple/image", imageUpload.array("media", 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json(
+        ResponseHandler.error("No files uploaded", null, 400)
+      );
+    }
+
+    const { type } = req.body;
+    const uploadFolder =
+      type && ALLOWED_UPLOAD_FOLDERS.includes(type) ? type : "images";
+
+    const fileUrls = await Promise.all(
+      req.files.map(file => uploadFile(file, uploadFolder))
+    );
+
+    res.json(
+      ResponseHandler.success("Files uploaded successfully", { imageUrls: fileUrls })
+    );
+  } catch (error) {
+    console.error(error);
+    res.status(500).json(
+      ResponseHandler.error("Error uploading files", error.message, 500)
+    );
+  }
+});
+
 router.post("/video", videoUpload.single("media"), async (req, res) => {
   try {
     if (!req.file) {
