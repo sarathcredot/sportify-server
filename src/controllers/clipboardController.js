@@ -5,15 +5,15 @@ class ClipboardController extends BaseController {
 
   constructor() {
     super();
-    this.getAllClipBoards = this.getAllClipBoards.bind(this);
-    this.createClipBoard = this.createClipboard.bind(this);
-    this.deleteClipBoardById = this.deleteClipBoardById.bind(this);
+    this.getAllClipboards = this.getAllClipboards.bind(this);
+    this.createClipboard = this.createClipboard.bind(this);
+    this.deleteClipboardById = this.deleteClipboardById.bind(this);
   }
   
-  async getAllClipBoards(req, res) {
+  async getAllClipboards(req, res) {
     try {
       const { type, category } = req.query;
-      const clipBoards = await clipboardService.getAllClipBoards(type, category);
+      const clipBoards = await clipboardService.getAllClipboards(type, category);
       this.handleSuccess(res, clipBoards, "Clip boards retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
@@ -29,9 +29,9 @@ class ClipboardController extends BaseController {
     }
   }
 
-  async deleteClipBoardById(req, res) {
+  async deleteClipboardById(req, res) {
     try {
-      await clipboardService.deleteClipBoardById(req.params.id);
+      await clipboardService.deleteClipboardById(req.params.id);
       this.handleSuccess(res, null, "Clip board deleted successfully");
     } catch (error) {
       this.handleError(res, error);

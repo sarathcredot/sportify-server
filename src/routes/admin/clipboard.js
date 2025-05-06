@@ -84,7 +84,7 @@ router.post('/', validate(createClipboardSchema), clipboardController.createClip
  */
 router.get(
   '/',
-  clipboardController.getAllClipBoards
+  clipboardController.getAllClipboards
 );
 
 /**
@@ -114,7 +114,7 @@ router.get(
  */
 router.delete(
   '/:id',
-  clipboardController.deleteClipBoardById
+  clipboardController.deleteClipboardById
 );
 
 module.exports = router;
