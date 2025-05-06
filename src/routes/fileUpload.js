@@ -58,6 +58,7 @@ router.post("/", imageUpload.single("media"), async (req, res) => {
 
 router.post("/multiple/image", imageUpload.array("media", 10), async (req, res) => {
   try {
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json(
         ResponseHandler.error("No files uploaded", null, 400)

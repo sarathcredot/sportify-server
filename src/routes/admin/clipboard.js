@@ -1,6 +1,6 @@
 const express = require('express');
 const validate = require('../../utils/validate'); 
-const { createClipboardSchema } = require('../../schemas/clipboardSchema'); 
+// const { createClipboardSchema } = require('../../schemas/clipboardSchema'); 
 const ClipboardController = require('../../controllers/clipboardController');
 
 const router = express.Router();
@@ -40,7 +40,9 @@ const clipboardController = new ClipboardController();
  *       401:   
  *         description: Unauthorized
  */
-router.post('/', validate(createClipboardSchema), clipboardController.createClipboard);
+router.post('/', 
+  // validate(createClipboardSchema),
+   clipboardController.createClipboard);
 
 /**
  * @swagger
@@ -115,6 +117,36 @@ router.get(
 router.delete(
   '/:id',
   clipboardController.deleteClipBoardById
+);
+
+/**
+ * @swagger
+ * /admin/clipboards/delete/many:
+ *   delete:
+ *     summary: Delete clip board by ID
+ *     tags: [Admin]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Clip board ID
+ *     responses:
+ *       200:
+ *         description: Clip board deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Clip board not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  '/delete/many',
+  clipboardController.deleteClipBoardByIds
 );
 
 module.exports = router;

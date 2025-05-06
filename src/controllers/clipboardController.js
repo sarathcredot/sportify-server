@@ -1,37 +1,51 @@
-const BaseController = require('./baseController');
+const BaseController = require("./baseController");
 const clipboardService = require("../services/clipboardService");
 
 class ClipboardController extends BaseController {
-
   constructor() {
     super();
     this.getAllClipBoards = this.getAllClipBoards.bind(this);
     this.createClipBoard = this.createClipboard.bind(this);
     this.deleteClipBoardById = this.deleteClipBoardById.bind(this);
   }
-  
+
   async getAllClipBoards(req, res) {
     try {
       const { type, category } = req.query;
-      const clipBoards = await clipboardService.getAllClipBoards(type, category);
+      const clipBoards = await clipboardService.getAllClipBoards(
+        type,
+        category
+      );
       this.handleSuccess(res, clipBoards, "Clip boards retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
     }
   }
 
-  async createClipboard(req, res) {
+  createClipboard = async (req, res) => {
     try {
-      const clipBoard = await clipboardService.createClipboard(req.body.clipboardData);
+      const clipBoard = await clipboardService.createClipboard(
+        req.body.clipboardData
+      );
       this.handleSuccess(res, clipBoard, "Clip board created successfully");
+    } catch (error) {
+      console.log(error, "ERROR IN CREATE CLIPBOARD");
+      this.handleError(res, error);
+    }
+  };
+
+  async deleteClipBoardById(req, res) {
+    try {
+      await clipboardService.deleteClipBoardById(req.params.id);
+      this.handleSuccess(res, null, "Clip board deleted successfully");
     } catch (error) {
       this.handleError(res, error);
     }
   }
 
-  async deleteClipBoardById(req, res) {
+   deleteClipBoardByIds = async (req, res) => {
     try {
-      await clipboardService.deleteClipBoardById(req.params.id);
+      await clipboardService.deleteClipBoardByIds(req.body.ids);
       this.handleSuccess(res, null, "Clip board deleted successfully");
     } catch (error) {
       this.handleError(res, error);

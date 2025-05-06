@@ -2,9 +2,9 @@ const ClipBoard = require("../models/ClipBoard");
 
 class ClipboardService {
   async createClipboard(clipboardData) {
-    const clipBoard = await Promise.all([clipboardData?.map((el) => ClipBoard.create(el))]);
+    const clipBoard = await ClipBoard.create(clipboardData);
     return clipBoard;
-  } 
+  }
 
   async getAllClipBoards(type, category) {
     const query = {};
@@ -12,7 +12,7 @@ class ClipboardService {
       query.type = type;
     }
     if (category) {
-      query.target = category;
+      query.category = category;
     }
     const clipBoards = await ClipBoard.find(query);
     return clipBoards;
@@ -21,6 +21,14 @@ class ClipboardService {
   async deleteClipBoardById(id) {
     const clipBoard = await ClipBoard.findByIdAndDelete(id);
     if (!clipBoard) {
+      throw new Error("Clip board not found");
+    }
+    return clipBoard;
+  }
+ 
+  async deleteClipBoardByIds(ids) {
+    const clipBoard = await  ClipBoard.deleteMany({ _id: { $in: ids } });;
+    if (!clipBoard || clipBoard.length === 0) {
       throw new Error("Clip board not found");
     }
     return clipBoard;
