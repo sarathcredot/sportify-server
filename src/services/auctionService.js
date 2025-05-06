@@ -26,31 +26,72 @@ class AuctionService {
     return auction;
   }
 
-  async getPlayers(auctionId) {
+  async getPlayers(auctionId, page = 1, limit = 10, search) {
     const auction = await Auction.findById(auctionId);
-
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-    const players = await TournamentPlayers.find({
+    const query = {
       tournament: auction.tournament,
-      status: PLAYER_STATUS.APPROVED
-    })
-      .populate('player');
-    console.log(players);
-    return players;
+      status: { $in: [PLAYER_STATUS.APPROVED, PLAYER_STATUS.BIDDING, PLAYER_STATUS.UNSOLD, PLAYER_STATUS.SOLD] }
+    }
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { contactNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { playerId: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const players = await TournamentPlayers.find(query)
+      .populate('player')
+      .populate('signedForTeam')
+      .skip((page - 1) * limit)
+      .limit(limit);
+    const total = await TournamentPlayers.countDocuments(query);
+    return {
+      players,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
   }
 
-  async getTeams(auctionId) {
+  async getTeams(auctionId, page = 1, limit = 10, search) {
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
-    const teams = await TournamentTeams.find({
+    const query = {
       tournament: auction.tournament,
       status: TEAM_STATUS.APPROVED
-    }).populate('team');
-    return teams;
+    }
+    if (search) { 
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { phoneNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { teamId: { $regex: search, $options: 'i' } }
+      ];
+    }
+    const teams = await TournamentTeams.find(query)
+      .populate('team')
+      .skip((page - 1) * limit)
+      .limit(limit);
+    const total = await TournamentTeams.countDocuments(query);
+    return {
+      teams,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
   }
 
   async getBidHistory(auctionId, player) {
@@ -382,7 +423,6 @@ class AuctionService {
         throw new NotFoundError('Player not found');
       }
       player.status = PLAYER_STATUS.SOLD;
-      await player.save({ session });
       auction.currentBiddingPlayer = null;
       auction.concealedBidRequest = null;
       await auction.save({ session });
@@ -395,6 +435,9 @@ class AuctionService {
       if (!concealedBid) {
         throw new NotFoundError('Concealed bid not found');
       }
+      player.signedForPoints = concealedBid.points;
+      player.signedForTeam = teamId;
+      await player.save({ session });
       team.remainingPoints = team.remainingPoints - concealedBid.points;
       team.players.push({
         player: player._id,
