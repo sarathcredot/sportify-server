@@ -2,7 +2,7 @@ const Clipboard = require("../models/Clipboard");
 
 class ClipboardService {
   async createClipboard(clipboardData) {
-    const clipBoard = await ClipBoard.create(clipboardData);
+    const clipBoard = await Clipboard.create(clipboardData);
     return clipBoard;
   }
 
@@ -27,7 +27,7 @@ class ClipboardService {
   }
  
   async deleteClipBoardByIds(ids) {
-    const clipBoard = await  ClipBoard.deleteMany({ _id: { $in: ids } });;
+    const clipBoard = await  Clipboard.deleteMany({ _id: { $in: ids } });;
     if (!clipBoard || clipBoard.length === 0) {
       throw new Error("Clip board not found");
     }
