@@ -80,6 +80,9 @@ class AuctionService {
       await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } }, { session });
       // return random player
       const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
+      if (players.length === 0) {
+        throw new BadRequestError('No players to bid');
+      }
       const randomPlayer = players[Math.floor(Math.random() * players.length)];
       auction.currentBiddingPlayer = randomPlayer._id;
       await auction.save({ session, new: true });
