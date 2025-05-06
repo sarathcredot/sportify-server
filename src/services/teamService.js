@@ -89,14 +89,11 @@ class TeamService {
     }
     const skip = (page - 1) * limit;
     const [teams, total] = await Promise.all([
-      TournamentTeams.find(query)
-        .populate({
-          path: 'team',
-        })
+      Team.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      TournamentTeams.countDocuments(query)
+      Team.countDocuments(query)
     ]);
 
     return {

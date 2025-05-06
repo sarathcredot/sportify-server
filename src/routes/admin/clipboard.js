@@ -1,6 +1,6 @@
 const express = require('express');
 const validate = require('../../utils/validate'); 
-const { updateTeamSchema } = require('../../schemas/teamSchema'); 
+const { createClipboardSchema } = require('../../schemas/clipboardSchema'); 
 const ClipboardController = require('../../controllers/clipboardController');
 
 const router = express.Router();
