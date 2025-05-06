@@ -471,6 +471,35 @@ router.post("/:auctionId/cancel-concealed-bid", auctionController.cancelConceale
 
 /**
  * @swagger
+ * /organiser/auction/{auctionId}/signed-players:
+ *   get:
+ *     summary: Get signed players
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *       - name: teamId
+ *         in: query
+ *         required: false
+ *         description: The ID of the team
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Signed players retrieved
+ */
+router.get("/:auctionId/signed-players", auctionController.getSignedPlayers);
+
+/**
+ * @swagger
  * /organiser/auction/{auctionId}/gallery:
  *   get:
  *     summary: Get gallery

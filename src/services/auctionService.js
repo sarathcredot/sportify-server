@@ -416,6 +416,19 @@ class AuctionService {
     await ConcealedBidRequest.findByIdAndUpdate({ _id: auction.concealedBidRequest._id }, { status: CONCEALED_BID_REQUEST_STATUS.CANCELLED });
   }
 
+  async getSignedPlayers(auctionId, teamId) {
+    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    const query = { tournament: auction.tournament, status: PLAYER_STATUS.SOLD };
+    if (teamId) {
+      query.signedForTeam = teamId;
+    }
+    const players = await TournamentPlayers.find(query);
+    return players;
+  }
+
   async markPlayerUnsold(auctionId) {
     const session = await mongoose.startSession();
     try {
