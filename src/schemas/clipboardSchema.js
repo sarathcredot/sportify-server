@@ -6,7 +6,7 @@ extendZodWithOpenApi(z);
 const createClipboardSchema = createSchema(
   z
     .object({
-      url: z.string().url().required(),
+      url: z.string().url(),
       for: z.enum(["team", "tournament"]),
       type: z.enum(["logo", "banner"]),
     })

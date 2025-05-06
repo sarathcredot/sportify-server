@@ -4,9 +4,9 @@ const clipboardService = require("../services/clipboardService");
 class ClipboardController extends BaseController {
   constructor() {
     super();
-    this.getAllClipBoards = this.getAllClipBoards.bind(this);
-    this.createClipBoard = this.createClipboard.bind(this);
-    this.deleteClipBoardById = this.deleteClipBoardById.bind(this);
+    this.getAllClipboards = this.getAllClipboards.bind(this);
+    this.createClipboard = this.createClipboard.bind(this);
+    this.deleteClipboardById = this.deleteClipboardById.bind(this);
   }
 
   async getAllClipBoards(req, res) {
@@ -29,19 +29,18 @@ class ClipboardController extends BaseController {
       );
       this.handleSuccess(res, clipBoard, "Clip board created successfully");
     } catch (error) {
-      console.log(error, "ERROR IN CREATE CLIPBOARD");
       this.handleError(res, error);
     }
   };
 
   async deleteClipBoardById(req, res) {
     try {
-      await clipboardService.deleteClipBoardById(req.params.id);
+      await clipboardService.deleteClipboardById(req.params.id);
       this.handleSuccess(res, null, "Clip board deleted successfully");
     } catch (error) {
       this.handleError(res, error);
     }
-  }
+  };
 
    deleteClipBoardByIds = async (req, res) => {
     try {

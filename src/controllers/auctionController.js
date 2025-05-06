@@ -40,10 +40,10 @@ class AuctionController extends BaseController {
   }
 
   async getPlayers(req, res) {
-    console.log("auction players")
     const { auctionId } = req.params;
+    const { page, limit, search } = req.query;
     try {
-      const players = await auctionService.getPlayers(auctionId);
+      const players = await auctionService.getPlayers(auctionId, parseInt(page), parseInt(limit), search);
       this.handleSuccess(res, players, "Players retrieved");
     } catch (error) {
       this.handleError(res, error);   
@@ -53,7 +53,8 @@ class AuctionController extends BaseController {
   async getTeams(req, res) {
     const { auctionId } = req.params;
     try {
-      const teams = await auctionService.getTeams(auctionId);
+      const { page, limit, search } = req.query;
+      const teams = await auctionService.getTeams(auctionId, parseInt(page), parseInt(limit), search);
       this.handleSuccess(res, teams, "Teams retrieved");
     } catch (error) {
       this.handleError(res, error);
