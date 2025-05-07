@@ -1,6 +1,6 @@
 const express = require('express');
 const validate = require('../../utils/validate'); 
-// const { createClipboardSchema } = require('../../schemas/clipboardSchema'); 
+const { createClipboardSchema } = require('../../schemas/clipboardSchema'); 
 const ClipboardController = require('../../controllers/clipboardController');
 
 const router = express.Router();
@@ -41,8 +41,8 @@ const clipboardController = new ClipboardController();
  *         description: Unauthorized
  */
 router.post('/', 
-  // validate(createClipboardSchema),
-   clipboardController.createClipboard);
+  validate(createClipboardSchema),
+   clipboardController.createClipBoard);
 
 /**
  * @swagger
@@ -86,7 +86,7 @@ router.post('/',
  */
 router.get(
   '/',
-  clipboardController.getAllClipboards
+  clipboardController.getAllClipBoards
 );
 
 /**
@@ -116,7 +116,7 @@ router.get(
  */
 router.delete(
   '/:id',
-  clipboardController.deleteClipboardById
+  clipboardController.deleteClipBoardById
 );
 
 /**
