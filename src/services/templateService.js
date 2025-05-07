@@ -49,7 +49,7 @@ class TemplateService {
     const { templateData, fields } = template;
     
     const compiledTemplate = handlebars.compile(templateData);
-    const renderedTemplate = compiledTemplate(data);
+    const renderedTemplate = compiledTemplate(fields);
     
     // Create a browser instance
     const browser = await puppeteer.launch({

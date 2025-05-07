@@ -471,7 +471,7 @@ class AuctionService {
     if (teamId) {
       query.signedForTeam = teamId;
     }
-    const players = await TournamentPlayers.find(query);
+    const players = await TournamentPlayers.find(query).populate('player');
     return players;
   }
 
