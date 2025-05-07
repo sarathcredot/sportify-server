@@ -3,8 +3,8 @@ const ResponseHandler = require('./responseHandler');
 
 const validate = (schema) => (req, res, next) => {
 
-  
- 
+  console.log("sponser", req.body)
+
   try {
     schema.parse(req.body);
     next();
