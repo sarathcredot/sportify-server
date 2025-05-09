@@ -2,6 +2,7 @@ const express = require("express");
 const PlayerController = require("../controllers/playerController");
 const TeamController = require("../controllers/teamController");
 const TournamentController = require("../controllers/tournamentController");
+const SponsorController = require("../controllers/sponsorController");
 const { createPlayerSchema } = require("../schemas/playerSchema");
 const validate = require("../utils/validate");
 
@@ -9,6 +10,7 @@ const router = express.Router();
 const tournamentController = new TournamentController();
 const playerController = new PlayerController();
 const teamController = new TeamController();
+const sponsorController = new SponsorController();
 
 /**
  * @swagger
@@ -40,6 +42,34 @@ const teamController = new TeamController();
  *                 $ref: '#/components/schemas/Tournament'
  */
 router.get("/", tournamentController.getTournaments);
+
+
+/**
+ * @swagger
+ * /tournaments/:id/sponsors:
+ *   get:
+ *     summary: Get sponsors of a tournament
+ *     tags: [Tournaments]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tournament ID
+ *     responses:
+ *       200:
+ *         description: List of sponsors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Sponsor'
+ *       404:
+ *         description: Tournament not found
+ */
+router.get("/:tournamentId/sponsors", sponsorController.getSponsorsByTournamentId);
 
 // /**
 //  * @swagger
@@ -156,5 +186,7 @@ router.post(
     validate(createPlayerSchema),
     playerController.registerPlayer
 );
+
+
 
 module.exports = router;
