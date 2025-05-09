@@ -56,7 +56,7 @@ class TournamentService {
     // }
 
     const skip = (page - 1) * limit;
-    const tournaments = await Tournament.find(query)
+    const tournaments = await Tournament.find(query).populate('location')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -101,7 +101,7 @@ class TournamentService {
   }
 
   async getTournamentById(id) {
-    const tournament = await Tournament.findById(id);
+    const tournament = await Tournament.findById(id).populate('location');
     const auction = await Auction.findOne({ tournament: id });
 
     if (!tournament) {
