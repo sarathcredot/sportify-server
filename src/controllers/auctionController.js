@@ -1,6 +1,7 @@
 const auctionService = require("../services/auctionService");
 const ResponseHandler = require("../utils/responseHandler");
 const BaseController = require("./baseController");
+const galleryService = require("../services/galleryService");
 
 class AuctionController extends BaseController {
 
@@ -208,7 +209,7 @@ class AuctionController extends BaseController {
   async getGallery(req, res) {
     const { auctionId } = req.params;
     try {
-      const gallery = await auctionService.getGallery(auctionId);
+      const gallery = await galleryService.getGallery(auctionId);
       this.handleSuccess(res, gallery, "Gallery retrieved");
     } catch (error) {
       this.handleError(res, error);
@@ -219,7 +220,7 @@ class AuctionController extends BaseController {
     const { auctionId } = req.params;
     console.log("boday", req.body);
     try {
-      const gallery = await auctionService.addGalleryAsset(auctionId, req.body);
+      const gallery = await galleryService.addGalleryAsset(auctionId, req.body);
       this.handleSuccess(res, gallery, "Gallery asset added");
     } catch (error) {
       this.handleError(res, error);
@@ -230,7 +231,7 @@ class AuctionController extends BaseController {
     const { auctionId, assetId } = req.params;
     console.log("boday", req.params);
     try {
-      const gallery = await auctionService.deleteGalleryAsset(auctionId, assetId);
+      const gallery = await galleryService.deleteGalleryAsset(auctionId, assetId);
       this.handleSuccess(res, gallery, "Gallery asset deleted");
     } catch (error) {
       this.handleError(res, error);
@@ -240,7 +241,7 @@ class AuctionController extends BaseController {
   async playGallery(req, res) {
     const { auctionId } = req.params;
     try {
-      const gallery = await auctionService.playGallery(auctionId);
+      const gallery = await galleryService.playGallery(auctionId);
       this.handleSuccess(res, gallery, "Gallery played");
     } catch (error) {
       this.handleError(res, error);
