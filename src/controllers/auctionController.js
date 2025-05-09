@@ -46,7 +46,7 @@ class AuctionController extends BaseController {
       const players = await auctionService.getPlayers(auctionId, parseInt(page), parseInt(limit), search);
       this.handleSuccess(res, players, "Players retrieved");
     } catch (error) {
-      this.handleError(res, error);   
+      this.handleError(res, error);
     }
   }
 
@@ -196,6 +196,7 @@ class AuctionController extends BaseController {
   async getSignedPlayers(req, res) {
     const { auctionId } = req.params;
     const { teamId } = req.query;
+    console.log("teamId", teamId);
     try {
       const players = await auctionService.getSignedPlayers(auctionId, teamId);
       this.handleSuccess(res, players, "Signed players retrieved");
@@ -216,6 +217,7 @@ class AuctionController extends BaseController {
 
   async addGalleryAsset(req, res) {
     const { auctionId } = req.params;
+    console.log("boday", req.body);
     try {
       const gallery = await auctionService.addGalleryAsset(auctionId, req.body);
       this.handleSuccess(res, gallery, "Gallery asset added");
@@ -226,6 +228,7 @@ class AuctionController extends BaseController {
 
   async deleteGalleryAsset(req, res) {
     const { auctionId, assetId } = req.params;
+    console.log("boday", req.params);
     try {
       const gallery = await auctionService.deleteGalleryAsset(auctionId, assetId);
       this.handleSuccess(res, gallery, "Gallery asset deleted");
