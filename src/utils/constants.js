@@ -180,4 +180,6 @@ module.exports = {
   SPONSOR_TYPES_VALUES,
 
   ALLOWED_VIDEO_TYPES,
+
+  TEMPLATE_TYPES
 };
