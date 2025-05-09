@@ -269,9 +269,6 @@ class AuctionService {
     });
     await auction.save();
 
-    // send socket.io notification to the team-manager
-    const teams = await TournamentTeams.find({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }).populate('team');
-
     const io = getIO();
     io.to(`auction-${auction._id}`).emit('concealed-bid-requested', {
       message: `Concealed bid requested for ${auction.currentBiddingPlayer.player.name}`,
@@ -312,7 +309,7 @@ class AuctionService {
       throw new BadRequestError('You have already placed a bid');
     }
     const tournament = await Tournament.findById(auction.tournament);
-    const team = await TournamentTeams.findById(bid.placedBy);
+    const team = await TournamentTeams.findById(bid.placedBy).populate('team');
     const numberOfPlayersInTeam = team.players ? team.players.length : 0;
     const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
     const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
@@ -332,13 +329,24 @@ class AuctionService {
       isConcealedBid: true,
       bidRequest: auction.concealedBidRequest._id,
     });
-    await bidObject.save();
+    const savedBid = await bidObject.save();
     auction.currentBiddingPlayer.currentBid = {
       bid: bidObject._id,
       team: bid.placedBy,
     };
     await auction.currentBiddingPlayer.save();
-    return bidObject;
+
+    // send socket.io notification to the organizer
+    const io = getIO();
+    io.to(`auction-${auction._id}-organizer`).emit('concealed-bid-placed', {
+      message: `Concealed bid placed for ${auction.currentBiddingPlayer.player.name}`,
+      auctionId: auction._id,
+      team: team.team,
+      points: bid.points,
+      time: savedBid.createdAt,
+    });
+
+    return savedBid;
   }
 
   async getConcealedBids(auctionId) {
@@ -449,6 +457,14 @@ class AuctionService {
     })
   }
 
+  async markPlayerUnsoldForConcealedBid(auctionId) {
+    const player = await this.markPlayerUnsold(auctionId);
+    const auction = await Auction.findById(auctionId).populate('concealedBidRequest');
+    auction.concealedBidRequest = null;
+    await auction.save();
+    return player;
+  }
+
   async cancelConcealedBidRequest(auctionId) {
     const auction = await Auction.findById(auctionId).populate('concealedBidRequest');
     if (!auction) {
@@ -458,6 +474,9 @@ class AuctionService {
       throw new NotFoundError('Concealed bid request not found');
     }
     await ConcealedBidRequest.findByIdAndUpdate({ _id: auction.concealedBidRequest._id }, { status: CONCEALED_BID_REQUEST_STATUS.CANCELLED });
+    auction.concealedBidRequest = null;
+    await auction.save();
+    return auction;
   }
 
   async getSignedPlayers(auctionId, teamId) {
