@@ -39,7 +39,7 @@ const teamController = new TeamController();
  *               items:
  *                 $ref: '#/components/schemas/Tournament'
  */
-router.get("/", tournamentController.getOrganiserTournaments);
+router.get("/", tournamentController.getTournaments);
 
 // /**
 //  * @swagger

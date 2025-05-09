@@ -1,5 +1,6 @@
 const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
+const City = require("../models/City");
 const {
   ValidationError,
   NotFoundError,
@@ -10,7 +11,7 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-  async getTournaments(search, organiserId, page, limit) {
+  async getTournaments(search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit) {
     const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
@@ -19,6 +20,40 @@ class TournamentService {
     if (organiserId) {
       query.createdBy = organiserId;
     }
+
+    if (statusList) {
+      const statusListArray = statusList.split(",");
+      if (statusListArray.includes("upcoming")) {
+        query.startDate = { $gt: new Date() };
+      } else if (statusListArray.includes("ongoing")) {
+        query.startDate = { $lte: new Date() };
+        query.endDate = { $gte: new Date() };
+      } else if (statusListArray.includes("expired")) {
+        query.endDate = { $lt: new Date() };
+      }
+    }
+
+    if (sportTypes) {
+      query.sportType = { $in: sportTypes.split(",") };
+    }
+
+    if (locations) {
+      const locationListArray = locations.split(",");
+      query.location = { $in: locationListArray };
+    }
+
+    // if (registrationFeesList) {
+    //   const registrationFeesListArray = registrationFeesList.split(",");
+    //   if (registrationFeesListArray.includes("free")) {
+    //     query.settings.registrationFees = { $lte: 0 };
+    //   } else if (registrationFeesListArray.includes("only_for_team")) {
+    //     query.registrationFees = { $gt: 0 };
+    //   } else if (registrationFeesListArray.includes("only_for_player")) {
+    //     query.registrationFees = { $gt: 0 };
+    //   } else if (registrationFeesListArray.includes("all")) {
+    //     query.registrationFees = { $gt: 0 };
+    //   }
+    // }
 
     const skip = (page - 1) * limit;
     const tournaments = await Tournament.find(query)
@@ -31,18 +66,25 @@ class TournamentService {
 
     return {
       tournaments,
-      total,
-      totalPages,
+      pagination: {
+        total,
+        totalPages,
+        page,
+        limit,
+      },
     };
   }
 
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 
+    const city = await City.findOneAndUpdate({ name: tournamentData.location }, { upsert: true, new: true });
+
     let obj = {
       ...tournamentData,
       organiser: user._id,
       createdBy: user?._id,
+      location: city._id,
     };
 
     const tournament = new Tournament(obj);
@@ -72,6 +114,9 @@ class TournamentService {
   async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
 
+    const city = await City.findOneAndUpdate({ name: updateData.location }, { upsert: true, new: true });
+
+
     if (!this.canUserModifyTournament(tournament, user)) {
       throw new UnauthorizedError("Not authorized to modify this tournament");
     }
@@ -80,7 +125,7 @@ class TournamentService {
 
     const respo = await Tournament.findByIdAndUpdate(
       id,
-      { $set: updateData },
+      { $set: { ...updateData, location: city._id } },
       { new: true, runValidators: true }
     );
 

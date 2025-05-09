@@ -25,7 +25,7 @@ const TournamentSchema = new mongoose.Schema({
     enum: SPORT_TYPES,
     required: true,
   },
-  location: { type: String, required: true },
+  location: { type: mongoose.Schema.Types.ObjectId, ref: 'City' },
   ground: { type: String, required: true },
   settings: {
     matchType: {
