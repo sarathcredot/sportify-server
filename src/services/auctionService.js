@@ -70,7 +70,7 @@ class AuctionService {
       tournament: auction.tournament,
       status: TEAM_STATUS.APPROVED
     }
-    if (search) { 
+    if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { phoneNumber: { $regex: search, $options: 'i' } },
@@ -221,7 +221,7 @@ class AuctionService {
       const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
       const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
       const pointsAfterBid = team.remainingPoints - bid.points;
-      
+
       if (pointsAfterBid < minBidPoints) {
         throw new BadRequestError(`Team remaining points are less than the minimum bid points. Minimum bid points is ${minBidPoints}`);
       }
@@ -270,7 +270,7 @@ class AuctionService {
       points: auction.currentBiddingPlayer.currentBid.points,
     });
     await auction.save();
-    
+
     // send socket.io notification to the team-manager
     const teams = await TournamentTeams.find({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }).populate('team');
 
@@ -359,7 +359,7 @@ class AuctionService {
 
       const auction = await Auction.findById(auctionId)
         .populate('currentBiddingPlayer')
-        // .session(session);
+      // .session(session);
 
       if (!auction) {
         throw new NotFoundError('Auction not found');
@@ -373,12 +373,12 @@ class AuctionService {
         throw new BadRequestError('No player to mark sold');
       }
 
-      const player = await TournamentPlayers.findOne({ 
-        tournament: auction.tournament, 
-        player: auction.currentBiddingPlayer?.player 
+      const player = await TournamentPlayers.findOne({
+        tournament: auction.tournament,
+        player: auction.currentBiddingPlayer?.player
       })
-      .populate('currentBid.bid')
-      .session(session);
+        .populate('currentBid.bid')
+        .session(session);
 
       if (!player) {
         throw new NotFoundError('Player not found');
@@ -511,7 +511,7 @@ class AuctionService {
     const gallery = await AuctionGalleryAsset.find({ auction: auctionId })
       .skip((page - 1) * limit)
       .limit(limit);
-    
+
     const total = await AuctionGalleryAsset.countDocuments({ auction: auctionId });
     return {
       gallery,
@@ -525,6 +525,8 @@ class AuctionService {
   }
 
   async addGalleryAsset(auctionId, asset) {
+
+    console.log("asset", asset)
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       throw new NotFoundError('Auction not found');
@@ -539,6 +541,7 @@ class AuctionService {
   }
 
   async deleteGalleryAsset(auctionId, assetId) {
+    console.log("assetId", assetId)
     const auction = await Auction.findById(auctionId);
     if (!auction) {
       throw new NotFoundError('Auction not found');

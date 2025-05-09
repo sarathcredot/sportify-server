@@ -11,8 +11,9 @@ class SponsorController extends BaseController {
     this.updateSponsor = this.updateSponsor.bind(this);
     this.deleteSponsor = this.deleteSponsor.bind(this);
   }
-  
+
   async createSponsor(req, res) {
+    console.log("creta sponser")
     try {
       const sponsor = await sponsorService.createSponsor(req.body, req.params.tournamentId);
       this.handleSuccess(res, sponsor, "Sponsor created successfully");
@@ -20,7 +21,7 @@ class SponsorController extends BaseController {
       this.handleError(res, error);
     }
   }
-  
+
   async getSponsorsByTournamentId(req, res) {
     try {
       const { tournamentId } = req.params;
@@ -51,7 +52,7 @@ class SponsorController extends BaseController {
       this.handleError(res, error);
     }
   }
-  
+
 }
 
 module.exports = SponsorController;
