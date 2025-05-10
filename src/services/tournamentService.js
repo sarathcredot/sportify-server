@@ -104,7 +104,13 @@ class TournamentService {
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 
-    const city = await City.findOneAndUpdate({ name: tournamentData.location }, { upsert: true, new: true });
+    // const city = await City.findOne({ name: tournamentData.location }, { upsert: true, new: true });
+    const city = await City.findOneAndUpdate(
+      { name: tournamentData.location?.toLowerCase() },
+      { $setOnInsert: { name: tournamentData.location?.toLowerCase() } },
+      { upsert: true, new: true }
+    );
+    console.log("city", city)
 
     let obj = {
       ...tournamentData,
@@ -140,7 +146,11 @@ class TournamentService {
   async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
 
-    const city = await City.findOneAndUpdate({ name: updateData.location }, { upsert: true, new: true });
+    const city = await City.findOneAndUpdate(
+      { name: updateData.location?.toLowerCase() },
+      { $setOnInsert: { name: updateData.location?.toLowerCase() } },
+      { upsert: true, new: true }
+    );
 
 
     if (!this.canUserModifyTournament(tournament, user)) {
