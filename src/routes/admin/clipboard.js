@@ -122,7 +122,7 @@ router.delete(
 /**
  * @swagger
  * /admin/clipboards/delete/many:
- *   delete:
+ *   post:
  *     summary: Delete clip board by ID
  *     tags: [Admin]
  *     parameters:

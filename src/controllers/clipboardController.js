@@ -41,15 +41,15 @@ class ClipboardController extends BaseController {
     } catch (error) {
       this.handleError(res, error);
     }
-  };
+  }
 
-   deleteClipBoardByIds = async (req, res) => {
+  deleteClipBoardByIds = async (req, res) => {
     try {
       await clipboardService.deleteClipBoardByIds(req.body.ids);
       this.handleSuccess(res, null, "Clip board deleted successfully");
     } catch (error) {
       this.handleError(res, error);
     }
-  }
+  };
 }
 module.exports = ClipboardController;

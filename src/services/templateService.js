@@ -3,19 +3,19 @@ const puppeteer = require('puppeteer');
 const handlebars = require('handlebars');
 
 class TemplateService {
-  async createTemplate(templateData) {
-    const { templateType, templateData, fields } = templateData;
+  async createTemplate(data) {
+    const { templateType, templateData, fields, templateFileUrl } = data;
     if (!templateType || !templateData) {
       throw new Error("Template type and template data are required");
     }
-    const template = await Template.create({ templateType, templateData, fields });
+    const template = await Template.create({ templateType, templateData, fields, templateFileUrl });
     return template;
   } 
 
   async getAllTemplates(type, page = 1, limit = 10) {
     const query = {};
     if (type) {
-      query.type = type;
+      query.templateType = type;
     }
     const skip = (page - 1) * limit;
     const templates = await Template.find(query).skip(skip).limit(limit);
@@ -32,10 +32,19 @@ class TemplateService {
     return template;
   }
 
+  
+    async deleteTemplateByIds(ids) {
+        const template = await  Template.deleteMany({ _id: { $in: ids } });;
+        if (!template || template.length === 0) {
+          throw new Error("Template not found!");
+        }
+        return template;
+      }
+
   async updateTemplate(id, data) {
     const template = await Template.findByIdAndUpdate(id, data, { new: true });
     if (!template) {
-      throw new Error("Template not found");
+      throw new Error("Template not found!");
     }
     return template;
   }

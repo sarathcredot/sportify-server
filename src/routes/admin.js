@@ -6,6 +6,7 @@ const tournamentsRouter = require('./admin/tournament');
 const teamManagersRouter = require('./admin/teammanagers');
 const organisersRouter = require('./admin/organiser');
 const clipboardsRouter = require('./admin/clipboard');
+const templatesRouter = require('./admin/template');
 
 
 router.use(auth);
@@ -30,5 +31,6 @@ router.use('/tournaments', tournamentsRouter);
 router.use('/teammanagers', teamManagersRouter);
 router.use('/organisers', organisersRouter);
 router.use('/clipboards', clipboardsRouter);
+router.use('/templates', templatesRouter);
 
 module.exports = router;

@@ -64,6 +64,12 @@ app.use('/api/', apiLimiter);
 app.use(morgan(morganFormat, { stream }));
 app.use(morgan("dev"));
 
+app.use('/media', (req, res, next) => {
+  if (req.path.endsWith('.html')) {
+    res.setHeader('Content-Security-Policy', "frame-ancestors *");
+  }
+  next();
+});
 app.use('/media', express.static(path.join(__dirname, 'media'), {
   maxAge: '1d',
   etag: true,

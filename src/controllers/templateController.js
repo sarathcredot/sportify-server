@@ -1,7 +1,7 @@
+const BaseController = require("./baseController");
 const templateService = require("../services/templateService");
 
-class TemplateController {
-
+class TemplateController extends BaseController {
   constructor() {
     super();
     this.getAllTemplates = this.getAllTemplates.bind(this);
@@ -10,11 +10,15 @@ class TemplateController {
     this.updateTemplateById = this.updateTemplateById.bind(this);
     this.generateImageFromTemplate = this.generateImageFromTemplate.bind(this);
   }
-  
+
   async getAllTemplates(req, res) {
     try {
       const { type, page, limit } = req.query;
-      const templates = await templateService.getAllTemplates(type, parseInt(page), parseInt(limit));
+      const templates = await templateService.getAllTemplates(
+        type,
+        parseInt(page),
+        parseInt(limit)
+      );
       this.handleSuccess(res, templates, "Templates retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
@@ -32,7 +36,10 @@ class TemplateController {
 
   async updateTemplateById(req, res) {
     try {
-      const template = await templateService.updateTemplate(req.params.id, req.body);
+      const template = await templateService.updateTemplate(
+        req.params.id,
+        req.body
+      );
       this.handleSuccess(res, template, "Template updated successfully");
     } catch (error) {
       this.handleError(res, error);
@@ -47,6 +54,15 @@ class TemplateController {
       this.handleError(res, error);
     }
   }
+
+  deleteTemplatesByIds = async (req, res) => {
+    try {
+      await templateService.deleteClipBoardByIds(req.body.ids);
+      this.handleSuccess(res, null, "Template deleted successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  };
 
   async generateImageFromTemplate(req, res) {
     try {

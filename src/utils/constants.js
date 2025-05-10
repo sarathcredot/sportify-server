@@ -129,12 +129,13 @@ const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
 
 // Other constants
 const OTP_LENGTH = 5;
-const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards"];
+const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates"];
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
   "image/bmp",
   "image/webp",
+  "text/html",
 ];
 
 const ALLOWED_VIDEO_TYPES = [
