@@ -1,49 +1,63 @@
 const { logger } = require('./config/logger');
+const { ROLES } = require('./utils/constants');
+const jwt = require('jsonwebtoken');
+const User = require('./models/User');
 
 module.exports = (io) => {
-  // io.use((socket, next) => {
-  //   const jwtToken = socket.handshake.auth.token;
-  //   if (!jwtToken) {
-  //     logger.warn('Connection attempt without token');
-  //     return next(new Error('Authentication token is required'));
-  //   }
-  //   try {
-  //     const decoded = jwt.verify(jwtToken, process.env.JWT_SECRET);
-  //     if (decoded.type !== 'user') {
-  //       logger.error('Invalid token type');
-  //       return next(new Error('Invalid token type'));
-  //     }
-  //     next();
-  //   } catch (error) {
-  //     logger.error('Token validation failed:', error);
-  //     next(new Error('Invalid authentication token'));
-  //   }
-  // });
+  // Authentication middleware
+  io.use(async (socket, next) => {
+    try {
+      const token = socket.handshake.auth.token;
+      if (!token) {
+        logger.warn('Connection attempt without token');
+        return next(new Error('Authentication token is required'));
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id);
+      
+      if (!user) {
+        logger.error('User not found');
+        return next(new Error('User not found'));
+      }
+
+      // Store user info in socket
+      socket.userId = user._id;
+      socket.userRole = user.role;
+      next();
+    } catch (error) {
+      logger.error('Socket authentication failed:', error);
+      next(new Error('Authentication failed'));
+    }
+  });
 
   // Socket.IO connection handling
   io.on('connection', (socket) => {
-    logger.info('New client connected');
+    logger.info(`New client connected - User ID: ${socket.userId}, Role: ${socket.userRole}`);
     
-    // Store the socket ID in the socket object for later use
-    socket.on('store-socket-id', (data) => {
-      socket.userId = data.userId;
-      logger.info(`Socket ID stored for user ${data.userId}`);
-    });
-
     // Handle joining an auction room
     socket.on('join-auction', (room) => {
       socket.join(room);
       logger.info(`Client joined auction room: ${room}`);
     });
 
+    // Handle joining an organizer-specific auction room
+    socket.on('join-auction-organizer', (room) => {
+      if (socket.userRole === ROLES.ORGANISER) {
+        socket.join(`${room}-organizer`);
+        logger.info(`Organizer joined auction room: ${room}-organizer`);
+      }
+    });
+
     // Handle leaving an auction room
     socket.on('leave-auction', (room) => {
       socket.leave(room);
+      socket.leave(`${room}-organizer`);
       logger.info(`Client left auction room: ${room}`);
     });
 
     socket.on('disconnect', () => {
-      logger.info('Client disconnected');
+      logger.info(`Client disconnected - User ID: ${socket.userId}`);
     });
   });
 
