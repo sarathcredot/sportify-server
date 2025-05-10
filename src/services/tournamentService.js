@@ -147,8 +147,8 @@ class TournamentService {
     const tournament = await this.getTournamentById(id);
 
     const city = await City.findOneAndUpdate(
-      { name: tournamentData.location?.toLowerCase() },
-      { $setOnInsert: { name: tournamentData.location?.toLowerCase() } },
+      { name: updateData.location?.toLowerCase() },
+      { $setOnInsert: { name: updateData.location?.toLowerCase() } },
       { upsert: true, new: true }
     );
 
