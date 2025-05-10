@@ -14,7 +14,7 @@ module.exports = (io) => {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findById(decoded.id);
+      const user = await User.findById(decoded.userId);
       
       if (!user) {
         logger.error('User not found');
