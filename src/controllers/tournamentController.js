@@ -28,7 +28,7 @@ class TournamentController extends BaseController {
 
   async getTournamentById(req, res) {
     try {
-   
+
       const tournament = await tournamentService.getTournamentById(req.params.id);
       res.status(200).json(ResponseHandler.success('Tournament retrieved', tournament));
     } catch (error) {
@@ -80,6 +80,7 @@ class TournamentController extends BaseController {
   async getTournaments(req, res) {
     try {
       const { search, organiserId, statusList, sportTypes, locations, page = 1, limit = 10 } = req.query;
+      console.log("tour", req.query)
       const tournaments = await tournamentService.getTournaments(
         search,
         organiserId,

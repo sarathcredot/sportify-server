@@ -22,23 +22,49 @@ class TournamentService {
     }
 
     if (statusList) {
-      const statusListArray = statusList.split(",");
+      console.log("status", statusList)
+      // const statusListArray = statusList;
+      // if (statusListArray.includes("upcoming")) {
+      //   query.startDate = { $gt: new Date() };
+      // } else if (statusListArray.includes("ongoing")) {
+      //   query.startDate = { $lte: new Date() };
+      //   query.endDate = { $gte: new Date() };
+      // } else if (statusListArray.includes("expired")) {
+      //   query.endDate = { $lt: new Date() };
+      // }
+      const statusListArray = statusList;
+      const now = new Date();
+
+      const statusConditions = [];
+
       if (statusListArray.includes("upcoming")) {
-        query.startDate = { $gt: new Date() };
-      } else if (statusListArray.includes("ongoing")) {
-        query.startDate = { $lte: new Date() };
-        query.endDate = { $gte: new Date() };
-      } else if (statusListArray.includes("expired")) {
-        query.endDate = { $lt: new Date() };
+        statusConditions.push({ startDate: { $gt: now } });
       }
+
+      if (statusListArray.includes("ongoing")) {
+        statusConditions.push({
+          startDate: { $lte: now },
+          endDate: { $gte: now },
+        });
+      }
+
+      if (statusListArray.includes("expired")) {
+        statusConditions.push({ endDate: { $lt: now } });
+      }
+
+      if (statusConditions.length > 0) {
+        query.$or = statusConditions;
+      }
+
     }
 
+
     if (sportTypes) {
-      query.sportType = { $in: sportTypes.split(",") };
+      query.sportType = { $in: sportTypes };
     }
 
     if (locations) {
-      const locationListArray = locations.split(",");
+      const locationListArray = locations;
       query.location = { $in: locationListArray };
     }
 
