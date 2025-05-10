@@ -3,7 +3,7 @@ const { TEAM_STATUS_TYPES, TEAM_STATUS } = require("../utils/constants");
 
 const TournamentTeamsSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  phoneNumber: { type: String, required: true},
+  phoneNumber: { type: String, required: true },
   email: { type: String },
   tournament: {
     type: mongoose.Schema.Types.ObjectId,
@@ -25,15 +25,15 @@ const TournamentTeamsSchema = new mongoose.Schema({
   },
   players: [
     {
-    player: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Player",
-    },
-    signedForPoints: {
-      type: Number,
-      default: 0,
-    }
-  }],
+      player: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "TournamentPlayers",
+      },
+      signedForPoints: {
+        type: Number,
+        default: 0,
+      }
+    }],
   wonBids: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "Bid",
