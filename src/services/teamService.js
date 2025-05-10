@@ -62,12 +62,12 @@ class TeamService {
         .populate({
           path: 'team',
           populate: {
-          path: 'manager'
-        }
-      })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit),
+            path: 'manager'
+          }
+        })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
       TournamentTeams.countDocuments(query)
     ]);
 
