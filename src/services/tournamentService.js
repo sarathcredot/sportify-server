@@ -84,7 +84,7 @@ class TournamentService {
     const skip = (page - 1) * limit;
     const tournaments = await Tournament.find(query).populate('location')
       .sort({ createdAt: -1 })
-      .skip(skip)
+      // .skip(skip)
       .limit(limit);
 
     const total = await Tournament.countDocuments(query);
@@ -97,6 +97,7 @@ class TournamentService {
         totalPages,
         page,
         limit,
+        hasmore: limit < total
       },
     };
   }

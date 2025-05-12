@@ -79,7 +79,7 @@ class TournamentController extends BaseController {
 
   async getTournaments(req, res) {
     try {
-      const { search, organiserId, statusList, sportTypes, locations, page = 1, limit = 10 } = req.query;
+      const { search, organiserId, statusList, sportTypes, locations, feesType, page = 1, limit = 10 } = req.query;
       console.log("tour", req.query)
       const tournaments = await tournamentService.getTournaments(
         search,
@@ -87,6 +87,7 @@ class TournamentController extends BaseController {
         statusList,
         sportTypes,
         locations,
+        feesType,
         parseInt(page),
         parseInt(limit)
       );
