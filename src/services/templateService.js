@@ -13,6 +13,7 @@ class TemplateService {
   } 
 
   async getAllTemplates(type, page = 1, limit = 10) {
+    
     const query = {};
     if (type) {
       query.templateType = type;

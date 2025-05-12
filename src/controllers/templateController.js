@@ -14,6 +14,7 @@ class TemplateController extends BaseController {
   async getAllTemplates(req, res) {
     try {
       const { type, page, limit } = req.query;
+      console.log("template", req.query)
       const templates = await templateService.getAllTemplates(
         type,
         parseInt(page),
