@@ -89,7 +89,7 @@ class TemplateService {
       // Generate the PNG
       const buffer = await page.screenshot({
         type: 'png',
-        fullPage: false,
+        fullPage: true,
         encoding: 'binary'
       });
 
