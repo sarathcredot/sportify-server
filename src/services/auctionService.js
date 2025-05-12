@@ -341,6 +341,7 @@ class AuctionService {
     io.to(`auction-${auction._id}-organizer`).emit('concealed-bid-placed', {
       message: `Concealed bid placed for ${auction.currentBiddingPlayer.player.name}`,
       auctionId: auction._id,
+      // playerId: auction.currentBiddingPlayer._id,
       team: team.team,
       points: bid.points,
       time: savedBid.createdAt,

@@ -54,6 +54,27 @@
         <button onclick="leaveAuction()">Leave Auction</button>
     </div>
 
+    <div>
+        <h3>Concealed Bid Test</h3>
+        <div style="margin-bottom: 10px;">
+            <label for="auctionId">Auction ID:</label>
+            <input type="text" id="auctionId" placeholder="Enter auction ID">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label for="playerName">Player Name:</label>
+            <input type="text" id="playerName" placeholder="Enter player name">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label for="team">Team:</label>
+            <input type="text" id="team" placeholder="Enter team">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label for="points">Points:</label>
+            <input type="number" id="points" placeholder="Enter points">
+        </div>
+        <button onclick="sendConcealedBid()">Send Concealed Bid</button>
+    </div>
+
     <div class="log" id="log"></div>
 
     <script>
@@ -161,6 +182,34 @@
             } else {
                 alert('Please connect first');
             }
+        }
+
+        function sendConcealedBid() {
+            if (!socket) {
+                alert('Please connect first');
+                return;
+            }
+
+            const auctionId = document.getElementById('auctionId').value;
+            const playerName = document.getElementById('playerName').value;
+            const team = document.getElementById('team').value;
+            const points = document.getElementById('points').value;
+
+            if (!auctionId || !playerName || !team || !points) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const bidData = {
+                message: `Concealed bid placed for ${playerName}`,
+                auctionId: auctionId,
+                team: team,
+                points: parseInt(points),
+                time: new Date()
+            };
+
+            socket.emit('concealed-bid-placed', bidData);
+            log(`Sent concealed bid: ${JSON.stringify(bidData)}`);
         }
     </script>
 </body>
