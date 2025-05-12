@@ -69,8 +69,7 @@ class TemplateController extends BaseController {
       const { id } = req.params;
       const data = req.body;
       const result = await templateService.generateImageFromTemplate(id, data);
-      res.set(result.headers);
-      res.send(result.buffer);
+      this.handleSuccess(res, result, "Image generated successfully");
     } catch (error) {
       this.handleError(res, error);
     }
