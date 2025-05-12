@@ -7,6 +7,7 @@ const templateSchema = new mongoose.Schema(
     templateData: { type: String, required: true },
     templateFileUrl: { type: String, required: true },
     fields: { type: [String], default: [] },
+    isFree: { type: Boolean, required: true, default: false },
   },
   {
     timestamps: true,
