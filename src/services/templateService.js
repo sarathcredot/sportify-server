@@ -1,12 +1,8 @@
 const Template = require("../models/Template");
 const puppeteer = require('puppeteer');
 const handlebars = require('handlebars');
-<<<<<<< HEAD
-const { Blob } = require('buffer');
-=======
 const fs = require('fs').promises;
 const path = require('path');
->>>>>>> 925170230e4d0ce758fd272e6ee84847c8beb022
 
 class TemplateService {
   async createTemplate(data) {
@@ -98,22 +94,6 @@ class TemplateService {
         encoding: 'binary'
       });
 
-<<<<<<< HEAD
-      // // Create a Blob from the buffer
-      // const blob = new Blob([buffer], { type: 'image/png' });
-      // // Return the blob with headers for download
-      // return {
-      //   blob,
-      //   headers: {
-      //     'Content-Type': 'image/png',
-      //     'Content-Disposition': `attachment; filename="template-${templateId}.png"`,
-      //     'Content-Length': blob.size
-      //   }
-      // };
-
-
-      // Return the image data with headers for download
-=======
       // Ensure media/posters directory exists
       const postersDir = path.join(process.cwd(), 'media', 'posters');
       await fs.mkdir(postersDir, { recursive: true });
@@ -126,7 +106,6 @@ class TemplateService {
       await fs.writeFile(filePath, buffer);
 
       // Return the URL
->>>>>>> 925170230e4d0ce758fd272e6ee84847c8beb022
       return {
         url: `/media/posters/${filename}`,
         filename
