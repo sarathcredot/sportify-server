@@ -66,6 +66,7 @@ class TemplateController extends BaseController {
   };
 
   async generateImageFromTemplate(req, res) {
+    console.log("req")
     try {
       const { id } = req.params;
       const data = req.body;
