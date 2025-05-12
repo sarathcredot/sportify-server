@@ -5,8 +5,10 @@ const router = express.Router();
 const tournamentsRouter = require('./organiser/tournament');
 const auctionRouter = require('./organiser/auction');
 const TeamManagerController = require('../controllers/teamManagerController');
+const TemplateController = require('../controllers/templateController');
 
 const teamManagerController = new TeamManagerController();
+const templateController = new TemplateController();
 
 router.use(auth);
 router.use(checkIsOrganiser());
@@ -54,5 +56,75 @@ router.use('/auction', auctionRouter);
  *                     type: string
  */
 router.get('/team-managers', teamManagerController.getAllTeamManagers);
+
+/**
+ * @swagger
+ * /organiser/templates:
+ *   get:
+ *     summary: Get all clip boards
+ *     tags: [Organiser]
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Type of clip board (logo or banner)
+ *       - in: query
+ *         name: category
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Category of clip board (team or tournament)
+ *     responses:
+ *       200:
+ *         description: Clip boards
+ *         content:
+ *           application/json:
+ *             schema:
+ *                allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       $ref: '#/components/schemas/Clipboard'
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ *       404:
+ *         description: Clip board not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/', templateController.getAllTemplates);
+
+/**
+ * @swagger
+ * /organiser/template/{id}/download:
+ *   get:
+ *     summary: Download template as PNG image
+ *     tags: [Organiser]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Template ID
+ *     responses:
+ *       200:
+ *         description: Template image downloaded successfully
+ *         content:
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Template not found
+ *       500:
+ *         description: Internal server error
+ */
+router.post('template/:id/download', templateController.generateImageFromTemplate);
 
 module.exports = router;
