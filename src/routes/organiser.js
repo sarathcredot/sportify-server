@@ -97,7 +97,7 @@ router.get('/team-managers', teamManagerController.getAllTeamManagers);
  *       500:
  *         description: Internal server error
  */
-router.get('/', templateController.getAllTemplates);
+router.get('/templates/', templateController.getAllTemplates);
 
 /**
  * @swagger
@@ -125,6 +125,6 @@ router.get('/', templateController.getAllTemplates);
  *       500:
  *         description: Internal server error
  */
-router.post('template/:id/download', templateController.generateImageFromTemplate);
+router.post('/template/:id/download', templateController.generateImageFromTemplate);
 
 module.exports = router;

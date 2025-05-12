@@ -289,6 +289,12 @@ class AuctionService {
     if (!auction.concealedBidRequest) {
       throw new BadRequestError('No concealed bid request');
     }
+    if (auction.concealedBidRequest.status === CONCEALED_BID_REQUEST_STATUS.COMPLETED) {
+      throw new BadRequestError('Concealed bid request is already completed');
+    }
+    if (auction.concealedBidRequest.status === CONCEALED_BID_REQUEST_STATUS.CANCELLED) {
+      throw new BadRequestError('Concealed bid request is cancelled');
+    }
     if (!auction.currentBiddingPlayer) {
       throw new BadRequestError('No player to place concealed bid');
     }
@@ -354,6 +360,9 @@ class AuctionService {
     const auction = await Auction.findById(auctionId).populate('concealedBidRequest');
     if (!auction) {
       throw new NotFoundError('Auction not found');
+    }
+    if (!auction.concealedBidRequest) {
+      throw new NotFoundError('Concealed bid request not found');
     }
     const bids = await Bid.find({ bidRequest: auction.concealedBidRequest._id, isConcealedBid: true });
     return bids;
