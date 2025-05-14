@@ -15,7 +15,7 @@ module.exports = (io) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         logger.error('User not found');
         return next(new Error('User not found'));
@@ -34,7 +34,7 @@ module.exports = (io) => {
   // Socket.IO connection handling
   io.on('connection', (socket) => {
     logger.info(`New client connected - User ID: ${socket.userId}, Role: ${socket.userRole}`);
-    
+
     // Handle joining an auction room
     socket.on('join-auction', (room) => {
       socket.join(room);
@@ -45,9 +45,15 @@ module.exports = (io) => {
     socket.on('join-auction-organizer', (room) => {
       if (socket.userRole === ROLES.ORGANISER) {
         socket.join(`${room}-organizer`);
+
         logger.info(`Organizer joined auction room: ${room}-organizer`);
       }
     });
+
+    socket.on("concealed-bid-placed", (res) => {
+      io.to(`${res?.auctionId}-organizer`).emit('concealed-bid-placed', res);
+      console.log("bid", res)
+    })
 
     // Handle leaving an auction room
     socket.on('leave-auction', (room) => {

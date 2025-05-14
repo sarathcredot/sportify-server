@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,19 +13,23 @@
             margin: 0 auto;
             padding: 20px;
         }
+
         #status {
             padding: 10px;
             margin: 10px 0;
             border-radius: 4px;
         }
+
         .connected {
             background-color: #d4edda;
             color: #155724;
         }
+
         .disconnected {
             background-color: #f8d7da;
             color: #721c24;
         }
+
         .log {
             background-color: #f8f9fa;
             padding: 10px;
@@ -35,9 +40,10 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Socket.IO Connection Test</h1>
-    
+
     <div>
         <label for="token">JWT Token:</label>
         <input type="text" id="token" style="width: 300px;" placeholder="Enter your JWT token">
@@ -147,6 +153,22 @@
             socket.on('reconnect_failed', () => {
                 log('Failed to reconnect to server');
             });
+
+            // socket.onAny((event, ...args) => {
+            //     console.log(`[Socket.IO] Event: ${event}`, args);
+            //     log(`event${event}`)
+            // });
+
+            socket.on("concealed-bid-placed", (res) => {
+                console.log("bid res", res);
+                log(`bid res ${res}`);
+            });
+
+            socket.on("userJoined", (res) => {
+                console.log("bid res", res);
+                log(`bid res ${res}`);
+            });
+
         }
 
         function disconnect() {
@@ -163,7 +185,7 @@
                 return;
             }
             if (socket) {
-                socket.emit('join-auction', roomId);
+                socket.emit('join-auction-organizer', roomId);
                 log(`Joining auction room: ${roomId}`);
             } else {
                 alert('Please connect first');
@@ -213,4 +235,5 @@
         }
     </script>
 </body>
-</html> 
+
+</html>

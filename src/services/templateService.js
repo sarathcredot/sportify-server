@@ -12,9 +12,10 @@ class TemplateService {
     }
     const template = await Template.create({ templateType, templateData, fields, templateFileUrl });
     return template;
-  } 
+  }
 
   async getAllTemplates(type, page = 1, limit = 10) {
+
     const query = {};
     if (type) {
       query.templateType = type;
@@ -34,14 +35,14 @@ class TemplateService {
     return template;
   }
 
-  
-    async deleteTemplateByIds(ids) {
-        const template = await  Template.deleteMany({ _id: { $in: ids } });;
-        if (!template || template.length === 0) {
-          throw new Error("Template not found!");
-        }
-        return template;
-      }
+
+  async deleteTemplateByIds(ids) {
+    const template = await Template.deleteMany({ _id: { $in: ids } });;
+    if (!template || template.length === 0) {
+      throw new Error("Template not found!");
+    }
+    return template;
+  }
 
   async updateTemplate(id, data) {
     const template = await Template.findByIdAndUpdate(id, data, { new: true });
@@ -58,10 +59,10 @@ class TemplateService {
     }
 
     const { templateData, fields } = template;
-    
+
     const compiledTemplate = handlebars.compile(templateData);
-    const renderedTemplate = compiledTemplate(fields);
-    
+    const renderedTemplate = compiledTemplate(data);
+
     // Create a browser instance
     const browser = await puppeteer.launch({
       headless: 'new',
