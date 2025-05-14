@@ -136,11 +136,23 @@ class AuctionService {
     }
   }
 
+  async checkIfAllTeamsAreFilled(auctionId) {
+    const auction = await Auction.findOne({ _id: auctionId }).populate('tournament');
+    const soldPlayersCount = await TournamentPlayers.countDocuments({ tournament: auction.tournament, status: PLAYER_STATUS.SOLD });
+    const maxPlayersPerTeam = auction.tournament.settings.maxPlayersPerTeam;
+    const teamsCount = await TournamentTeams.countDocuments({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
+
+    if (soldPlayersCount === (maxPlayersPerTeam * teamsCount)) {
+      return true;
+    }
+    return false;
+  }
+
   async generateRandomPlayer(auctionId) {
     const session = await mongoose.startSession();
     try {
       await session.startTransaction();
-      const auction = await Auction.findOne({ _id: auctionId }).populate('currentBiddingPlayer');
+      const auction = await Auction.findOne({ _id: auctionId }).populate('currentBiddingPlayer').populate('tournament');
       if (!auction) {
         throw new NotFoundError('Auction not found');
       }
@@ -151,15 +163,23 @@ class AuctionService {
       if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
         throw new BadRequestError('Current bidding player is not sold or unsold yet');
       }
-      const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
-      if (players.length === 0) {
-        throw new BadRequestError('No more players to bid');
+
+      if (await this.checkIfAllTeamsAreFilled(auctionId)) {
+        auction.status = AUCTION_STATUS.COMPLETED;
+      } else {
+        let players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
+        if (players.length === 0) {
+          players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.UNSOLD }).populate('player');
+          if (players.length === 0) {
+            throw new BadRequestError('No more players to bid');
+          }
+        }
+        const randomPlayer = players[Math.floor(Math.random() * players.length)];
+        console.log('Random player', randomPlayer);
+        randomPlayer.status = PLAYER_STATUS.BIDDING;
+        await randomPlayer.save({ session });
+        auction.currentBiddingPlayer = randomPlayer;
       }
-      const randomPlayer = players[Math.floor(Math.random() * players.length)];
-      console.log('Random player', randomPlayer);
-      randomPlayer.status = PLAYER_STATUS.BIDDING;
-      await randomPlayer.save({ session });
-      auction.currentBiddingPlayer = randomPlayer;
       await auction.save({ session });
       await session.commitTransaction();
       const updatedAuction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
@@ -344,10 +364,9 @@ class AuctionService {
 
     // send socket.io notification to the organizer
     const io = getIO();
-    io.to(`auction-${auction._id}-organizer`).emit('concealed-bid-placed', {
+    io.to(`${auction._id}-organizer`).emit('concealed-bid-placed', {
       message: `Concealed bid placed for ${auction.currentBiddingPlayer.player.name}`,
       auctionId: auction._id,
-      // playerId: auction.currentBiddingPlayer._id,
       team: team.team,
       points: bid.points,
       time: savedBid.createdAt,
@@ -428,7 +447,24 @@ class AuctionService {
     }
   }
 
-  async markPlayerSoldForConcealedBid(auctionId, teamId) {
+  async getHighestEarliestConcealedBid(bidRequestId) {
+    const bid = await Bid.findOne({ 
+      bidRequest: bidRequestId,
+      isConcealedBid: true 
+    })
+    .sort({ 
+      points: -1,
+      createdAt: 1
+    })
+    .populate('placedBy');
+    
+    if (!bid) {
+      throw new NotFoundError('No concealed bids found for this request');
+    }
+    return bid;
+  }
+
+  async markPlayerSoldForConcealedBid(auctionId) {
     runAsTransaction(async (session) => {
       const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer').session(session);
       if (!auction) {
@@ -443,16 +479,13 @@ class AuctionService {
       auction.concealedBidRequest = null;
       await auction.save({ session });
       await session.commitTransaction();
-      const team = await TournamentTeams.findById(teamId).session(session);
+      const highestBid = await this.getHighestEarliestConcealedBid(bidRequestId);
+      const team = await TournamentTeams.findById(highestBid.placedBy).session(session);
       if (!team) {
         throw new NotFoundError('Team not found');
       }
-      const concealedBid = await Bid.findOne({ bidRequest: auction.concealedBidRequest._id, placedBy: teamId });
-      if (!concealedBid) {
-        throw new NotFoundError('Concealed bid not found');
-      }
-      player.signedForPoints = concealedBid.points;
-      player.signedForTeam = teamId;
+      player.signedForPoints = highestBid.points;
+      player.signedForTeam = highestBid.placedBy;
       await player.save({ session });
       team.remainingPoints = team.remainingPoints - concealedBid.points;
       team.players.push({
