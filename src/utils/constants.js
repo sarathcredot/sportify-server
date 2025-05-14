@@ -123,6 +123,8 @@ const TEMPLATE_TYPES = {
   TEAM_POSTER: "team_poster",
   PLAYER_REGISTRATION: "player_registration",
   AUCTION_ANNOUNCEMENT: "auction_announcement",
+  
+
 };
 
 const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
