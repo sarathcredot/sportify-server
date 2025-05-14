@@ -323,6 +323,10 @@ class TournamentService {
     if (new Date(data.startDate) < new Date()) {
       throw new ValidationError("Start date cannot be in the past");
     }
+
+    if (new Date(data.endDate) < new Date()) {
+      throw new ValidationError("End date cannot be in the past");
+    }
   }
 
   canUserModifyTournament(tournament, user) {

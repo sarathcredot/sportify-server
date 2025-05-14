@@ -55,8 +55,8 @@ class TeamController extends BaseController {
     console.log("fillter", req.query)
     try {
       const { tournamentId } = req.params;
-      const { status, search } = req.query;
-      const teams = await teamService.getTeamsByTournamentId(tournamentId, status, search);
+      const { status, search ,page,limit} = req.query;
+      const teams = await teamService.getTeamsByTournamentId(tournamentId, status, search , page,limit );
       this.handleSuccess(res, teams, 'Teams retrieved successfully');
     } catch (error) {
       this.handleError(res, error);
