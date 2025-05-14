@@ -271,6 +271,15 @@ class AuctionService {
     }
   }
 
+  async deleteBid(bidId) {
+    const bid = await Bid.findById(bidId).populate('tournament');
+    if (!bid) {
+      throw new NotFoundError('Bid not found');
+    }
+    await bid.delete();
+    return bid;
+  }
+
   async requestConcealedBid(auctionId) {
     const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     if (!auction) {

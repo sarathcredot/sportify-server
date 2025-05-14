@@ -102,6 +102,16 @@ class AuctionController extends BaseController {
     }
   }
 
+  async deleteBid(req, res) {
+    const { auctionId, bidId } = req.params;
+    try {
+      const bid = await auctionService.deleteBid(bidId);
+      this.handleSuccess(res, bid, "Bid deleted");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
   async requestConcealedBid(req, res) {
     const { auctionId } = req.params;
     try {
