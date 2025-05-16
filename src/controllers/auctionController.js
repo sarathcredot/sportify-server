@@ -28,6 +28,7 @@ class AuctionController extends BaseController {
     this.addGalleryAsset = this.addGalleryAsset.bind(this);
     this.deleteGalleryAsset = this.deleteGalleryAsset.bind(this);
     this.playGallery = this.playGallery.bind(this);
+    this.deleteBid = this.deleteBid.bind(this)
   }
 
   async getAuction(req, res) {
@@ -108,6 +109,7 @@ class AuctionController extends BaseController {
       const bid = await auctionService.deleteBid(bidId);
       this.handleSuccess(res, bid, "Bid deleted");
     } catch (error) {
+      console.log("err>>>>>>", error)
       this.handleError(res, error);
     }
   }

@@ -272,12 +272,13 @@ class AuctionService {
   }
 
   async deleteBid(bidId) {
-    const bid = await Bid.findById(bidId).populate('tournament');
+    const bid = await Bid.findById(bidId)
+    console.log("bid>>>>>>>>>>", bid)
     if (!bid) {
       throw new NotFoundError('Bid not found');
     }
-    await bid.delete();
-    return bid;
+    await bid.deleteOne();
+    return "deleted";
   }
 
   async requestConcealedBid(auctionId) {
@@ -457,16 +458,16 @@ class AuctionService {
   }
 
   async getHighestEarliestConcealedBid(bidRequestId) {
-    const bid = await Bid.findOne({ 
+    const bid = await Bid.findOne({
       bidRequest: bidRequestId,
-      isConcealedBid: true 
+      isConcealedBid: true
     })
-    .sort({ 
-      points: -1,
-      createdAt: 1
-    })
-    .populate('placedBy');
-    
+      .sort({
+        points: -1,
+        createdAt: 1
+      })
+      .populate('placedBy');
+
     if (!bid) {
       throw new NotFoundError('No concealed bids found for this request');
     }
