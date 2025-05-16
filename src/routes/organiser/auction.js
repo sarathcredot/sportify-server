@@ -217,6 +217,41 @@ router.post('/:auctionId/end', (req, res) => {
  */
 router.post("/:auctionId/place-bid", validate(placeBidSchema), auctionController.placeBid);
 
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/delete-bid:
+ *   delete:
+ *     summary: Delete a bid
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               bidId:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Bid deleted
+ */
+router.delete("/:auctionId/delete-bid/:bidId", auctionController.deleteBid);
+
 /**
  * @swagger
  * /organiser/auction/{auctionId}/request-concealed-bid:
