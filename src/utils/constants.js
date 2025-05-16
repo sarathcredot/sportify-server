@@ -123,7 +123,7 @@ const TEMPLATE_TYPES = {
   TEAM_POSTER: "team_poster",
   PLAYER_REGISTRATION: "player_registration",
   AUCTION_ANNOUNCEMENT: "auction_announcement",
-  
+  MATCH_DAY_ANNOUNCEMENT:"match_day_announcement"
 
 };
 
