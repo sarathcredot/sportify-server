@@ -125,6 +125,7 @@ const options = {
     "./src/routes/admin/*.js",
     "./src/routes/organiser/*.js",
     "./src/routes/tournament/*.js",
+    "./src/routes/team_manager/*.js",
     "./src/routes/other/*.js"
   ],
 };

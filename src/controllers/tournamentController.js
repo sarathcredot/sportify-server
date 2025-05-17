@@ -15,6 +15,7 @@ class TournamentController extends BaseController {
     this.getOrganiserTournaments = this.getOrganiserTournaments.bind(this);
     this.getTournaments = this.getTournaments.bind(this);
     this.getTeamsByTournamentId = this.getTeamsByTournamentId.bind(this);
+    this.getTeamManagerTournaments = this.getTeamManagerTournaments.bind(this);
   }
 
   async createTournament(req, res) {
@@ -71,6 +72,17 @@ class TournamentController extends BaseController {
       const { sportType, location, search, page, limit } = req.query;
       const user = req.user;
       const tournaments = await tournamentService.getOrganiserTournaments(user._id, sportType, location, search, parseInt(page), parseInt(limit));
+      res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getTeamManagerTournaments(req, res) {
+    try {
+      const { search, page, limit } = req.query;
+      const user = req.user;
+      const tournaments = await tournamentService.getTeamManagerTournaments(user._id, search, parseInt(page), parseInt(limit));
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
     } catch (error) {
       this.handleError(res, error);
