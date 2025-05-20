@@ -52,6 +52,7 @@ class AuthService {
       await this.sendOTP(normalizedPhone, countryCode, otp);
       return { message: 'OTP sent successfully' };
     } catch (error) {
+      console.log("auth error msg:",error)
       throw new Error(error.message || 'Failed to initiate authentication');
     }
   }

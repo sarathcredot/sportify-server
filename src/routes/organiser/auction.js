@@ -91,6 +91,11 @@ router.get('/:auctionId/teams', (req, res) => {
   auctionController.getTeams(req, res);
 });
 
+router.get('/:tournamentId/teams-live-preview', (req, res) => {
+  auctionController.getTeamsLivePreview(req, res);
+
+});
+
 /**
  * @swagger
  * /organiser/auction/{auctionId}/start:
@@ -363,7 +368,7 @@ router.post("/:auctionId/mark-player-unsold", auctionController.markPlayerUnsold
  *                               placedBy:
  *                                 $ref: '#/components/schemas/TournamentTeams'
  *         description: Bid history
- */ 
+ */
 router.get("/:auctionId/bid-history", auctionController.getBidHistory);
 
 /**

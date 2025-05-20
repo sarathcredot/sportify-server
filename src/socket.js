@@ -45,7 +45,7 @@ module.exports = (io) => {
     socket.on('join-auction-organizer', (room) => {
       if (socket.userRole === ROLES.ORGANISER) {
         socket.join(`${room}-organizer`);
-
+        socket.join(`${room}-organizer-live-preview`);
         logger.info(`Organizer joined auction room: ${room}-organizer`);
       }
     });
@@ -53,6 +53,35 @@ module.exports = (io) => {
     socket.on("concealed-bid-placed", (res) => {
       io.to(`${res?.auctionId}-organizer`).emit('concealed-bid-placed', res);
       console.log("bid", res)
+    })
+
+
+    // auction start live preview auction-started
+
+    socket.on("auction-started", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("auction-started", res)
+      console.log("live preview auction started")
+
+    })
+
+
+    //  when player sold sent details in live preview   biding-player-live
+
+    socket.on("player-sold-live", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("player-sold-live", res)
+      console.log("live preview sent to sold player")
+
+    })
+
+    // new player selcted details in live preview
+
+    socket.on("biding-player-live", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("biding-player-live", res)
+      console.log("live preview sent to new player select")
+
     })
 
     // Handle leaving an auction room
@@ -66,6 +95,10 @@ module.exports = (io) => {
       logger.info(`Client disconnected - User ID: ${socket.userId}`);
     });
   });
+
+
+
+
 
   // Export the io instance for use in other files
   return io;

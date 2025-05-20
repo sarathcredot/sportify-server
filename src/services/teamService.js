@@ -22,6 +22,16 @@ class TeamService {
       throw new ValidationError("Tournament registration is closed");
     }
 
+    const maxTeamAllowed = tournament?.settings?.maxTeamAllowed
+    const totalTeams = await TournamentTeams.find({ tournament: tournamentId, status: TEAM_STATUS.APPROVED })
+
+    if (totalTeams.length === maxTeamAllowed) {
+
+      throw new NotFoundError("Maximum allowed teams reached");
+    }
+
+
+
     const team = new Team({
       ...teamData,
     });

@@ -221,7 +221,7 @@ class TournamentService {
 
     const skip = (page - 1) * limit;
     const [tournaments, total] = await Promise.all([
-      Tournament.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Tournament.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("location"),
       Tournament.countDocuments(query),
     ]);
 
@@ -290,6 +290,25 @@ class TournamentService {
   }
 
   async approvePlayerInTournament(tournamentId, playerId, approve) {
+
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
+
+    if (approve) {
+
+      const maxPlayersAllowed = tournament?.settings?.maxPlayersAllowed
+      const tournamentPlayers = await TournamentPlayers.find({ tournament: tournament?._id, status: PLAYER_STATUS.APPROVED })
+      if (tournamentPlayers && tournamentPlayers.length === maxPlayersAllowed) {
+        throw new NotFoundError("Maximum allowed players reached");
+      }
+
+    }
+
+
+
+
     const plyaerdata = await TournamentPlayers.findOne({
       tournament: tournamentId,
       player: playerId,
@@ -336,6 +355,23 @@ class TournamentService {
   }
 
   async approveTeamInTournament(tournamentId, teamId, approve) {
+
+    const tournament = await Tournament.findById(tournamentId);
+    //  console.log("tournemt",tournament)
+    if (!tournament) {
+
+      throw new NotFoundError("Tournament not found");
+    }
+
+    const maxTeamAllowed = tournament?.settings?.maxTeamAllowed
+    const totalTeams = await TournamentTeams.find({ tournament: tournamentId, status: TEAM_STATUS.APPROVED })
+
+    if (totalTeams.length === maxTeamAllowed) {
+
+      throw new NotFoundError("Maximum allowed players reached");
+    }
+
+
     const tournamentTeam = await TournamentTeams.findOneAndUpdate(
       {
         tournament: tournamentId,

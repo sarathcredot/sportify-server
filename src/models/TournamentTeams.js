@@ -48,4 +48,12 @@ const TournamentTeamsSchema = new mongoose.Schema({
   timestamps: true
 });
 
+TournamentTeamsSchema.virtual('bids', {
+  ref: 'Bid',
+  localField: '_id',
+  foreignField: 'placedBy'
+});
+TournamentTeamsSchema.set('toObject', { virtuals: true });
+TournamentTeamsSchema.set('toJSON', { virtuals: true });
+
 module.exports = mongoose.model("TournamentTeams", TournamentTeamsSchema); 

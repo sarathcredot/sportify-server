@@ -86,9 +86,9 @@ class TemplateService {
 
     const keys = Object.keys(data);
     for (const key of keys) {
-      if (!fields.includes(key)) {
-        throw new Error(`Field ${key} not found in template`);
-      }
+      // if (!fields.includes(key)) {
+      //   throw new Error(`Field ${key} not found in template`);
+      // }
       if (data[key] === undefined) {
         throw new Error(`Field ${key} is undefined`);
       }
