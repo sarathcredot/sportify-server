@@ -27,7 +27,7 @@ class TeamService {
 
     if (totalTeams.length === maxTeamAllowed) {
 
-      throw new NotFoundError("Maximum allowed players reached");
+      throw new NotFoundError("Maximum allowed teams reached");
     }
 
 

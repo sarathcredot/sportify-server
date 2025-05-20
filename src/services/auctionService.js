@@ -127,6 +127,15 @@ class AuctionService {
       await auction.save({ session, new: true });
       await session.commitTransaction();
       const updatedAuction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+      // socket.io setup 
+
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('auction-started', {
+        message: `auction started`,
+        auctionId: auction._id,
+
+      });
+
       return updatedAuction;
     } catch (error) {
       await session.abortTransaction();
@@ -183,6 +192,12 @@ class AuctionService {
       await auction.save({ session });
       await session.commitTransaction();
       const updatedAuction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('biding-player-live', {
+        message: `new player selected of biding`,
+        auctionId: auction._id,
+
+      });
       return updatedAuction;
     } catch (error) {
       await session.abortTransaction();
@@ -448,6 +463,18 @@ class AuctionService {
       await team.save({ session });
       await session.commitTransaction();
       const updatedPlayer = await TournamentPlayers.findById(player._id);
+
+      // socket.io setup of live preview 
+
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('player-sold-live', {
+        message: `player sold`,
+        auctionId: auction._id,
+        team: team,
+        point: currentBid.bid.points
+      });
+
+
       return updatedPlayer;
     } catch (error) {
       await session.abortTransaction();
