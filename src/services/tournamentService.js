@@ -1,6 +1,9 @@
 const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
 const City = require("../models/City");
+const Team = require("../models/Team");
+const mongoose = require('mongoose');
+
 const {
   ValidationError,
   NotFoundError,
@@ -219,6 +222,59 @@ class TournamentService {
     const skip = (page - 1) * limit;
     const [tournaments, total] = await Promise.all([
       Tournament.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("location"),
+      Tournament.countDocuments(query),
+    ]);
+
+    return {
+      tournaments,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getTeamManagerTournaments(teamManagerId, search, page = 1, limit = 10) {
+    const team = await Team.findOne({ manager: teamManagerId });
+    
+    if (!team) {
+      console.log('No team found for manager');
+      return {
+        tournaments: [],
+        pagination: {
+          total: 0,
+          page,
+          limit,
+          pages: 0,
+        },
+      };
+    }
+
+    const tournamentTeams = await TournamentTeams.find({ team: team._id });
+    if (!tournamentTeams || tournamentTeams.length === 0) {
+      return {
+        tournaments: [],
+        pagination: {
+          total: 0,
+          page,
+          limit,
+          pages: 0,
+        },
+      };
+    }
+    
+    const tournamentIds = tournamentTeams.map(tournamentTeam => new mongoose.Types.ObjectId(tournamentTeam.tournament));
+    
+    const query = { _id: { $in: tournamentIds } };
+    if (search) {
+      query.name = { $regex: String(search).trim(), $options: "i" };
+    }
+
+    const skip = (page - 1) * limit;
+    const [tournaments, total] = await Promise.all([
+      Tournament.find(query).sort({ createdAt: -1 }).populate('location').skip(skip).limit(limit),
       Tournament.countDocuments(query),
     ]);
 
