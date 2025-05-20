@@ -29,6 +29,7 @@ class AuctionController extends BaseController {
     this.deleteGalleryAsset = this.deleteGalleryAsset.bind(this);
     this.playGallery = this.playGallery.bind(this);
     this.deleteBid = this.deleteBid.bind(this)
+    this.getTeamManagerAuctions = this.getTeamManagerAuctions.bind(this);
   }
 
   async getAuction(req, res) {
@@ -255,6 +256,16 @@ class AuctionController extends BaseController {
     try {
       const gallery = await galleryService.playGallery(auctionId);
       this.handleSuccess(res, gallery, "Gallery played");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getTeamManagerAuctions(req, res) {
+    const teamManager = req.user;
+    try {
+      const auctions = await auctionService.getTeamManagerAuctions(teamManager._id);
+      this.handleSuccess(res, auctions, "Team manager auctions retrieved");
     } catch (error) {
       this.handleError(res, error);
     }

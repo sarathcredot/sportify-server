@@ -3,7 +3,7 @@ const auth = require('../middleware/auth');
 const checkIsTeamManager = require('../middleware/checkIsTeamManager');
 const router = express.Router();
 const tournamentsRouter = require('./team_manager/tournament');
-
+const auctionsRouter = require('./team_manager/auction');
 router.use(auth);
 router.use(checkIsTeamManager());
 
@@ -23,5 +23,5 @@ router.use(checkIsTeamManager());
  */
 
 router.use('/tournaments', tournamentsRouter);
-
+router.use('/auctions', auctionsRouter);
 module.exports = router;

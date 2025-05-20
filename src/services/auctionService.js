@@ -3,6 +3,7 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 const Auction = require("../models/Auction");
 const Bid = require("../models/Bid");
+const Team = require("../models/Team");
 const ConcealedBidRequest = require("../models/ConcealedBidRequest");
 const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS, CONCEALED_BID_REQUEST_STATUS } = require("../utils/constants");
 const { NotFoundError, BadRequestError } = require("../utils/errors");
@@ -571,6 +572,82 @@ class AuctionService {
     } finally {
       session.endSession();
     }
+  }
+
+  async getTeamManagerAuctions(teamManagerId) {
+    const auctions = await Auction.aggregate([
+      {
+        $lookup: {
+          from: 'tournaments',
+          localField: 'tournament',
+          foreignField: '_id',
+          as: 'tournament'
+        }
+      },
+      {
+        $unwind: '$tournament'
+      },
+      {
+        $lookup: {
+          from: 'tournamentteams',
+          let: { tournamentId: '$tournament._id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ['$tournament', '$$tournamentId'] }
+              }
+            },
+            {
+              $lookup: {
+                from: 'teams',
+                localField: 'team',
+                foreignField: '_id',
+                as: 'team'
+              }
+            },
+            {
+              $unwind: '$team'
+            },
+            {
+              $match: {
+                'team.manager': new mongoose.Types.ObjectId(teamManagerId)
+              }
+            }
+          ],
+          as: 'tournamentTeams'
+        }
+      },
+      {
+        $match: {
+          'tournamentTeams.0': { $exists: true },
+          status: { $ne: AUCTION_STATUS.COMPLETED }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          tournament: 1,
+          auctionDate: 1,
+          auctionTime: 1,
+          auctionLocation: 1,
+          biddingPointPerTeam: 1,
+          minBidPerPlayer: 1,
+          maxBidPerPlayer: 1,
+          bidIncreaseBy: 1,
+          biddingTimerLimit: 1,
+          message: 1,
+          status: 1,
+          auctionStartedAt: 1,
+          auctionEndedAt: 1,
+          currentBiddingPlayer: 1,
+          concealedBidRequest: 1,
+          createdAt: 1,
+          updatedAt: 1
+        }
+      }
+    ]);
+
+    return auctions;
   }
 
 }
