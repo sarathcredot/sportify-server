@@ -59,6 +59,9 @@ class AuctionService {
     };
   }
 
+  // working code 
+
+
   async getTeams(auctionId, page = 1, limit = 10, search) {
     const auction = await Auction.findById(auctionId);
     if (!auction) {
@@ -91,6 +94,125 @@ class AuctionService {
       }
     };
   }
+
+  async getTeamsLivePreview(tournamentId) {
+
+    const auction = await Auction.findOne({ tournament: tournamentId })
+    console.log("auction id", auction._id)
+    console.log("tournament id", tournamentId)
+    try {
+
+      const aggregation = [
+        {
+          $match: {
+            tournament: new mongoose.Types.ObjectId(tournamentId),
+            auction: auction?._id
+          }
+        },
+        {
+          $group: {
+            _id: {
+              teamId: "$placedBy",
+              playerId: "$player"
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$_id.teamId",
+            uniquePlayerCount: { $sum: 1 }
+          }
+        },
+        {
+          $lookup: {
+            from: "tournamentteams",
+            localField: "_id",
+            foreignField: "_id",
+            as: "teamInfo"
+          }
+        },
+        {
+          $unwind: "$teamInfo"
+        },
+        {
+          $lookup: {
+            from: "teams",
+            localField: "teamInfo.team",
+            foreignField: "_id",
+            as: "fullTeam"
+          }
+        },
+        {
+          $unwind: "$fullTeam"
+        },
+        {
+          $project: {
+            _id: 0,
+            participationCount: "$uniquePlayerCount",
+            tournamentTeam: "$teamInfo",  // all tournamentteams fields
+            teamDetails: "$fullTeam"      // all teams fields
+          }
+        }
+      ];
+
+      const result = await Bid.aggregate(aggregation);
+      console.log("res", result)
+      return result;
+
+    } catch (error) {
+
+      throw new Error(error)
+    }
+
+  }
+
+
+
+
+  // sumesh updated code 
+  // async getTeams(auctionId, page = 1, limit = 10, search) {
+  //   const auction = await Auction.findById(auctionId);
+  //   if (!auction) {
+  //     throw new NotFoundError('Auction not found');
+  //   }
+  //   const query = {
+  //     tournament: auction.tournament,
+  //     status: TEAM_STATUS.APPROVED
+  //   }
+  //   if (search) {
+  //     query.$or = [
+  //       { name: { $regex: search, $options: 'i' } },
+  //       { phoneNumber: { $regex: search, $options: 'i' } },
+  //       { email: { $regex: search, $options: 'i' } },
+  //       { teamId: { $regex: search, $options: 'i' } }
+  //     ];
+  //   }
+  //   const teams = await TournamentTeams.find(query)
+  //     .populate('team')
+  //     .populate({
+  //       path: 'bids',
+  //       match: {
+  //         player: { $exists: true },
+  //         auction: auction._id,
+  //         $group: {
+  //           _id: '$player',
+  //           count: { $sum: 1 }
+  //         }
+  //       }
+  //     })
+  //     .skip((page - 1) * limit)
+  //     .limit(limit);
+  //   const total = await TournamentTeams.countDocuments(query);
+  //   return {
+  //     teams,
+  //     pagination: {
+  //       total,
+  //       page,
+  //       limit,
+  //       totalPages: Math.ceil(total / limit)
+  //     }
+  //   };
+  // }
 
   async getBidHistory(auctionId, player) {
     const query = { auction: auctionId, player: player, isConcealedBid: false };

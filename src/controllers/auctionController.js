@@ -63,6 +63,21 @@ class AuctionController extends BaseController {
     }
   }
 
+  async getTeamsLivePreview(req, res) {
+
+    console.log("live preview teams ")
+    const { tournamentId } = req.params;
+    try {
+
+      const teams = await auctionService.getTeamsLivePreview(tournamentId);
+      this.handleSuccess(res, teams, "Teams retrieved");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+
+
   async startAuction(req, res) {
     const { auctionId } = req.params;
     try {
