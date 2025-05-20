@@ -186,8 +186,8 @@ const createTournamentSchema = z.object({
     bidIncreaseBy: z.number().openapi({
       example: 100,
     }),
-    biddingTimerLimit: z.number().openapi({
-      example: 10,
+    biddingTimerLimit: z.string().openapi({
+      example: "10",
     }),
   })
     .optional()

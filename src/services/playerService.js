@@ -56,6 +56,14 @@ class PlayerService {
       throw new NotFoundError("Tournament not found");
     }
 
+    const maxPlayersAllowed = tournament?.settings?.maxPlayersAllowed
+
+    const tournamentPlayers = await TournamentPlayers.find({ tournament: tournament?._id, status: PLAYER_STATUS.APPROVED })
+
+    if (tournamentPlayers && tournamentPlayers.length === maxPlayersAllowed) {
+      throw new NotFoundError("Maximum allowed players reached");
+    }
+
     // Check if player already registered
     const existingPlayer = await TournamentPlayers.findOne({
       tournament: tournament._id,

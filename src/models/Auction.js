@@ -10,7 +10,7 @@ const auctionSchema = new mongoose.Schema({
   minBidPerPlayer: { type: Number, required: true },
   maxBidPerPlayer: { type: Number, required: true },
   bidIncreaseBy: { type: Number, required: true },
-  biddingTimerLimit: { type: Number, required: true },
+  biddingTimerLimit: { type: String, required: true },
   message: { type: String, required: true },
   status: {
     type: String,

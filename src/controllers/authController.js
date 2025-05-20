@@ -13,8 +13,8 @@ exports.sendOTP = async (req, res) => {
     const result = await authService.initiateAuth(phoneNumber, countryCode);
     res.json(ResponseHandler.success("OTP sent successfully", result));
   } catch (error) {
-    console.log("auth error 2",error)
-    this.handleError(res, error);
+    console.log("auth error 2", error)
+    this.handleError(res,"User not found", error);
   }
 };
 
@@ -64,13 +64,14 @@ exports.login = async (req, res) => {
 };
 
 exports.handleError = (res, message, error) => {
-  
+
+  console.log("error handiler", error)
   const errorMap = {
     ValidationError: 400,
     NotFoundError: 404,
     UnauthorizedError: 401,
   };
-  
+
   const statusCode = errorMap[error?.name] || 500;
   res.status(statusCode).json(
     ResponseHandler.error(message, error?.message, statusCode)
