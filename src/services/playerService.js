@@ -2,8 +2,9 @@ const Player = require("../models/Player");
 const Tournament = require("../models/Tournament");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const { ValidationError, NotFoundError } = require("../utils/errors");
-const { PLAYER_STATUS } = require("../utils/constants");
+const { PLAYER_STATUS, ORGANISER_NOTIFICATION_TYPE } = require("../utils/constants");
 const { Types } = require("mongoose");
+const notificationService = require("./notificationService");
 
 class PlayerService {
   async registerPlayer(playerData) {
@@ -45,6 +46,13 @@ class PlayerService {
       lastName: player.lastName,
       contactNumber: player.contactNumber,
       email: player.email,
+    });
+
+    // Notify tournament organizer about new player registration
+
+     await notificationService.sendNotificationToOrganizer({
+      tournamentId: tournament._id,
+      type: "player_register"
     });
 
     return player;

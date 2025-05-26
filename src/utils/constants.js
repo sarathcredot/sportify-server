@@ -123,7 +123,7 @@ const TEMPLATE_TYPES = {
   TEAM_POSTER: "team_poster",
   PLAYER_REGISTRATION: "player_registration",
   AUCTION_ANNOUNCEMENT: "auction_announcement",
-  MATCH_DAY_ANNOUNCEMENT:"match_day_announcement"
+  MATCH_DAY_ANNOUNCEMENT: "match_day_announcement"
 
 };
 
@@ -147,6 +147,14 @@ const ALLOWED_VIDEO_TYPES = [
   "video/webm",
 ];
 
+
+const ORGANISER_NOTIFICATION_TYPE = [
+
+  "player_register",
+  "team_register",
+  "auction_reminder",
+  "tournament_reminder"
+]
 module.exports = {
   OTP_LENGTH,
   SPORT_TYPES,
@@ -184,5 +192,6 @@ module.exports = {
 
   ALLOWED_VIDEO_TYPES,
 
-  TEMPLATE_TYPES
+  TEMPLATE_TYPES,
+  ORGANISER_NOTIFICATION_TYPE
 };

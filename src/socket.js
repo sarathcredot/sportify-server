@@ -50,6 +50,26 @@ module.exports = (io) => {
       }
     });
 
+    // Handle joining an organizer-for notification. create room use organizerid
+
+    socket.on('join-organizer-notification', () => {
+
+      if (socket.userRole === ROLES.ORGANISER) {
+
+        socket.join(`${socket?.userId}-organizer-notification`);
+        logger.info(`Organizer joined auction room: ${room}-organizer`);
+      }
+    });
+
+
+    socket.on("notification-sent", (res) => {
+
+      io.to(`${res?.organiserId}-organizer-notification`).emit('notification-sent', { result });
+      console.log("notification", res)
+
+    })
+
+
     socket.on("concealed-bid-placed", (res) => {
       io.to(`${res?.auctionId}-organizer`).emit('concealed-bid-placed', res);
       console.log("bid", res)

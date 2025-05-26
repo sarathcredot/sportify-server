@@ -4,6 +4,7 @@ const checkIsOrganiser = require('../middleware/checkIsOrganiser');
 const router = express.Router();
 const tournamentsRouter = require('./organiser/tournament');
 const auctionRouter = require('./organiser/auction');
+const notificationRouter=require("./organiser/notification")
 const clipBoardRouter = require("./organiser/clipboard")
 const TeamManagerController = require('../controllers/teamManagerController');
 const TemplateController = require('../controllers/templateController');
@@ -33,6 +34,7 @@ router.use('/tournaments', tournamentsRouter);
 
 router.use('/auction', auctionRouter);
 router.use("/clipboards",clipBoardRouter)
+router.use("/notification",notificationRouter)
 
 /**
  * @swagger
