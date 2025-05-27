@@ -39,5 +39,26 @@ module.exports = {
 
             BaseController.handleError(res, error);
         }
+    },
+
+    notificationAllReadByOrganizer: async (req, res) => {
+        try {
+
+            const user = req.user;
+
+            const result = await notificationService.notificationAllReadByOrganizer(user._id);
+
+            res.status(200).json(ResponseHandler.success('All notifications marked as read', result));
+
+        } catch (error) {
+
+            BaseController.handleError(res, error);
+        }
     }
+   
+
+
 }
+
+
+

@@ -2,16 +2,131 @@
 const Notification = require('../models/OrganizerNotification')
 const Tournament = require("../models/Tournament");
 const { getIO } = require('../config/socket');
+const Auction = require('../models/Auction');
 
 
 
 module.exports = {
-    getAllNotificationByOrganizer: (organiserId) => {
+    getAllNotificationByOrganizer: async (organiserId) => {
         return new Promise(async (resolve, reject) => {
 
             try {
 
-                const result = await Notification.find({ organiserId })
+                // create notification 2 days after starting tournaments
+                const now = new Date();
+                const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+                // STEP 2: Add 2 days to get the target date
+                const twoDaysAfter = new Date(todayUTC);
+                twoDaysAfter.setUTCDate(todayUTC.getUTCDate() + 2);
+
+                // STEP 3: Get start and end of that target day (in UTC)
+                const startOfDay = new Date(twoDaysAfter);
+                startOfDay.setUTCHours(0, 0, 0, 0);
+
+                const endOfDay = new Date(twoDaysAfter);
+                endOfDay.setUTCHours(23, 59, 59, 999);
+
+                // STEP 4: Query tournaments
+                const tournaments = await Tournament.find({
+                    createdBy: organiserId,
+                    startDate: {
+                        $gte: startOfDay,
+                        $lte: endOfDay
+                    }
+                }).sort({ createdAt: -1 });
+
+
+                if (tournaments.length > 0) {
+
+                    for (let elm of tournaments) {
+
+                        const existing = await Notification.findOne({ tournamentId: elm._id, type: "tournament_reminder" })
+                        console.log("Tournaments found for reminder:", existing);
+
+                        if (!existing) {
+
+                            const notification = {
+
+                                organiserId,
+                                tournamentId: elm._id,
+                                logoUrl: elm.logoUrl,
+                                msg: "Reminder: Your tournament " + elm.name + " is starting soon.",
+                                type: "tournament_reminder",
+                            }
+
+                            const final = new Notification(notification)
+                            await final.save();
+                        }
+                    }
+                }
+
+
+
+                // create notification 2 days after starting auction
+                // // find this oeganize auction anabeled tournaments
+
+                const auctionTournaments = await Tournament.find({
+                    createdBy: organiserId,
+                    settings: { auctionEnabled: true },
+                })
+
+
+                if (auctionTournaments.length > 0) {
+
+                    for (let elm of auctionTournaments) {
+
+                        const result = await Auction.findOne(
+                            {
+                                tournamentId: elm._id,
+                                auctionDate: {
+                                    $gte: startOfDay,
+                                    $lte: endOfDay
+                                }
+                            }
+                        )
+
+                        if (result) {
+                            const existing = await Notification.findOne({ tournamentId: elm._id, type: "auction_reminder" })
+                            console.log("Auction found for reminder:", existing);
+
+                            if (!existing) {
+
+                                const notification = {
+
+                                    organiserId,
+                                    tournamentId: elm._id,
+                                    logoUrl: elm.logoUrl,
+                                    msg: "Reminder: Your auction for tournament " + elm.name + " is starting soon.",
+                                    type: "auction_reminder",
+                                }
+
+                                const final = new Notification(notification)
+                                await final.save();
+                            }
+                        }
+
+
+                    }
+                }
+
+
+
+
+                const nowDate = new Date();
+                const fiveDaysAgo = new Date();
+                fiveDaysAgo.setDate(nowDate.getDate() - 5);
+
+                const result = await Notification.find({
+                    organiserId,
+                    $or: [
+                        { isViewed: false },
+                        {
+                            isViewed: true,
+                            createdAt: { $gte: fiveDaysAgo } // within last 5 days
+                        }
+                    ]
+                });
                 resolve(result)
 
             } catch (error) {
@@ -57,6 +172,7 @@ module.exports = {
 
                 if (data?.type === "player_register") {
                     notification.tournamentId = getTournament?._id,
+                        notification.logoUrl = getTournament?.logoUrl,
                         notification.organiserId = getTournament?.createdBy,
                         notification.msg = `New player registered in your tournament ${getTournament.name}`,
                         notification.type = data?.type
@@ -65,6 +181,7 @@ module.exports = {
                 if (data?.type === "team_register") {
 
                     notification.tournamentId = getTournament?._id,
+                        notification.logoUrl = getTournament?.logoUrl,
                         notification.organiserId = getTournament?.createdBy,
                         notification.msg = `New team registered in your tournament ${getTournament.name}`,
                         notification.type = data?.type
@@ -72,6 +189,7 @@ module.exports = {
 
                 const final = new Notification(notification)
                 const result = await final.save();
+
 
                 // add sokect.io
 
@@ -84,7 +202,21 @@ module.exports = {
                 reject(error);
             }
         });
-    }
+    },
 
+    notificationAllReadByOrganizer: (organiserId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await Notification.updateMany(
+                    { organiserId, isViewed: false },
+                    { $set: { isViewed: true } }
+                );
+
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
 
 };

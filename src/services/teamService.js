@@ -6,6 +6,7 @@ const authService = require("./authService");
 const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
 const { parsePhoneNumber } = require("libphonenumber-js");
 const { Types } = require("mongoose");
+const { sendEmail } = require("./emailService");
 
 class TeamService {
 
@@ -51,6 +52,7 @@ class TeamService {
       phoneNumber: teamData.phoneNumber,
       email: teamData.email,
     });
+    await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
 
     return team;
   }

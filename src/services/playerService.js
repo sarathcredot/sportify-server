@@ -5,6 +5,7 @@ const { ValidationError, NotFoundError } = require("../utils/errors");
 const { PLAYER_STATUS, ORGANISER_NOTIFICATION_TYPE } = require("../utils/constants");
 const { Types } = require("mongoose");
 const notificationService = require("./notificationService");
+const { sendEmail } = require("./emailService");
 
 class PlayerService {
   async registerPlayer(playerData) {
@@ -54,6 +55,9 @@ class PlayerService {
       tournamentId: tournament._id,
       type: "player_register"
     });
+
+    // sent email to player
+    await sendEmail(player.email, "Player Registration Confirmation", `You have successfully registered for the tournament: ${tournament.name}. Your Player ID is ${playerId}.`);
 
     return player;
   }

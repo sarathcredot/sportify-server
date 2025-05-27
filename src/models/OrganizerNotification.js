@@ -11,6 +11,10 @@ const organiserNotificationSchema = new mongoose.Schema({
         ref: 'Tournament',
         required: true
     },
+    logoUrl: {
+        type: String,
+        required: false
+    },
     organiserId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -31,9 +35,9 @@ const organiserNotificationSchema = new mongoose.Schema({
         enam: ORGANISER_NOTIFICATION_TYPE
     }
 },
-{
-    timestamps: true
-})
+    {
+        timestamps: true
+    })
 
 
 module.exports = mongoose.model("organizerNotification", organiserNotificationSchema)

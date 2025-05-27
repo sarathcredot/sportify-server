@@ -3,6 +3,7 @@ const Auction = require("../models/Auction");
 const City = require("../models/City");
 const Team = require("../models/Team");
 const mongoose = require('mongoose');
+const { sendEmail } = require("./emailService")
 
 const {
   ValidationError,
@@ -238,7 +239,7 @@ class TournamentService {
 
   async getTeamManagerTournaments(teamManagerId, search, page = 1, limit = 10) {
     const team = await Team.findOne({ manager: teamManagerId });
-    
+
     if (!team) {
       console.log('No team found for manager');
       return {
@@ -264,9 +265,9 @@ class TournamentService {
         },
       };
     }
-    
+
     const tournamentIds = tournamentTeams.map(tournamentTeam => new mongoose.Types.ObjectId(tournamentTeam.tournament));
-    
+
     const query = { _id: { $in: tournamentIds } };
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
@@ -331,6 +332,11 @@ class TournamentService {
     if (!tournamentPlayer) {
       throw new NotFoundError("Tournament or player not found");
     }
+    await sendEmail(
+      plyaerdata?.email,
+      "Player Registration Status",
+      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
+    );
     return tournamentPlayer;
   }
 
@@ -388,6 +394,11 @@ class TournamentService {
     if (!tournamentTeam) {
       throw new NotFoundError("Tournament or team not found");
     }
+    await sendEmail(
+      tournamentTeam?.email,
+      "Team Registration Status",
+      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
+    );
     return tournamentTeam;
   }
 
