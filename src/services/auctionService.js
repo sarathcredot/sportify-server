@@ -378,6 +378,11 @@ class AuctionService {
       const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
       const pointsAfterBid = team.remainingPoints - bid.points;
 
+      if(tournament.settings.maxPlayersPerTeam===numberOfPlayersInTeam){
+
+           throw new BadRequestError(`Team has already filled the maximum number of players allowed in the tournament. Maximum players allowed is ${tournament.settings.maxPlayersPerTeam}`);
+      }
+
       if (pointsAfterBid < minBidPoints) {
         throw new BadRequestError(`Team remaining points are less than the minimum bid points. Minimum bid points is ${minBidPoints}`);
       }

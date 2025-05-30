@@ -16,6 +16,7 @@ class TournamentController extends BaseController {
     this.getTournaments = this.getTournaments.bind(this);
     this.getTeamsByTournamentId = this.getTeamsByTournamentId.bind(this);
     this.getTeamManagerTournaments = this.getTeamManagerTournaments.bind(this);
+    this.getLatestTournaments = this.getLatestTournaments.bind(this);
   }
 
   async createTournament(req, res) {
@@ -148,6 +149,19 @@ class TournamentController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async getLatestTournaments(req, res) {
+    try {
+      console.log("get latest tournaments>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.")
+
+      const tournaments = await tournamentService.getLatestTournaments();
+      this.handleSuccess(res, tournaments, "Latest tournaments retrieved successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+
 }
 
 module.exports = TournamentController;

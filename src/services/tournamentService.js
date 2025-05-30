@@ -396,7 +396,7 @@ class TournamentService {
       console.log("approve team in tournament>>>>>>>>>>>>>>>>>>>>>>>>>>>>", tournamentId, teamId, approve)
       const maxTeamsAllowed = tournament?.settings?.maxTeamAllowed
       const tournamentTeams = await TournamentTeams.find({ tournament: tournament?._id, status: TEAM_STATUS.APPROVED })
-      console.log("count",maxTeamsAllowed, tournamentTeams.length)
+      console.log("count", maxTeamsAllowed, tournamentTeams.length)
       if (tournamentTeams && tournamentTeams.length === maxTeamsAllowed) {
         throw new NotFoundError("Maximum allowed teams reached");
       }
@@ -467,6 +467,19 @@ class TournamentService {
     if (new Date(updateData.startDate) < new Date()) {
       throw new ValidationError("Start date cannot be in the past");
     }
+  }
+
+
+
+
+  async getLatestTournaments() {
+
+    const result=await Tournament.find()
+      .populate('location')
+      .sort({ createdAt: -1 })
+      .limit(6);
+
+      return result;
   }
 }
 

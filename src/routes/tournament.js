@@ -43,6 +43,9 @@ const sponsorController = new SponsorController();
  */
 router.get("/", tournamentController.getTournaments);
 
+router.get("/latest-tournament", tournamentController.getLatestTournaments);
+
+
 /**
  * @swagger
  * /tournaments/{id}:
