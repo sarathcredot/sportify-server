@@ -361,7 +361,7 @@ class AuctionService {
       }
       if (auction.currentBiddingPlayer.currentBid && auction.currentBiddingPlayer.currentBid.bid) {
         const currentBid = await Bid.findById(auction.currentBiddingPlayer.currentBid.bid).session(session);
-        if (currentBid && bid.points <= currentBid.points + auction.bidIncreaseBy) {
+        if (currentBid && bid.points < currentBid.points + auction.bidIncreaseBy) {
           throw new BadRequestError(`Bid points must be ${auction.bidIncreaseBy} points greater than the current bid points ${currentBid.points}`);
         }
       }

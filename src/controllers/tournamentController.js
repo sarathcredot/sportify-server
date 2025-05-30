@@ -20,6 +20,7 @@ class TournamentController extends BaseController {
 
   async createTournament(req, res) {
     try {
+      // console.log("create tour", req.body)
       const tournament = await tournamentService.createTournament(req.body, req.user);
       res.status(201).json(ResponseHandler.success('Tournament created', tournament));
     } catch (error) {
@@ -37,6 +38,23 @@ class TournamentController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+
+  async getTournamentByIdPoster(req, res) {
+    try {
+
+      console.log("get tour byid poster>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.params.id)
+
+      const tournament = await tournamentService.getTournamentByIdPoster(req.params.id);
+      res.status(200).json(ResponseHandler.success('Tournament retrieved', tournament));
+    } catch (error) {
+      console.log("get tour byid", error)
+      this.handleError(res, error);
+    }
+  }
+
+
+
 
   async updateTournamentById(req, res) {
     try {

@@ -30,7 +30,8 @@ exports.register = async (req, res) => {
     const result = await authService.initiateAuth(phoneNumber, countryCode);
     res.json(ResponseHandler.success("User registered successfully", result));
   } catch (error) {
-    this.handleError(res, "User registration failed", error);
+    console.log("auth error 3", error)
+    this.handleError(res, error, error);
   }
 };
 
@@ -65,7 +66,8 @@ exports.login = async (req, res) => {
 
 exports.handleError = (res, message, error) => {
 
-  console.log("error handiler", error)
+  console.log("error handiler", message);
+  console.log("error details", error);
   const errorMap = {
     ValidationError: 400,
     NotFoundError: 404,
@@ -74,6 +76,6 @@ exports.handleError = (res, message, error) => {
 
   const statusCode = errorMap[error?.name] || 500;
   res.status(statusCode).json(
-    ResponseHandler.error(message, error?.message, statusCode)
+    ResponseHandler.error(message, error, statusCode)
   );
 }

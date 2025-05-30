@@ -1,3 +1,4 @@
+const { error } = require("winston");
 const { logger } = require("./logger");
 
 class ResponseHandler {
@@ -16,7 +17,7 @@ class ResponseHandler {
     logger.error(message, errors, statusCode);
     return {
       status: 'error',
-      message,
+      message: errors?.message || message,
       errors,
       timestamp: new Date().toISOString(),
       statusCode

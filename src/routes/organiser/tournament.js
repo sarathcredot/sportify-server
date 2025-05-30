@@ -1,7 +1,7 @@
 const express = require('express');
 const TournamentController = require('../../controllers/tournamentController');
-const validate = require('../../utils/validate'); 
-const { createTournamentSchema } = require('../../schemas/tournamentSchema');
+const validate = require('../../utils/validate');
+const { createTournamentSchema, updateTournamentSchema } = require('../../schemas/tournamentSchema');
 const checkOwnership = require('../../middleware/checkOwnership');
 const Tournament = require('../../models/Tournament');
 const { createPlayerSchema, approvePlayerSchema, refundPlayerSchema } = require('../../schemas/playerSchema');
@@ -88,6 +88,11 @@ router.get('/', tournamentController.getOrganiserTournaments);
  */
 router.post('/', validate(createTournamentSchema), tournamentController.createTournament);
 
+// organizer edit tournament
+
+router.patch('/:id', validate(updateTournamentSchema), tournamentController.updateTournamentById);
+
+
 /**
  * @swagger
  * /organiser/tournaments/{id}:
@@ -129,6 +134,14 @@ router.get(
   checkOwnership(Tournament),
   tournamentController.getTournamentById
 );
+
+router.get(
+  '/:id/poster',
+  checkOwnership(Tournament),
+  tournamentController.getTournamentByIdPoster
+);
+
+
 
 /**
  * @swagger
@@ -390,7 +403,7 @@ router.post(
   '/:tournamentId/teams',
   validate(createTeamSchema),
   teamController.createTeam
-); 
+);
 
 /**
  * @swagger
