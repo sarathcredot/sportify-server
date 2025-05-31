@@ -134,12 +134,12 @@ const OTP_LENGTH = 5;
 const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates"];
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
+  "image/svg+xml",
   "image/png",
   "image/bmp",
   "image/webp",
   "text/html",
 ];
-
 const ALLOWED_VIDEO_TYPES = [
   "video/mp4",
   "video/mpeg",
