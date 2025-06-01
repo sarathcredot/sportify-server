@@ -223,12 +223,14 @@ module.exports = {
             try {
                 const result = await Notification.find({ user: userId }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
                 const total = await Notification.countDocuments({ user: userId });
-                resolve({  
-                    notifications: result, 
+                const unreadCount = await Notification.countDocuments({ user: userId, isViewed: false });
+                resolve({
+                    notifications: result,
                     pagination: {
                         total,
                         page,
                         limit,
+                        unreadCount,
                         totalPages: Math.ceil(total / limit)
                     }
                 });
