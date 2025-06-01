@@ -6,7 +6,7 @@ const notificationController = require("../../controllers/notificationController
 
 // get all notification by team manager
 router.get("/", notificationController.getAllNotificationsOfUser)
-router.post("/:notificationId", notificationController.markNotificationViewed)
 router.post("/mark-all-as-read", notificationController.markNotificationAllRead)
+router.post("/:notificationId", notificationController.markNotificationViewed)
 
 module.exports = router;
