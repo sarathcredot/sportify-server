@@ -37,7 +37,8 @@ module.exports = {
     getAllNotificationsOfUser: async (req, res) => {
         try {
             const user = req.user;
-            const result = await notificationService.getAllNotificationsOfUser(user._id);
+            const { page, limit } = req.query;
+            const result = await notificationService.getAllNotificationsOfUser(user._id, parseInt(page), parseInt(limit));
             handleSuccess(res, result, 'Notifications retrieved successfully');
         } catch (error) {
             handleError(res, error);

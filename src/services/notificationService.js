@@ -221,7 +221,7 @@ module.exports = {
     getAllNotificationsOfUser: async (userId, page = 1, limit = 10) => {
         return new Promise(async (resolve, reject) => {
             try {
-                const result = await Notification.find({ user: userId }).skip((page - 1) * limit).limit(limit);
+                const result = await Notification.find({ user: userId }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
                 const total = await Notification.countDocuments({ user: userId });
                 resolve({  
                     notifications: result, 
@@ -229,7 +229,7 @@ module.exports = {
                         total,
                         page,
                         limit,
-                        pages: Math.ceil(total / limit)
+                        totalPages: Math.ceil(total / limit)
                     }
                 });
             } catch (error) {
