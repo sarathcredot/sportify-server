@@ -62,9 +62,12 @@ class TournamentService {
 
     }
 
-
     if (sportTypes) {
-      query.sportType = { $in: sportTypes };
+      if (sportTypes.includes("other")) {
+        query.sportType = { $nin: ["cricket", "football"] };
+      } else {
+        query.sportType = { $in: sportTypes };
+      }
     }
 
     if (locations) {
