@@ -1,10 +1,8 @@
-
-
 const mongoose = require("mongoose")
-const { ORGANISER_NOTIFICATION_TYPE } = require("../utils/constants")
+const { NOTIFICATION_TYPES } = require("../utils/constants")
 
 
-const organiserNotificationSchema = new mongoose.Schema({
+const NotificationSchema = new mongoose.Schema({
 
     tournamentId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -15,7 +13,7 @@ const organiserNotificationSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    organiserId: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
@@ -29,10 +27,9 @@ const organiserNotificationSchema = new mongoose.Schema({
         default: false
     },
     type: {
-
         type: String,
         required: true,
-        enam: ORGANISER_NOTIFICATION_TYPE
+        enam: NOTIFICATION_TYPES
     }
 },
     {
@@ -40,4 +37,4 @@ const organiserNotificationSchema = new mongoose.Schema({
     })
 
 
-module.exports = mongoose.model("organizerNotification", organiserNotificationSchema)
+module.exports = mongoose.model("Notification", NotificationSchema)

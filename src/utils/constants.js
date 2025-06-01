@@ -148,13 +148,13 @@ const ALLOWED_VIDEO_TYPES = [
 ];
 
 
-const ORGANISER_NOTIFICATION_TYPE = [
-
+const NOTIFICATION_TYPES = [
   "player_register",
   "team_register",
   "auction_reminder",
   "tournament_reminder"
 ]
+
 module.exports = {
   OTP_LENGTH,
   SPORT_TYPES,
@@ -193,5 +193,5 @@ module.exports = {
   ALLOWED_VIDEO_TYPES,
 
   TEMPLATE_TYPES,
-  ORGANISER_NOTIFICATION_TYPE
+  NOTIFICATION_TYPES
 };
