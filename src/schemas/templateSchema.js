@@ -9,7 +9,7 @@ const createTemplateSchema =
     templateType: z.string(),
     templateData: z.string(),
     templateFileUrl: z.string(),
-    fields: z.array(z.string()).optional()
+    // fields: z.array(z.string()).optional()
   })
 // );
 

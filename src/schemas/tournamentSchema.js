@@ -229,6 +229,15 @@ const createTournamentSchema = z.object({
   }
 });
 
+
+
+
+
+
+
+
+
+
 const updateTournamentSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
@@ -266,7 +275,7 @@ const updateTournamentSchema = z.object({
     minBidPerPlayer: z.number().optional(),
     maxBidPerPlayer: z.number().optional(),
     bidIncreaseBy: z.number().optional(),
-    biddingTimerLimit: z.number().optional(),
+    biddingTimerLimit: z.string().optional(),
   }).optional(),
 }).openapi({
   example: {
