@@ -15,7 +15,7 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-  async getTournaments(search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit) {
+  async getTournaments(search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip) {
     const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
@@ -85,10 +85,15 @@ class TournamentService {
     //   }
     // }
 
-    const skip = (page - 1) * limit;
+    let skipCount = 0
+
+    if (skip) {
+      skipCount = (page - 1) * limit;
+    }
+
     const tournaments = await Tournament.find(query).populate('location')
       .sort({ createdAt: -1 })
-      // .skip(skip)
+      .skip(skipCount)
       .limit(limit);
 
     const total = await Tournament.countDocuments(query);
