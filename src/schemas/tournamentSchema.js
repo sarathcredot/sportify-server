@@ -229,6 +229,15 @@ const createTournamentSchema = z.object({
   }
 });
 
+
+
+
+
+
+
+
+
+
 const updateTournamentSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
