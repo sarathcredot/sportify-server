@@ -129,6 +129,12 @@ const TEMPLATE_TYPES = {
 
 const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
 
+const PLANS_TYPES = {
+  STARTER: "starter_plan",
+  BASIC: "basic_plan",
+  PRO: "pro_plan",
+};
+
 // Other constants
 const OTP_LENGTH = 5;
 const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates"];
@@ -193,5 +199,7 @@ module.exports = {
   ALLOWED_VIDEO_TYPES,
 
   TEMPLATE_TYPES,
-  NOTIFICATION_TYPES
+  NOTIFICATION_TYPES,
+
+  PLANS_TYPES
 };

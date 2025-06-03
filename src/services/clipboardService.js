@@ -6,13 +6,16 @@ class ClipboardService {
     return clipBoard;
   }
 
-  async getAllClipboards(type, category) {
+  async getAllClipboards(type, category, availableForPlan) {
     const query = {};
     if (type) {
       query.type = type;
     }
     if (category) {
       query.category = category;
+    }
+    if (availableForPlan) {
+      query.availableForPlan = availableForPlan;
     }
     const clipBoards = await Clipboard.find(query);
     return clipBoards;
