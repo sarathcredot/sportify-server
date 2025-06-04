@@ -15,7 +15,7 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-  async getTournaments(search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip) {
+  async getTournaments(search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip = true) {
     const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
