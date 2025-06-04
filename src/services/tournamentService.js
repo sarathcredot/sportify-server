@@ -95,7 +95,6 @@ class TournamentService {
     }
 
     const tournaments = await Tournament.find(query).populate('location')
-      .sort({ createdAt: -1 })
       .skip(skipCount)
       .limit(limit);
 

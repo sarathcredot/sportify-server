@@ -193,16 +193,16 @@ const createTournamentSchema = z.object({
     .optional()
     .openapi(),
 }).superRefine((data, ctx) => {
-  validateAuction(data, ctx);
+  // validateAuction(data, ctx);
   console.log("form data", JSON.stringify(data))
   // Ensure auction data is required if auctionEnabled is true
   if (data.settings.auctionEnabled) {
     if (!data.auction) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Auction details are required when auction is enabled",
-        path: ["auction"],
-      });
+      // ctx.addIssue({
+      //   code: z.ZodIssueCode.custom,
+      //   message: "Auction details are required when auction is enabled",
+      //   path: ["auction"],
+      // });
     } else {
       // Ensure all required fields are present in the auction object
       const requiredAuctionFields = [
