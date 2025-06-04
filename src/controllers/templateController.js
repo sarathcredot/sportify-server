@@ -58,8 +58,8 @@ class TemplateController extends BaseController {
 
   deleteTemplatesByIds = async (req, res) => {
     try {
-      await templateService.deleteClipBoardByIds(req.body.ids);
-      this.handleSuccess(res, null, "Template deleted successfully");
+      await templateService.deleteTemplateByIds(req.body.ids);
+      this.handleSuccess(res, null, "Templates deleted successfully");
     } catch (error) {
       this.handleError(res, error);
     }

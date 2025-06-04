@@ -27,13 +27,13 @@ class TemplateService {
   }
 
   async createTemplate(data) {
-    const { templateType, templateData, fields, templateFileUrl } = data;
+    const { templateType, templateData, fields, templateFileUrl, availableForPlan } = data;
     if (!templateType || !templateData) {
       throw new Error("Template type and template data are required");
     }
 
     const templateFields = this.getTemplateFields(templateData);
-    const obj = { templateType, templateData, templateFileUrl };
+    const obj = { templateType, templateData, templateFileUrl, availableForPlan };
 
     if (fields && Array.isArray(fields) && fields.length > 0) {
       obj.fields = fields;
