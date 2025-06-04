@@ -123,6 +123,12 @@ class TournamentService {
     );
     console.log("city", city)
 
+    console.log("user", tournamentData)
+
+    if(tournamentData?.auction?.maxBidPerPlayer < tournamentData?.auction?.minBidPerPlayer) {
+      throw new ValidationError("Max bid per player cannot be less than min bid per player");
+    }
+
     let obj = {
       ...tournamentData,
       organiser: user._id,
@@ -480,12 +486,12 @@ class TournamentService {
 
   async getLatestTournaments() {
 
-    const result=await Tournament.find()
+    const result = await Tournament.find()
       .populate('location')
       .sort({ createdAt: -1 })
       .limit(6);
 
-      return result;
+    return result;
   }
 }
 

@@ -4,6 +4,7 @@ const Sponsor = require("../models/Sponsor");
 class SponsorService {
 
   async createSponsor(sponsorData, tournamentId) {
+    console.log("create sponsor", sponsorData, tournamentId);
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
@@ -11,7 +12,7 @@ class SponsorService {
     const sponsor = new Sponsor({
       ...sponsorData,
       tournament: tournament._id,
-    }); 
+    });
     await sponsor.save();
     return sponsor;
   }
@@ -42,7 +43,7 @@ class SponsorService {
       },
     };
   }
-  
+
   async updateSponsor(sponsorId, sponsorData) {
     const sponsor = await Sponsor.findByIdAndUpdate(sponsorId, sponsorData, { new: true });
     if (!sponsor) {
@@ -51,7 +52,7 @@ class SponsorService {
     return sponsor;
   }
 
-  async deleteSponsor(sponsorId) {  
+  async deleteSponsor(sponsorId) {
     const sponsor = await Sponsor.findById(sponsorId);
     if (!sponsor) {
       throw new NotFoundError("Sponsor not found");

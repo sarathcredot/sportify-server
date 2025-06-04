@@ -47,7 +47,7 @@ module.exports = {
 
                             const notification = {
 
-                                organiserId,
+                               user: organiserId,
                                 tournamentId: elm._id,
                                 logoUrl: elm.logoUrl,
                                 msg: "Reminder: Your tournament " + elm.name + " is starting soon.",
@@ -93,7 +93,7 @@ module.exports = {
 
                                 const notification = {
 
-                                    organiserId,
+                                   user: organiserId,
                                     tournamentId: elm._id,
                                     logoUrl: elm.logoUrl,
                                     msg: "Reminder: Your auction for tournament " + elm.name + " is starting soon.",
@@ -117,7 +117,7 @@ module.exports = {
                 fiveDaysAgo.setDate(nowDate.getDate() - 5);
 
                 const result = await Notification.find({
-                    organiserId,
+                    user: organiserId,
                     $or: [
                         { isViewed: false },
                         {
@@ -141,7 +141,7 @@ module.exports = {
             try {
 
                 const result = await Notification.findOneAndUpdate(
-                    { _id: notificationId, organiserId },
+                    { _id: notificationId, user:organiserId},
                     { $set: { isViewed: true } },
                     { new: true }
                 );
@@ -172,7 +172,7 @@ module.exports = {
                 if (data?.type === "player_register") {
                     notification.tournamentId = getTournament?._id,
                         notification.logoUrl = getTournament?.logoUrl,
-                        notification.organiserId = getTournament?.createdBy,
+                        notification.user = getTournament?.createdBy,
                         notification.msg = `New player registered in your tournament ${getTournament.name}`,
                         notification.type = data?.type
                 }
@@ -180,8 +180,8 @@ module.exports = {
                 if (data?.type === "team_register") {
 
                     notification.tournamentId = getTournament?._id,
-                        notification.logoUrl = getTournament?.logoUrl,
-                        notification.organiserId = getTournament?.createdBy,
+                        notification.logoUrl = gregietTournament?.logoUrl,
+                        notification.user = getTournament?.createdBy,
                         notification.msg = `New team registered in your tournament ${getTournament.name}`,
                         notification.type = data?.type
                 }
@@ -207,7 +207,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             try {
                 const result = await Notification.updateMany(
-                    { organiserId, isViewed: false },
+                    { user:organiserId, isViewed: false },
                     { $set: { isViewed: true } }
                 );
 
