@@ -17,6 +17,7 @@ const corsOptions = {
       "https://6sm9fkjp-3000.inc1.devtunnels.ms",
       "http://localhost:5000",
       "http://localhost:3000",
+      "https://sportify-pro-admin-dashboard.vercel.app"
     ];
 
     // Allow requests with no origin (like mobile apps or curl requests)
