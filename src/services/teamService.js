@@ -100,8 +100,8 @@ class TeamService {
       teams: teams,
       pagination: {
         total: total,
-        page,
-        limit,
+        page: parseInt(page),
+        limit: parseInt(limit),
         pages: Math.ceil(total / limit),
       }
     };
