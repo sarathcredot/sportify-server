@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { TEMPLATE_TYPES } = require("../utils/constants");
+const { TEMPLATE_TYPES, PLANS_TYPES } = require("../utils/constants");
 
 const templateSchema = new mongoose.Schema(
   {
@@ -7,6 +7,11 @@ const templateSchema = new mongoose.Schema(
     templateData: { type: String, required: true },
     templateFileUrl: { type: String, required: true },
     fields: { type: [String], default: [] },
+    availableForPlan: {
+      type: String,
+      enum: Object.values(PLANS_TYPES),
+      default: PLANS_TYPES.STARTER,
+    },
     isFree: { type: Boolean, required: true, default: false },
   },
   {

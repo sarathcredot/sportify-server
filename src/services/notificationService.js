@@ -1,9 +1,8 @@
 
-const Notification = require('../models/OrganizerNotification')
+const Notification = require('../models/Notification')
 const Tournament = require("../models/Tournament");
 const { getIO } = require('../config/socket');
 const Auction = require('../models/Auction');
-
 
 
 module.exports = {
@@ -217,6 +216,49 @@ module.exports = {
                 reject(error);
             }
         });
-    }
+    },
 
+    getAllNotificationsOfUser: async (userId, page = 1, limit = 10) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await Notification.find({ user: userId }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+                const total = await Notification.countDocuments({ user: userId });
+                const unreadCount = await Notification.countDocuments({ user: userId, isViewed: false });
+                resolve({
+                    notifications: result,
+                    pagination: {
+                        total,
+                        page,
+                        limit,
+                        unreadCount,
+                        totalPages: Math.ceil(total / limit)
+                    }
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    markNotificationViewed: async (userId, notificationId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await Notification.findOneAndUpdate({ _id: notificationId, user: userId }, { $set: { isViewed: true } }, { new: true });
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    markNotificationAllRead: async (userId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await Notification.updateMany({ user: userId, isViewed: false }, { $set: { isViewed: true } });
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
 };

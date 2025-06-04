@@ -1,18 +1,17 @@
 const Template = require("../models/Template");
-const puppeteer = require('puppeteer');
-const handlebars = require('handlebars');
-const fs = require('fs').promises;
-const path = require('path');
+const puppeteer = require("puppeteer");
+const handlebars = require("handlebars");
+const fs = require("fs").promises;
+const path = require("path");
 
 class TemplateService {
-
   getTemplateFields(templateStr) {
     const ast = handlebars.parse(templateStr);
     const fields = new Set();
 
     function recurse(node) {
-      if (node.type === 'MustacheStatement' || node.type === 'SubExpression') {
-        if (node.path.type === 'PathExpression') {
+      if (node.type === "MustacheStatement" || node.type === "SubExpression") {
+        if (node.path.type === "PathExpression") {
           fields.add(node.path.original);
         }
       }
@@ -28,18 +27,26 @@ class TemplateService {
   }
 
   async createTemplate(data) {
-    const { templateType, templateData, fields, templateFileUrl } = data;
+    const { templateType, templateData, fields, templateFileUrl, availableForPlan } = data;
     if (!templateType || !templateData) {
       throw new Error("Template type and template data are required");
     }
 
     const templateFields = this.getTemplateFields(templateData);
-    const template = await Template.create({ templateType, templateData, fields: { ...fields, ...templateFields }, templateFileUrl });
+    const obj = { templateType, templateData, templateFileUrl, availableForPlan };
+
+    if (fields && Array.isArray(fields) && fields.length > 0) {
+      obj.fields = fields;
+    }
+    if (templateFields && templateFields.length > 0) {
+      obj.fields = { ...obj.fields, ...templateFields };
+    }
+
+    const template = await Template.create(obj);
     return template;
   }
 
   async getAllTemplates(type, page = 1, limit = 10) {
-
     const query = {};
     if (type) {
       query.templateType = type;
@@ -59,9 +66,8 @@ class TemplateService {
     return template;
   }
 
-
   async deleteTemplateByIds(ids) {
-    const template = await Template.deleteMany({ _id: { $in: ids } });;
+    const template = await Template.deleteMany({ _id: { $in: ids } });
     if (!template || template.length === 0) {
       throw new Error("Template not found!");
     }
@@ -92,7 +98,7 @@ class TemplateService {
       if (data[key] === undefined) {
         throw new Error(`Field ${key} is undefined`);
       }
-      if (key.toLowerCase().endsWith('url')) {
+      if (key.toLowerCase().endsWith("url")) {
         data[key] = `${process.env.BASE_URL}/media/${data[key]}`;
       }
     }
@@ -102,8 +108,8 @@ class TemplateService {
 
     // Create a browser instance
     const browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
 
     try {
@@ -111,28 +117,28 @@ class TemplateService {
       await page.setContent(renderedTemplate);
 
       await page.evaluate(async () => {
-        const selectors = Array.from(document.querySelectorAll('img'));
+        const selectors = Array.from(document.querySelectorAll("img"));
         await Promise.all([
           document.fonts.ready,
-          ...selectors.map(img => {
+          ...selectors.map((img) => {
             if (img.complete) return;
             return new Promise((resolve, reject) => {
-              img.addEventListener('load', resolve);
-              img.addEventListener('error', reject);
+              img.addEventListener("load", resolve);
+              img.addEventListener("error", reject);
             });
-          })
+          }),
         ]);
       });
 
       // Generate the PNG
       const buffer = await page.screenshot({
-        type: 'png',
+        type: "png",
         fullPage: true,
-        encoding: 'binary'
+        encoding: "binary",
       });
 
       // Ensure media/posters directory exists
-      const postersDir = path.join(process.cwd(), 'media', 'posters');
+      const postersDir = path.join(process.cwd(), "media", "posters");
       await fs.mkdir(postersDir, { recursive: true });
 
       // Generate unique filename
@@ -145,7 +151,7 @@ class TemplateService {
       // Return the URL
       return {
         url: `/media/posters/${filename}`,
-        filename
+        filename,
       };
     } finally {
       await browser.close();

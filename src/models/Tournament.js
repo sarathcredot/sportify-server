@@ -173,4 +173,10 @@ TournamentSchema.virtual('teams', {
   foreignField: 'tournament'
 });
 
+TournamentSchema.virtual('auction', {
+  ref: 'Auction',
+  localField: '_id',
+  foreignField: 'tournament'
+});
+
 module.exports = mongoose.model("Tournament", TournamentSchema);

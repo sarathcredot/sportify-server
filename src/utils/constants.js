@@ -129,6 +129,12 @@ const TEMPLATE_TYPES = {
 
 const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
 
+const PLANS_TYPES = {
+  STARTER: "starter_plan",
+  BASIC: "basic_plan",
+  PRO: "pro_plan",
+};
+
 // Other constants
 const OTP_LENGTH = 5;
 const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates"];
@@ -148,13 +154,13 @@ const ALLOWED_VIDEO_TYPES = [
 ];
 
 
-const ORGANISER_NOTIFICATION_TYPE = [
-
+const NOTIFICATION_TYPES = [
   "player_register",
   "team_register",
   "auction_reminder",
   "tournament_reminder"
 ]
+
 module.exports = {
   OTP_LENGTH,
   SPORT_TYPES,
@@ -193,5 +199,7 @@ module.exports = {
   ALLOWED_VIDEO_TYPES,
 
   TEMPLATE_TYPES,
-  ORGANISER_NOTIFICATION_TYPE
+  NOTIFICATION_TYPES,
+
+  PLANS_TYPES
 };

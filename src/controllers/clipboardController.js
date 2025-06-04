@@ -12,10 +12,11 @@ class ClipboardController extends BaseController {
 
   async getAllClipBoards(req, res) {
     try {
-      const { type, category } = req.query;
+      const { type, category, availableForPlan } = req.query;
       const clipBoards = await clipboardService.getAllClipboards(
         type,
-        category
+        category,
+        availableForPlan
       );
       this.handleSuccess(res, clipBoards, "Clip boards retrieved successfully");
     } catch (error) {
