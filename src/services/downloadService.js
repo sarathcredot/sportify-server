@@ -1,16 +1,53 @@
-
-
 const Players = require('../models/Player');
+const TournamentPlayers = require('../models/TournamentPlayers');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+const axios = require('axios');
+const mongoose = require('mongoose');
+const { createCanvas, loadImage } = require('canvas');
+
+// Add this
+
 module.exports = {
 
-
-    downloadTournamentPlayers: () => {
-
+    downloadTournamentPlayers: (tournamentId) => {
         return new Promise(async (resolve, reject) => {
             try {
+                const players = await TournamentPlayers.aggregate([
+                    {
+                        $match: { tournament: new mongoose.Types.ObjectId(tournamentId) }
+                    },
+                    {
+                        $lookup: {
+                            from: "players",
+                            localField: 'player',
+                            foreignField: '_id',
+                            as: 'playerDetails'
+                        }
+                    },
+                    {
+                        $unwind: '$playerDetails'
+                    },
+                    {
+                        $project: {
+                            _id: 0,
+                            playerId: '$playerDetails._id',
+                            firstName: '$playerDetails.firstName',
+                            lastName: '$playerDetails.lastName',
+                            email: '$playerDetails.email',
+                            contactNumber: '$playerDetails.contactNumber',
+                            dateOfBirth: '$playerDetails.dateOfBirth',
+                            photoUrl: '$playerDetails.photoUrl',
+                            sport: '$playerDetails.sport',
+                            playerCategory: '$playerDetails.playerCategory',
+                            cricHeroesId: '$playerDetails.cricHeroesId'
+                        }
+                    }
+                ])
 
-                const players = await Players.find().lean();
+
+
+                console.log("downloadTournamentPlayers players", players);
+
                 const pdfDoc = await PDFDocument.create();
                 const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
                 const usersPerPage = 10;
@@ -35,7 +72,7 @@ module.exports = {
                     const baseX = 50;
 
                     const slice = players.slice(i * usersPerPage, (i + 1) * usersPerPage);
-                    slice.forEach((player, index) => {
+                    for (const [index, player] of slice.entries()) {
                         const y = startY - index * rowHeight;
 
                         // Card-like background
@@ -49,14 +86,48 @@ module.exports = {
                             borderWidth: 0.5,
                         });
 
+                        // --- Add player image from local folder ---
+                        if (player.photoUrl) {
+                            try {
+
+                                const imageUrl = `${process.env.BASE_URL}/media/${player.photoUrl}`;
+                                console.log("Image URL:", imageUrl);
+
+                                const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+                                const imageBuffer = response.data;
+
+                                let imageEmbed;
+
+                                if (player.photoUrl.toLowerCase().endsWith('.png')) {
+                                    imageEmbed = await pdfDoc.embedPng(imageBuffer);
+                                } else if (player.photoUrl.toLowerCase().endsWith('.jpg') || player.photoUrl.toLowerCase().endsWith('.jpeg')) {
+                                    imageEmbed = await pdfDoc.embedJpg(imageBuffer);
+                                }
+                                else {
+                                    imageEmbed = await pdfDoc.embedJpg(imageBuffer);
+                                }
+                                page.drawImage(imageEmbed, {
+                                    x: baseX,
+                                    y: y - 30,
+                                    width: 40,
+                                    height: 40,
+                                });
+                            } catch (imgErr) {
+                                // Ignore image errors, continue
+                            }
+                        }
+
+
+
+
+                        // --- End image ---
+
                         const fullName = `${player.firstName} ${player.lastName}`;
                         const dateOfBirth = new Date(player.dateOfBirth).toLocaleDateString();
                         const cricId = player.cricHeroesId || "N/A";
 
-                        
-
                         page.drawText(`${index + 1 + i * usersPerPage}. ${fullName} (${player.sport})`, {
-                            x: baseX,
+                            x: baseX + 50, // Shift right to make space for image
                             y: y,
                             size: 12,
                             font,
@@ -64,7 +135,7 @@ module.exports = {
                         });
 
                         page.drawText(`DOB: ${dateOfBirth} | Category: ${player.playerCategory}`, {
-                            x: baseX,
+                            x: baseX + 50,
                             y: y - 15,
                             size: 10,
                             font,
@@ -72,27 +143,27 @@ module.exports = {
                         });
 
                         page.drawText(`Email: ${player.email} | Phone: ${player.contactNumber} | CricID: ${cricId}`, {
-                            x: baseX,
+                            x: baseX + 50,
                             y: y - 30,
                             size: 9,
                             font,
                             color: rgb(0.2, 0.2, 0.2),
                         });
-                    });
+                    }
                 }
 
                 const pdfBytes = await pdfDoc.save();
                 resolve(Buffer.from(pdfBytes));
-
-
             } catch (error) {
-               
-               
                 reject(error);
-
-
             }
         });
-
     }
+
+
+
+   
+
+
+
 }

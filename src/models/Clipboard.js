@@ -14,6 +14,7 @@ const Clipboard = new mongoose.Schema({
     enum: ["logo", "banner"],
     required: true,
   },
+
 }, {
   timestamps: true
 });
