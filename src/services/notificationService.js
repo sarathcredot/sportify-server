@@ -47,7 +47,7 @@ module.exports = {
 
                             const notification = {
 
-                                organiserId,
+                               user: organiserId,
                                 tournamentId: elm._id,
                                 logoUrl: elm.logoUrl,
                                 msg: "Reminder: Your tournament " + elm.name + " is starting soon.",
@@ -93,7 +93,7 @@ module.exports = {
 
                                 const notification = {
 
-                                    organiserId,
+                                   user: organiserId,
                                     tournamentId: elm._id,
                                     logoUrl: elm.logoUrl,
                                     msg: "Reminder: Your auction for tournament " + elm.name + " is starting soon.",
@@ -207,7 +207,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             try {
                 const result = await Notification.updateMany(
-                    { organiserId, isViewed: false },
+                    { user:organiserId, isViewed: false },
                     { $set: { isViewed: true } }
                 );
 
