@@ -25,9 +25,11 @@ module.exports = {
     },
 
     notificationAllReadByOrganizer: async (req, res) => {
+        console.log("all read by organizer");
         try {
             const user = req.user;
-            const result = await notificationService.notificationAllReadByOrganizer(user._id);
+            console.log('User ID:', user?._id);
+            const result = await notificationService.notificationAllReadByOrganizer(user?._id);
             handleSuccess(res, result, 'All notifications marked as read');
         } catch (error) {
             handleError(res, error);

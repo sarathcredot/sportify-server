@@ -205,6 +205,7 @@ module.exports = {
 
     notificationAllReadByOrganizer: (organiserId) => {
         return new Promise(async (resolve, reject) => {
+            console.log("Marking all notifications as read for organiser:", organiserId);
             try {
                 const result = await Notification.updateMany(
                     { user:organiserId, isViewed: false },
