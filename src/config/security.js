@@ -13,11 +13,13 @@ const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = [
       "https://sportifypro.vercel.app",
+      "http://localhost:3000",
       "http://192.168.29.18:3000",
       "https://6sm9fkjp-3000.inc1.devtunnels.ms",
-      "http://localhost:5000",
-      "http://localhost:3000",
-      "https://sportify-pro-admin-dashboard.vercel.app"
+      "https://5pf6w2vt-3000.inc1.devtunnels.ms",
+      "https://sportify-pro-admin.vercel.app",
+      "https://sportify-pro-admin-dashboard.vercel.app",
+      "https://sportify-pro-admin-dashboard-green.vercel.app"
     ];
 
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -31,7 +33,7 @@ const corsOptions = {
 
     return callback(null, true);
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   exposedHeaders: ["Content-Range", "X-Content-Range"],
   credentials: true,
