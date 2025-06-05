@@ -7,6 +7,7 @@ const {
   ALLOWED_IMAGE_TYPES,
   ALLOWED_VIDEO_TYPES,
 } = require("../utils/constants");
+const sharp = require("sharp");
 
 const router = express.Router();
 
@@ -43,7 +44,20 @@ router.post("/", imageUpload.single("media"), async (req, res) => {
     const uploadFolder =
       type && ALLOWED_UPLOAD_FOLDERS.includes(type) ? type : "images";
 
-    const fileUrl = await uploadFile(req.file, uploadFolder);
+    let fileToUpload = req.file;
+
+    // Convert webp to jpeg if needed
+    if (req.file.mimetype === "image/webp") {
+      const jpegBuffer = await sharp(req.file.buffer).jpeg().toBuffer();
+      fileToUpload = {
+        ...req.file,
+        buffer: jpegBuffer,
+        mimetype: "image/jpeg",
+        originalname: req.file.originalname.replace(/\.webp$/i, ".jpeg"),
+      };
+    }
+
+    const fileUrl = await uploadFile(fileToUpload, uploadFolder);
 
     res.json(
       ResponseHandler.success("File uploaded successfully", { imageUrl: fileUrl })
