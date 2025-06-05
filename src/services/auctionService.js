@@ -9,6 +9,7 @@ const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS, CONCEALED_BID_REQUEST_STATUS
 const { NotFoundError, BadRequestError } = require("../utils/errors");
 const mongoose = require('mongoose');
 const { getIO } = require('../config/socket');
+const { info } = require("winston");
 
 
 class AuctionService {
@@ -245,6 +246,13 @@ class AuctionService {
       if (players.length === 0) {
         throw new BadRequestError('No players to bid');
       }
+
+      const tournament = await Tournament.findById(auction.tournament);
+      const teamsCount = await TournamentTeams.countDocuments({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
+      if (players.length < tournament.settings.maxPlayersPerTeam * teamsCount) {
+        throw new BadRequestError('Not enough players to start auction');
+      }
+
       const randomPlayer = players[Math.floor(Math.random() * players.length)];
       auction.currentBiddingPlayer = randomPlayer._id;
       await auction.save({ session, new: true });
@@ -256,7 +264,6 @@ class AuctionService {
       io.to(`${auction._id}-organizer-live-preview`).emit('auction-started', {
         message: `auction started`,
         auctionId: auction._id,
-
       });
 
       return updatedAuction;

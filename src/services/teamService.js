@@ -10,12 +10,10 @@ const { sendEmail } = require("./emailService");
 
 class TeamService {
 
-  async createTeam(teamData, tournamentId) {
-    console.log("tournemant cretae func", tournamentId)
+  async createTeam(teamData, tournamentId, status = TEAM_STATUS.APPROVED) {
     const tournament = await Tournament.findById(tournamentId);
-    //  console.log("tournemt",tournament)
-    if (!tournament) {
 
+    if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
@@ -23,15 +21,21 @@ class TeamService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    const maxTeamAllowed = tournament?.settings?.maxTeamAllowed
+    const existingTeam = await TournamentTeams.findOne({ tournament: tournamentId })
+      .populate({
+        path: 'team',
+        match: { manager: teamData.manager }
+      });
+    if (existingTeam) {
+      throw new ValidationError("You have already registered a team for this tournament");
+    }
+
+    const maxTeamAllowed = tournament?.settings?.maxTeamAllowed;
     const totalTeams = await TournamentTeams.find({ tournament: tournamentId, status: TEAM_STATUS.APPROVED })
 
     if (totalTeams.length === maxTeamAllowed) {
-
       throw new NotFoundError("Maximum allowed teams reached");
     }
-
-
 
     const team = new Team({
       ...teamData,
@@ -46,13 +50,13 @@ class TeamService {
       tournament: tournament._id,
       teamId: teamId,
       team: team._id,
-      status: TEAM_STATUS.APPROVED,
+      status: status,
       remainingPoints: tournament.biddingPointPerTeam,
       name: teamData.name,
       phoneNumber: teamData.phoneNumber,
       email: teamData.email,
     });
-    await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
+    // await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
 
     return team;
   }
@@ -140,30 +144,28 @@ class TeamService {
   }
 
   async registerTeamWithManager(teamData) {
-    const phoneNumber = parsePhoneNumber(teamData.phoneNumber, "IN");
+    // const phoneNumber = parsePhoneNumber(teamData.phoneNumber, "IN");
 
-    if (!phoneNumber.isValid()) {
-      throw new ValidationError("Invalid phone number");
-    }
+    // if (!phoneNumber.isValid()) {
+    //   throw new ValidationError("Invalid phone number");
+    // }
 
-    let user = await authService.getUserByPhoneNumberAndRole(
-      phoneNumber.nationalNumber,
-      phoneNumber.countryCallingCode,
-      ROLES.TEAM_MANAGER
-    );
+    // let user = await authService.getUserByPhoneNumberAndRole(
+    //   phoneNumber.nationalNumber,
+    //   phoneNumber.countryCallingCode,
+    //   ROLES.TEAM_MANAGER
+    // );
 
-    console.log(user, 'USER')
+    // if (!user) {
+    //   user = await this.createTeamManager({
+    //     name: teamData.managerName,
+    //     phoneNumber: phoneNumber.nationalNumber,
+    //     countryCode: phoneNumber.countryCallingCode,
+    //     email: teamData.email,
+    //   });
+    // }
 
-    if (!user) {
-      user = await this.createTeamManager({
-        name: teamData.managerName,
-        phoneNumber: phoneNumber.nationalNumber,
-        countryCode: phoneNumber.countryCallingCode,
-        email: teamData.email,
-      });
-    }
-
-    return await this.registerTeam(teamData, teamData.tournamentId, user);
+    return await this.createTeam(teamData, teamData.tournamentId, TEAM_STATUS.PENDING);
   }
 
   async generateTeamId(tournament) {

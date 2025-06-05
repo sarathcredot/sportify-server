@@ -10,6 +10,20 @@ class ClipboardController extends BaseController {
     this.deleteClipboardByIds = this.deleteClipBoardByIds.bind(this);
   }
 
+  async getAllClipBoardsForUser(req, res) {
+    try {
+      const { type, category } = req.query;
+      const clipBoards = await clipboardService.getAllClipboardsForUser(
+        req.user.id,
+        type,
+        category
+      );
+      this.handleSuccess(res, clipBoards, "Clip boards retrieved successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
   async getAllClipBoards(req, res) {
     try {
       const { type, category, availableForPlan } = req.query;

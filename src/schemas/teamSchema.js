@@ -25,6 +25,14 @@ const updateTeamSchema = z.object({
   }),
 }).openapi();
 
+const registerTeamSchema = z.object({
+  name: z.string().nonempty("Team name is required"),
+  logoUrl: z.string().nonempty("Team photo is required"),
+  phoneNumber: z.string().nonempty("Contact number is required"),
+  email: z.string().email("Invalid email address").optional(),
+  location: z.string().optional(),
+}).openapi();
+
 const approveTeamSchema = z.object({
   approve: z.boolean(),
 }).openapi();
@@ -37,5 +45,6 @@ module.exports = {
   createTeamSchema,
   approveTeamSchema,
   refundTeamSchema,
-  updateTeamSchema
+  updateTeamSchema,
+  registerTeamSchema
 };

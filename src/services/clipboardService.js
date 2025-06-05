@@ -6,6 +6,22 @@ class ClipboardService {
     return clipBoard;
   }
 
+  async getAllClipboardsForUser(userId, type, category) {
+    const query = {};
+    if (type) {
+      query.type = type;
+    }
+    if (category) {
+      query.category = category;
+    }
+    // TODO: get plan for the user and check if it is available for the plan
+    // if (availableForPlan) {
+    //   query.availableForPlan = availableForPlan;
+    // }
+    const clipBoards = await Clipboard.find(query);
+    return clipBoards;
+  }
+
   async getAllClipboards(type, category, availableForPlan) {
     const query = {};
     if (type) {

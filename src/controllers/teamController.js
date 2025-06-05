@@ -38,6 +38,7 @@ class TeamController extends BaseController {
       const teamData = {
         ...req.body,
         tournamentId: req.params.tournamentId,
+        manager: req.user.id,
       };
 
       const team = await teamService.registerTeamWithManager(teamData);
