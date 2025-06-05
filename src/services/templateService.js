@@ -3,6 +3,8 @@ const puppeteer = require("puppeteer");
 const handlebars = require("handlebars");
 const fs = require("fs").promises;
 const path = require("path");
+const _ = require("lodash");
+const { uploadThumbnail } = require("./uploadService");
 
 class TemplateService {
   getTemplateFields(templateStr) {
@@ -26,20 +28,70 @@ class TemplateService {
     return Array.from(fields);
   }
 
+  async renderTemplateWithPlaceholders(templateString, placeholderData) {
+    const template = handlebars.compile(templateString);
+    return template(placeholderData);
+  }
+
+  async generateThumbnailFromHTMLContent(htmlContent) {
+  const browser = await puppeteer.launch({
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+
+  const folder = "thumbnails";
+
+  const page = await browser.newPage();
+  await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+  const { fileName, filePath } = await uploadThumbnail(folder);
+
+  await page.screenshot({
+    path: filePath,
+    fullPage: true,
+  });
+
+  await browser.close();
+
+  return `${folder}/${fileName}`;
+}
+
   async createTemplate(data) {
-    const { templateType, templateData, fields, templateFileUrl, availableForPlan } = data;
+    const {
+      templateType,
+      templateData,
+      fields,
+      templateFileUrl,
+      availableForPlan,
+    } = data;
     if (!templateType || !templateData) {
       throw new Error("Template type and template data are required");
     }
 
     const templateFields = this.getTemplateFields(templateData);
-    const obj = { templateType, templateData, templateFileUrl, availableForPlan };
+    const obj = {
+      templateType,
+      templateData,
+      templateFileUrl,
+      availableForPlan,
+    };
 
     if (fields && Array.isArray(fields) && fields.length > 0) {
       obj.fields = fields;
     }
     if (templateFields && templateFields.length > 0) {
       obj.fields = { ...obj.fields, ...templateFields };
+    }
+
+    let thumbnail = null;
+
+    if (templateFileUrl) {
+      let templateFilePath = `${process.env.BASE_URL}/media/${templateFileUrl}`;
+      console.log(templateFilePath, "TEMPLATE FILE PATH (URL)");
+      thumbnail = await this.generateThumbnailFromHTMLContent(templateFilePath);
+    }
+
+    if (thumbnail) {
+      obj.thumbnail = thumbnail;
     }
 
     const template = await Template.create(obj);

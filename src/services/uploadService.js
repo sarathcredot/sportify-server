@@ -26,4 +26,18 @@ const uploadFile = async (file, folder) => {
     return `${folder}/${fileKey}`;
 };
 
-module.exports = { uploadFile };
+const uploadThumbnail = async (folder = "thumbnails") => {
+    if (!folder) throw new Error("Folder name is required");
+
+    const uploadDir = path.resolve("media", folder);
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+    
+      const fileName = `${uuidv4()}-thumbnail.png`;
+      const filePath = path.join(uploadDir, fileName);
+
+    return { fileName, filePath };
+};
+
+module.exports = { uploadFile, uploadThumbnail };
