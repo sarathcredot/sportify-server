@@ -6,7 +6,6 @@ const validate = (schema) => (req, res, next) => {
   console.log("sponser", req.body)
 
   try {
-    console.log(req.body, "REQUEST BODY IN VALIDATE MIDDLEWARE")
     schema.parse(req.body);
     next();
   } catch (error) {

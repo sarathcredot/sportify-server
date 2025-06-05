@@ -34,26 +34,72 @@ class TemplateService {
   }
 
   async generateThumbnailFromHTMLContent(htmlContent) {
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
 
-  const folder = "thumbnails";
+    const folder = "thumbnails";
+    const page = await browser.newPage();
 
-  const page = await browser.newPage();
-  await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+    // Set content and wait for network to be idle
+    await page.setContent(htmlContent, { waitUntil: "networkidle2" });
 
-  const { fileName, filePath } = await uploadThumbnail(folder);
+    // ✅ Improved image loading and fallback handling
+    await page.evaluate(async () => {
+      const fallbackUrl =
+        "https://media.istockphoto.com/id/637332860/photo/multi-sports-proud-players-collage-on-grand-arena.jpg?s=612x612&w=0&k=20&c=mb1qZHDluXcDAp2_hFVHidFbfvCQetRu8Dbs3jPv4mA=";
 
-  await page.screenshot({
-    path: filePath,
-    fullPage: true,
-  });
+      const images = Array.from(document.querySelectorAll("img"));
 
-  await browser.close();
+      // Wait for all images to load or timeout
+      await Promise.all(
+        images.map((img) => {
+          return new Promise((resolve) => {
+            // If already complete
+            if (img.complete && img.naturalWidth !== 0) {
+              return resolve();
+            }
 
-  return `${folder}/${fileName}`;
-}
+            // Handle successful load
+            img.onload = resolve;
+
+            // Handle error
+            img.onerror = () => {
+              img.src = fallbackUrl;
+              console.log("Error caught - fallback used");
+              // Wait for fallback to load
+              img.onload = resolve;
+            };
+
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              if (!img.complete || img.naturalWidth === 0) {
+                img.src = fallbackUrl;
+                console.log("Timeout - using fallback image");
+              }
+              resolve();
+            }, 5000);
+          });
+        })
+      );
+    });
+
+    // Alternative to waitForTimeout - works in all Puppeteer versions
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Save screenshot
+    const { fileName, filePath } = await uploadThumbnail(folder);
+
+    await page.screenshot({
+      path: filePath,
+      fullPage: true,
+      captureBeyondViewport: true,
+    });
+
+    await browser.close();
+
+    return `${folder}/${fileName}`;
+  }
 
   async createTemplate(data) {
     const {
@@ -78,16 +124,39 @@ class TemplateService {
     if (fields && Array.isArray(fields) && fields.length > 0) {
       obj.fields = fields;
     }
+
+    const placeholderData = {};
+
     if (templateFields && templateFields.length > 0) {
       obj.fields = { ...obj.fields, ...templateFields };
+      templateFields.forEach((field) => {
+        const lowerField = field.toLowerCase();
+        if (
+          lowerField.includes("image") ||
+          lowerField.includes("img") ||
+          lowerField.includes("logo")
+        ) {
+          placeholderData[field] =
+            "https://lh5.googleusercontent.com/proxy/t08n2HuxPfw8OpbutGWjekHAgxfPFv-pZZ5_-uTfhEGK8B5Lp-VN4VjrdxKtr8acgJA93S14m9NdELzjafFfy13b68pQ7zzDiAmn4Xg8LvsTw1jogn_7wStYeOx7ojx5h63Gliw";
+        } else {
+          placeholderData[field] = `[Sample ${_.startCase(field)}]`;
+        }
+      });
+    }
+
+    let renderedHTML = null;
+
+    if (placeholderData && Object.keys(placeholderData).length > 0) {
+      renderedHTML = await this.renderTemplateWithPlaceholders(
+        templateData,
+        placeholderData
+      );
     }
 
     let thumbnail = null;
 
-    if (templateFileUrl) {
-      let templateFilePath = `${process.env.BASE_URL}/media/${templateFileUrl}`;
-      console.log(templateFilePath, "TEMPLATE FILE PATH (URL)");
-      thumbnail = await this.generateThumbnailFromHTMLContent(templateFilePath);
+    if (renderedHTML) {
+      thumbnail = await this.generateThumbnailFromHTMLContent(renderedHTML);
     }
 
     if (thumbnail) {
