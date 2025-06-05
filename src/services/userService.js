@@ -2,13 +2,13 @@ const User = require("../models/User");
 
 class UserService {
   async getAllUsersPaginated(search, page, limit, role) {
-
     const query = {};
 
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { fullName: { $regex: search, $options: "i" } },
+        { phoneNumber: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -18,9 +18,15 @@ class UserService {
 
     const options = {
       sort: { createdAt: -1 },
-      skip: (page - 1) * limit,
-      limit: parseInt(limit),
     };
+
+    if(!search){
+      options.skip = (page - 1) * limit;
+      options.limit = parseInt(limit);
+    }else{
+      options.skip = 0; // No pagination if search is provided
+      options.limit = 10; // No limit if search is provided
+    }
 
     const users = await User.find(query, null, options);
     const total = await User.countDocuments(query);
@@ -50,7 +56,7 @@ class UserService {
     try {
       const query = { _id: id };
       if (role) {
-          query.role = role;
+        query.role = role;
       }
       const user = await User.findOneAndUpdate(query, data, { new: true });
       return user;
@@ -62,8 +68,8 @@ class UserService {
   async deleteUserById(id, role) {
     try {
       const query = { _id: id };
-    if (role) {
-      query.role = role;
+      if (role) {
+        query.role = role;
       }
       const user = await User.findOneAndDelete(query);
       return user;
