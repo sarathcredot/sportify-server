@@ -78,7 +78,7 @@ class TemplateService {
                 console.log("Timeout - using fallback image");
               }
               resolve();
-            }, 5000);
+            }, 8000);
           });
         })
       );
