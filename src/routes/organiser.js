@@ -4,6 +4,7 @@ const checkIsOrganiser = require('../middleware/checkIsOrganiser');
 const router = express.Router();
 const tournamentsRouter = require('./organiser/tournament');
 const auctionRouter = require('./organiser/auction');
+const bankAccountRouter = require('./organiser/bankAccount');
 const notificationRouter = require("./organiser/notification")
 const clipBoardRouter = require("./organiser/clipboard")
 const downloadRouter=require("./organiser/download")
@@ -36,6 +37,7 @@ router.use('/auction', auctionRouter);
 router.use("/clipboards", clipBoardRouter)
 router.use("/notification", notificationRouter)
 router.use("/document-download",downloadRouter)
+router.use('/organizer-bank-account',bankAccountRouter);
 
 /**
  * @swagger
