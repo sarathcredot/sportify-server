@@ -8,10 +8,14 @@ const orderSchema = new mongoose.Schema(
       required: true,
       enum: Object.values(ORDER_TYPE),
     },
-    status: {
+    orderStatus: {
       type: String,
       default: ORDER_STATUS.PENDING,
       enum: Object.values(ORDER_STATUS),
+    },
+    isUsed: {
+      type: Boolean,
+      default: false,
     },
     paymentDetails: {
       paymentId: {
@@ -42,7 +46,6 @@ const orderSchema = new mongoose.Schema(
     tournament: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Tournament",
-      required: true,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -58,11 +61,15 @@ const orderSchema = new mongoose.Schema(
 // ✅ Add conditional validation
 orderSchema.pre("validate", function (next) {
   if (this.type === ORDER_TYPE.AUCTION_PLAN && !this.auctionPlan) {
-    return next(new Error("auctionPlan is required for auction_plan orders"));
+    return next(new Error("Auction Plan is required !"));
   }
 
   if (this.type === ORDER_TYPE.POSTER_PLAN && !this.posterPlan) {
-    return next(new Error("posterPlan is required for poster_plan orders"));
+    return next(new Error("Poster Plan is required !"));
+  }
+
+  if (this.type === ORDER_TYPE.POSTER_PLAN && !this.tournament) {
+    return next(new Error("Tournament is required !"));
   }
 
   next();
