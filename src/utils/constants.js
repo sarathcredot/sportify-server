@@ -137,7 +137,7 @@ const PLANS_TYPES = {
 
 // Other constants
 const OTP_LENGTH = 5;
-const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates"];
+const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates", "thumbnails"];
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/svg+xml",
