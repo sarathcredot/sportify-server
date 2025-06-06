@@ -271,7 +271,7 @@ class TemplateService {
 
       // Return the URL
       return {
-        url: `/media/posters/${filename}`,
+        url: `/posters/${filename}`,
         filename,
       };
     } finally {
