@@ -37,7 +37,7 @@ router.use('/auction', auctionRouter);
 router.use("/clipboards", clipBoardRouter)
 router.use("/notification", notificationRouter)
 router.use("/document-download",downloadRouter)
-router.use('/organizer-bank-account',bankAccountRouter);
+router.use('/bank-account',bankAccountRouter);
 
 /**
  * @swagger
