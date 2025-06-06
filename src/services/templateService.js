@@ -44,40 +44,44 @@ class TemplateService {
     // Set content and wait for network to be idle
     await page.setContent(htmlContent, { waitUntil: "networkidle2" });
 
+    // ✅ Improved image loading and fallback handling
     await page.evaluate(async () => {
       const fallbackUrl =
-        "https://media.istockphoto.com/id/637332860/photo/multi-sports-proud-players-collage-on-grand-arena.jpg";
-      const MAX_ATTEMPTS = 5; // Maximum recursion depth
-      const RETRY_DELAY = 4000; // 4 seconds between checks
-
-      async function waitForImage(img, attempt = 0) {
-        // Base case 1: Image is fully loaded
-        if (img.complete && img.naturalWidth > 0) {
-          return true;
-        }
-
-        // Base case 2: Maximum attempts reached
-        if (attempt >= MAX_ATTEMPTS) {
-          console.log(`Final attempt failed for: ${img.src}`);
-          img.src = fallbackUrl;
-          return false;
-        }
-
-        // Base case 3: Image error occurred
-        if (img.naturalWidth === 0 && img.complete) {
-          console.log(`Error detected for: ${img.src}`);
-          img.src = fallbackUrl;
-          return waitForImage(img, attempt + 1); // Re-check fallback
-        }
-
-        // Recursive case: Image is still loading
-        console.log(`Attempt ${attempt + 1} for: ${img.src}`);
-        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY));
-        return waitForImage(img, attempt + 1);
-      }
+        "https://media.istockphoto.com/id/637332860/photo/multi-sports-proud-players-collage-on-grand-arena.jpg?s=612x612&w=0&k=20&c=mb1qZHDluXcDAp2_hFVHidFbfvCQetRu8Dbs3jPv4mA=";
 
       const images = Array.from(document.querySelectorAll("img"));
-      await Promise.all(images.map((img) => waitForImage(img)));
+
+      // Wait for all images to load or timeout
+      await Promise.all(
+        images.map((img) => {
+          return new Promise((resolve) => {
+            // If already complete
+            if (img.complete && img.naturalWidth !== 0) {
+              return resolve();
+            }
+
+            // Handle successful load
+            img.onload = resolve;
+
+            // Handle error
+            img.onerror = () => {
+              img.src = fallbackUrl;
+              console.log("Error caught - fallback used");
+              // Wait for fallback to load
+              img.onload = resolve;
+            };
+
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              if (!img.complete || img.naturalWidth === 0) {
+                img.src = fallbackUrl;
+                console.log("Timeout - using fallback image");
+              }
+              resolve();
+            }, 15000);
+          });
+        })
+      );
     });
 
     // Alternative to waitForTimeout - works in all Puppeteer versions
