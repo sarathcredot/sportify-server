@@ -1,0 +1,78 @@
+const mongoose = require("mongoose");
+const { ORDER_STATUS, ORDER_TYPE } = require("../utils/constants");
+
+const orderSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      required: true,
+      enum: Object.values(ORDER_TYPE),
+    },
+    orderStatus: {
+      type: String,
+      default: ORDER_STATUS.PENDING,
+      enum: Object.values(ORDER_STATUS),
+    },
+    isUsed: {
+      type: Boolean,
+      default: false,
+    },
+    paymentDetails: {
+      paymentId: {
+        type: String,
+      },
+      status: {
+        type: String,
+        enum: Object.values(ORDER_STATUS),
+      },
+      paymentMethod: {
+        type: String,
+      },
+      amount: {
+        type: Number,
+      },
+      currency: {
+        type: String,
+      },
+    },
+    auctionPlan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "AuctionPlan",
+    },
+    posterPlan: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PosterPlan",
+    },
+    tournament: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tournament",
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+// ✅ Add conditional validation
+orderSchema.pre("validate", function (next) {
+  if (this.type === ORDER_TYPE.AUCTION_PLAN && !this.auctionPlan) {
+    return next(new Error("Auction Plan is required !"));
+  }
+
+  if (this.type === ORDER_TYPE.POSTER_PLAN && !this.posterPlan) {
+    return next(new Error("Poster Plan is required !"));
+  }
+
+  if (this.type === ORDER_TYPE.POSTER_PLAN && !this.tournament) {
+    return next(new Error("Tournament is required !"));
+  }
+
+  next();
+});
+
+module.exports = mongoose.model("Order", orderSchema);
