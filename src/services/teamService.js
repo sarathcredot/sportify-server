@@ -21,15 +21,23 @@ class TeamService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    // const existingTeam = await TournamentTeams.findOne({ tournament: tournamentId })
-    //   .populate({
-    //     path: 'team',
-    //     match: { manager: teamData.manager }
-    //   });
-    //   console.log("team exit",existingTeam)
-    // if (existingTeam) {
-    //   throw new ValidationError("You have already registered a team for this tournament");
-    // }
+
+    const managerTeam = await Team.find({ manager: teamData.manager });
+    console.log("managerteam data", managerTeam)
+
+    if (managerTeam) {
+      for (let elm of managerTeam) {
+
+        const exitingManager = await TournamentTeams.findOne({ tournament: tournamentId, team: elm?._id })
+
+        if (exitingManager) {
+
+          throw new ValidationError("You have already registered a team for this tournament");
+
+        }
+      }
+    }
+
 
     const maxTeamAllowed = tournament?.settings?.maxTeamAllowed;
     const totalTeams = await TournamentTeams.find({ tournament: tournamentId, status: TEAM_STATUS.APPROVED })

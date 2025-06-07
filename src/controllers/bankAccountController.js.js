@@ -10,8 +10,9 @@ class BankAccountController extends BaseController {
         super()
         this.getOrganiserBankAccount = this.getOrganiserBankAccount.bind(this);
         this.addBankAccount = this.addBankAccount.bind(this)
-        this.editBankAccount=this.editBankAccount.bind(this)
-        
+        this.updateBankAccount = this.updateBankAccount.bind(this)
+        this.deleteBankAccount = this.deleteBankAccount.bind(this)
+
 
     }
 
@@ -44,12 +45,12 @@ class BankAccountController extends BaseController {
         }
     }
 
-    async editBankAccount(req, res) {
+    async updateBankAccount(req, res) {
 
 
         try {
             const user = req.user
-            const result = await bankAccountServic.editBankAccount(user?.id, req.body)
+            const result = await bankAccountServic.updateBankAccount(user?.id, req.body)
             this.handleSuccess(res, result, "Bank account edited successfully");
 
 
@@ -59,7 +60,7 @@ class BankAccountController extends BaseController {
 
         }
     }
-    
+
     async deleteBankAccount(req, res) {
 
         try {

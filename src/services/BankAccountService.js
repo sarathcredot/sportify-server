@@ -38,7 +38,7 @@ class BankAccountService {
         }
     }
 
-    async editBankAccount(organiserId, accountData) {
+    async updateBankAccount(organiserId, accountData) {
 
         try {
             const bankAccount = await BankAccount.findOneAndUpdate(
