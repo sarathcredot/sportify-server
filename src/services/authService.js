@@ -98,7 +98,9 @@ class AuthService {
           fullName: user.fullName,
           phoneNumber: user.phoneNumber,
           countryCode: user.countryCode,
-          role: user.role
+          role: user.role,
+          email: user.email,
+          photoUrl: user.photoUrl
         }
       };
     } catch (error) {
@@ -183,6 +185,20 @@ class AuthService {
 
   async getUserByPhoneNumberAndRole(phoneNumber, countryCode, role) {
     const user = await User.findOne({ phoneNumber: phoneNumber, countryCode: countryCode, role: role });
+    return user;
+  }
+
+  async updateUser(id, userData) {
+    let data = {
+      fullName: userData.fullName,
+    }
+    if (userData.email) {
+      data.email = userData.email;
+    }
+    if (userData.photoUrl) {
+      data.photoUrl = userData.photoUrl;
+    }
+    const user = await User.findByIdAndUpdate(id, data, { new: true });
     return user;
   }
 }

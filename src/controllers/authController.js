@@ -93,3 +93,14 @@ exports.handleError = (res, message, error) => {
     ResponseHandler.error(message, error, statusCode)
   );
 }
+
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userData = req.body;
+    const result = await authService.updateUser(userId, userData);
+    res.json(ResponseHandler.success("User updated successfully", result, 200));
+  } catch (error) {
+    this.handleError(res, "User update failed", error);
+  }
+}
