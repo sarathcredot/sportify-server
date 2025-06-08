@@ -144,8 +144,24 @@ class AuthService {
     }
   }
 
-  async register(phoneNumber, countryCode, fullName) {
-    let user = await this.getUserByPhoneNumberAndRole(phoneNumber, countryCode, ROLES.ORGANISER);
+  async registerTeamManager(phoneNumber, countryCode, fullName) {
+    const user = await this.register(phoneNumber, countryCode, fullName, ROLES.TEAM_MANAGER);
+    const otp = this.generateOTP();
+    user.otpData = {
+      otp,
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+    };
+    await user.save();
+    await this.sendOTP(phoneNumber, countryCode, otp);
+    return user;
+  }
+
+  async registerOrganiser(phoneNumber, countryCode, fullName) {
+    return this.register(phoneNumber, countryCode, fullName, ROLES.ORGANISER);
+  }
+
+  async register(phoneNumber, countryCode, fullName, role) {
+    let user = await this.getUserByPhoneNumberAndRole(phoneNumber, countryCode, role);
     if (user) {
       throw new Error('User already exists');
     }
@@ -153,7 +169,7 @@ class AuthService {
       phoneNumber,
       countryCode,
       fullName,
-      role: ROLES.ORGANISER
+      role: role
     });
     await user.save();
     return user;
