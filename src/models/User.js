@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: function() {
+    required: function () {
       return this.role === ROLES.ADMIN;
     },
     unique: true,
@@ -18,22 +18,27 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
+    required: function () {
       return this.role === ROLES.ADMIN;
     },
     minlength: 6
   },
   phoneNumber: {
     type: String,
-    required: function() {
+    required: function () {
       return this.role !== ROLES.ADMIN;
     },
     unique: true,
     trim: true
   },
+  photoUrl: {
+
+    type: String
+
+  },
   countryCode: {
     type: String,
-    required: function() {
+    required: function () {
       return this.role !== ROLES.ADMIN;
     },
     trim: true

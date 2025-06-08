@@ -3,6 +3,8 @@ const puppeteer = require("puppeteer");
 const handlebars = require("handlebars");
 const fs = require("fs").promises;
 const path = require("path");
+const _ = require("lodash");
+const { uploadThumbnail } = require("./uploadService");
 
 class TemplateService {
   getTemplateFields(templateStr) {
@@ -26,20 +28,139 @@ class TemplateService {
     return Array.from(fields);
   }
 
+  async renderTemplateWithPlaceholders(templateString, placeholderData) {
+    const template = handlebars.compile(templateString);
+    return template(placeholderData);
+  }
+
+  async generateThumbnailFromHTMLContent(htmlContent) {
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    const folder = "thumbnails";
+    const page = await browser.newPage();
+
+    // Set content and wait for network to be idle
+    await page.setContent(htmlContent, { waitUntil: "networkidle2" });
+
+    // ✅ Improved image loading and fallback handling
+    await page.evaluate(async () => {
+      const fallbackUrl =
+        "https://media.istockphoto.com/id/637332860/photo/multi-sports-proud-players-collage-on-grand-arena.jpg?s=612x612&w=0&k=20&c=mb1qZHDluXcDAp2_hFVHidFbfvCQetRu8Dbs3jPv4mA=";
+
+      const images = Array.from(document.querySelectorAll("img"));
+
+      // Wait for all images to load or timeout
+      await Promise.all(
+        images.map((img) => {
+          return new Promise((resolve) => {
+            // If already complete
+            if (img.complete && img.naturalWidth !== 0) {
+              return resolve();
+            }
+
+            // Handle successful load
+            img.onload = resolve;
+
+            // Handle error
+            img.onerror = () => {
+              img.src = fallbackUrl;
+              console.log("Error caught - fallback used");
+              // Wait for fallback to load
+              img.onload = resolve;
+            };
+
+            // Timeout after 5 seconds
+            setTimeout(() => {
+              if (!img.complete || img.naturalWidth === 0) {
+                img.src = fallbackUrl;
+                console.log("Timeout - using fallback image");
+              }
+              resolve();
+            }, 15000);
+          });
+        })
+      );
+    });
+
+    // Alternative to waitForTimeout - works in all Puppeteer versions
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Save screenshot
+    const { fileName, filePath } = await uploadThumbnail(folder);
+
+    await page.screenshot({
+      path: filePath,
+      fullPage: true,
+      captureBeyondViewport: true,
+    });
+
+    await browser.close();
+
+    return `${folder}/${fileName}`;
+  }
+
   async createTemplate(data) {
-    const { templateType, templateData, fields, templateFileUrl, availableForPlan } = data;
+    const {
+      templateType,
+      templateData,
+      fields,
+      templateFileUrl,
+      availableForPlan,
+    } = data;
     if (!templateType || !templateData) {
       throw new Error("Template type and template data are required");
     }
 
     const templateFields = this.getTemplateFields(templateData);
-    const obj = { templateType, templateData, templateFileUrl, availableForPlan };
+    const obj = {
+      templateType,
+      templateData,
+      templateFileUrl,
+      availableForPlan,
+    };
 
     if (fields && Array.isArray(fields) && fields.length > 0) {
       obj.fields = fields;
     }
+
+    const placeholderData = {};
+
     if (templateFields && templateFields.length > 0) {
       obj.fields = { ...obj.fields, ...templateFields };
+      templateFields.forEach((field) => {
+        const lowerField = field.toLowerCase();
+        if (
+          lowerField.includes("image") ||
+          lowerField.includes("img") ||
+          lowerField.includes("logo")
+        ) {
+          placeholderData[field] =
+            "https://lh5.googleusercontent.com/proxy/t08n2HuxPfw8OpbutGWjekHAgxfPFv-pZZ5_-uTfhEGK8B5Lp-VN4VjrdxKtr8acgJA93S14m9NdELzjafFfy13b68pQ7zzDiAmn4Xg8LvsTw1jogn_7wStYeOx7ojx5h63Gliw";
+        } else {
+          placeholderData[field] = `[Sample ${_.startCase(field)}]`;
+        }
+      });
+    }
+
+    let renderedHTML = null;
+
+    if (placeholderData && Object.keys(placeholderData).length > 0) {
+      renderedHTML = await this.renderTemplateWithPlaceholders(
+        templateData,
+        placeholderData
+      );
+    }
+
+    let thumbnail = null;
+
+    if (renderedHTML) {
+      thumbnail = await this.generateThumbnailFromHTMLContent(renderedHTML);
+    }
+
+    if (thumbnail) {
+      obj.thumbnail = thumbnail;
     }
 
     const template = await Template.create(obj);
@@ -150,7 +271,7 @@ class TemplateService {
 
       // Return the URL
       return {
-        url: `/media/posters/${filename}`,
+        url: `/posters/${filename}`,
         filename,
       };
     } finally {

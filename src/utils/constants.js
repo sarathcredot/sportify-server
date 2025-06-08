@@ -135,9 +135,33 @@ const PLANS_TYPES = {
   PRO: "pro_plan",
 };
 
+const POSTER_PLAN_INCLUDES = {
+   tournament_announcement: "Tournament Announcement poster",
+   auction_announcement: "Auction Announcement poster",
+   match_day_announcement: "Match Day Announcement poster",
+   player_registration: "Player Registration poster",
+   team_registration: "Team Registration poster",
+   champions: "Champions Poster",
+   runners_up: "Runners up Poster",
+   each_game_mom: "Each game MOM poster",
+   each_game_pot: "Each game POT poster",
+   teams_poster: "Teams Poster",
+};
+
+const ORDER_TYPE = {
+  AUCTION_PLAN: "auction_plan",
+  POSTER_PLAN: "poster_plan",
+}
+
+const ORDER_STATUS = {
+  PENDING: "pending",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+}
+
 // Other constants
 const OTP_LENGTH = 5;
-const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates"];
+const ALLOWED_UPLOAD_FOLDERS = ["tournaments", "players", "teams", "images", "auction_gallery", "videos", "clipboards", "templates", "thumbnails"];
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/svg+xml",
@@ -201,5 +225,9 @@ module.exports = {
   TEMPLATE_TYPES,
   NOTIFICATION_TYPES,
 
-  PLANS_TYPES
+  PLANS_TYPES,
+  POSTER_PLAN_INCLUDES,
+
+  ORDER_TYPE,
+  ORDER_STATUS
 };

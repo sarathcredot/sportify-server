@@ -4,9 +4,11 @@ const checkIsOrganiser = require('../middleware/checkIsOrganiser');
 const router = express.Router();
 const tournamentsRouter = require('./organiser/tournament');
 const auctionRouter = require('./organiser/auction');
+const bankAccountRouter = require('./organiser/bankAccount');
 const notificationRouter = require("./organiser/notification")
 const clipBoardRouter = require("./organiser/clipboard")
 const downloadRouter=require("./organiser/download")
+const profileRouter=require("./organiser/profile")
 const TeamManagerController = require('../controllers/teamManagerController');
 const TemplateController = require('../controllers/templateController');
 const teamManagerController = new TeamManagerController();
@@ -31,11 +33,12 @@ router.use(checkIsOrganiser());
  */
 
 router.use('/tournaments', tournamentsRouter);
-
+router.use("/profile",profileRouter)
 router.use('/auction', auctionRouter);
 router.use("/clipboards", clipBoardRouter)
 router.use("/notification", notificationRouter)
 router.use("/document-download",downloadRouter)
+router.use('/bank-account',bankAccountRouter);
 
 /**
  * @swagger
