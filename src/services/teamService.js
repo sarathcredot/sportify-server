@@ -45,11 +45,13 @@ class TeamService {
       throw new ValidationError("Maximum allowed teams reached");
     }
 
-    const team = new Team({
-      ...teamData,
-    });
-
-    await team.save();
+    let team = await Team.findOne({ manager: teamData.manager });
+    if (!team) {
+      team = new Team({
+        ...teamData,
+      });
+      await team.save();
+    }
 
     const teamId = await this.generateTeamId(tournament);
 
@@ -174,7 +176,7 @@ class TeamService {
     //   });
     // }
 
-    return await this.createTeam(teamData.tournamentId, TEAM_STATUS.PENDING);
+    return await this.createTeam(teamData, teamData.tournamentId, TEAM_STATUS.PENDING);
   }
 
   async generateTeamId(tournament) {
