@@ -121,10 +121,13 @@ const TEMPLATE_TYPES = {
   TOURNAMENT_ANNOUNCEMENT: "tournament_announcement",
   TEAM_REGISTRATION: "team_registration",
   TEAM_POSTER: "team_poster",
+  CHAMPIONS: "champions",
+  RUNNER_UP: "runner_up",
+  MOTM: "motm",
+  POT: "pot",
   PLAYER_REGISTRATION: "player_registration",
   AUCTION_ANNOUNCEMENT: "auction_announcement",
   MATCH_DAY_ANNOUNCEMENT: "match_day_announcement"
-
 };
 
 const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
