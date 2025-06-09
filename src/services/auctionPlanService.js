@@ -7,12 +7,12 @@ class AuctionPlanService {
       auctionPlanData;
     console.log("create auction plan", auctionPlanData);
 
-    if(!isFree && price <= 0){
-      throw new Error("Price must be greater than 0 !")
+    if (!isFree && price <= 0) {
+      throw new Error("Price must be greater than 0 !");
     }
 
-    if(!isUnlimitedTeamsAllowed && maxAllowedTeams <= 0){
-      throw new Error("Maximum allowed teams count is required !")
+    if (!isUnlimitedTeamsAllowed && maxAllowedTeams <= 0) {
+      throw new Error("Maximum allowed teams count is required !");
     }
 
     const query = { $or: [] };
@@ -98,7 +98,7 @@ class AuctionPlanService {
       maxAllowedTeams,
       _id: { $ne: id },
     });
-    if (!auctionPlanExist) {
+    if (auctionPlanExist) {
       throw new Error(`Auction plan Already exists with ${maxAllowedTeams}!`);
     }
     const auctionPlan = await AuctionPlan.findByIdAndUpdate(
