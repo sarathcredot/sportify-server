@@ -230,9 +230,6 @@ class OrderService {
     const total = await Order.countDocuments();
     const totalPages = Math.ceil(total / limit);
 
-    if (!orders || orders.length === 0) {
-      throw new Error("No orders found");
-    }
     return { orders, pagination: { total, page, limit, totalPages } };
   }
 
