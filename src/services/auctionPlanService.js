@@ -78,9 +78,6 @@ class AuctionPlanService {
     const total = await AuctionPlan.countDocuments();
     const totalPages = Math.ceil(total / limit);
 
-    if (!auctionPlans || auctionPlans.length === 0) {
-      throw new Error("No auction plans found");
-    }
     return { auctionPlans, pagination: { total, page, limit, totalPages } };
   }
 
@@ -93,22 +90,51 @@ class AuctionPlanService {
   }
 
   async updateAuctionPlan(id, auctionPlanData) {
-    const { maxAllowedTeams } = auctionPlanData;
-    const auctionPlanExist = await AuctionPlan.findOne({
+    const {
       maxAllowedTeams,
-      _id: { $ne: id },
-    });
-    if (auctionPlanExist) {
-      throw new Error(`Auction plan Already exists with ${maxAllowedTeams}!`);
+      isFree,
+      isUnlimitedTeamsAllowed,
+    } = auctionPlanData;
+
+    const query = { $or: [], _id: { $ne: id } };
+
+    if (isFree) {
+      query.$or.push({ isFree: true });
     }
+
+    if (isUnlimitedTeamsAllowed) {
+      query.$or.push({ isUnlimitedTeamsAllowed: true });
+    }
+
+    if (!isUnlimitedTeamsAllowed) {
+      query.$or.push({ maxAllowedTeams });
+    }
+
+    const auctionPlanExist = await AuctionPlan.findOne(query);
+    if (auctionPlanExist) {
+      let msg = "Auction plan already exists with ";
+      if (isFree) {
+        msg = "Free auction plan already exists! ";
+      }
+      if (isUnlimitedTeamsAllowed) {
+        msg = "Auction plan already exists with Unlimited Teams! ";
+      }
+      if (!isUnlimitedTeamsAllowed) {
+        msg += `maximum Teams allowed: ${maxAllowedTeams}`;
+      }
+      throw new Error(msg);
+    }
+
     const auctionPlan = await AuctionPlan.findByIdAndUpdate(
       id,
       auctionPlanData,
       { new: true }
     );
+
     if (!auctionPlan) {
       throw new NotFoundError("Auction plan not found!");
     }
+
     return auctionPlan;
   }
 
