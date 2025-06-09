@@ -321,6 +321,7 @@ class AuctionService {
 
       if (await this.checkIfAllTeamsAreFilled(auctionId)) {
         auction.status = AUCTION_STATUS.COMPLETED;
+        await TournamentPlayers.updateMany({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }, { $set: { status: PLAYER_STATUS.UNSOLD } }, { session });
       } else {
         let players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
         if (players.length === 0) {
@@ -592,7 +593,7 @@ class AuctionService {
       }
 
       if (!auction.currentBiddingPlayer) {
-        throw new BadRequestError('No player to mark sold');
+        throw new BadRequestError('No player to mark sold. You have to revert the player unsold status first');
       }
 
       const player = await TournamentPlayers.findOne({
@@ -831,6 +832,9 @@ class AuctionService {
       const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
       if (!auction) {
         throw new NotFoundError('Auction not found');
+      }
+      if (!auction.currentBiddingPlayer) {
+        throw new BadRequestError('No player to mark unsold. You have to revert the player sold status first');
       }
       const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player });
       if (!player) {
