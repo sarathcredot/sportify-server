@@ -175,11 +175,11 @@ class TournamentService {
     }
 
     const isRegistered = await TournamentTeams.find({ tournament: id, teamManager: user._id });
-    
+
     // Convert Mongoose document to plain object
     const tournamentObj = tournament.toObject();
     const auctionObj = auction ? auction.toObject() : null;
-    
+
     return { tournament: { ...tournamentObj, isRegistered: isRegistered.length > 0 }, auction: auctionObj };
   }
 
@@ -389,9 +389,12 @@ class TournamentService {
       await sendEmail(
         plyaerdata?.email,
         "Player Registration Status",
-        `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
+        `Your registration for the tournament ${tournament?.name} has been inprogress}`
       );
-      return tournamentPlayer;
+      return {
+        data: tournamentPlayer,
+        msg: "Player status changed successfully"
+      };
 
     }
 
@@ -420,7 +423,10 @@ class TournamentService {
       "Player Registration Status",
       `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
     );
-    return tournamentPlayer;
+    return {
+      data: tournamentPlayer,
+      msg: ""
+    };
   }
 
   async refundPlayerInTournament(tournamentId, playerId, refund) {
@@ -463,6 +469,40 @@ class TournamentService {
       }
 
     }
+
+
+    const teamData = await TournamentTeams.findOne({
+      tournament: tournamentId,
+      team: teamId,
+    })
+
+    if (teamData?.status === TEAM_STATUS.REJECTED === approve === false) {
+
+      const tournamentTeam = await TournamentTeams.findOneAndUpdate(
+        {
+          tournament: tournamentId,
+          team: teamId,
+        },
+        {
+          $set: {
+            status: TEAM_STATUS.PENDING
+          },
+        },
+        { new: true }
+      );
+
+      await sendEmail(
+        tournamentTeam?.email,
+        "Team Registration Status",
+        `Your registration for the tournament ${tournament?.name} has been inprogress}`
+      );
+      return {
+        data: tournamentTeam,
+        msg: "Team status changed successfully"
+      };
+    }
+
+
     const tournamentTeam = await TournamentTeams.findOneAndUpdate(
       {
         tournament: tournamentId,

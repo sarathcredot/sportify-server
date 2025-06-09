@@ -16,6 +16,7 @@ class PlayerController extends BaseController {
     this.createPlayerOfTeamManager = this.createPlayerOfTeamManager.bind(this);
     this.editPlayerOfTeamManager = this.editPlayerOfTeamManager.bind(this);
     this.removePlayerOfTeamManager = this.removePlayerOfTeamManager.bind(this);
+    this.refundPlayer = this.refundPlayer.bind(this)
   }
 
   async registerPlayer(req, res) {
@@ -63,7 +64,12 @@ class PlayerController extends BaseController {
       const { tournamentId, playerId } = req.params;
       const { approve } = req.body;
       const player = await tournamentService.approvePlayerInTournament(tournamentId, playerId, approve);
-      this.handleSuccess(res, player, `${approve ? "Player approved successfully" : "Player rejected successfully"}`);
+      if (player?.msg) {
+
+        this.handleSuccess(res, player?.data, player?.msg);
+
+      }
+      this.handleSuccess(res, player?.data, `${approve ? "Player approved successfully" : "Player rejected successfully"}`);
     } catch (error) {
       this.handleError(res, error);
     }
