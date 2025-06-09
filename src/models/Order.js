@@ -17,6 +17,14 @@ const orderSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isExpired: {
+      type: Boolean,
+      default: false,
+    },
+    isSuspended: {
+      type: Boolean,  
+      default: false,
+    },
     paymentDetails: {
       paymentId: {
         type: String,
@@ -66,10 +74,6 @@ orderSchema.pre("validate", function (next) {
 
   if (this.type === ORDER_TYPE.POSTER_PLAN && !this.posterPlan) {
     return next(new Error("Poster Plan is required !"));
-  }
-
-  if (this.type === ORDER_TYPE.POSTER_PLAN && !this.tournament) {
-    return next(new Error("Tournament is required !"));
   }
 
   next();

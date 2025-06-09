@@ -159,7 +159,28 @@ class TournamentService {
       throw new NotFoundError("Tournament not found");
     }
 
-    return { tournament, auction: auction };
+    // Convert Mongoose document to plain object
+    const tournamentObj = tournament.toObject();
+    const auctionObj = auction ? auction.toObject() : null;
+
+    return { tournament: tournamentObj, auction: auctionObj };
+  }
+
+  async getTournamentForTeamManagerById(id, user) {
+    const tournament = await Tournament.findById(id).populate('location');
+    const auction = await Auction.findOne({ tournament: id });
+
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
+
+    const isRegistered = await TournamentTeams.find({ tournament: id, teamManager: user._id });
+    
+    // Convert Mongoose document to plain object
+    const tournamentObj = tournament.toObject();
+    const auctionObj = auction ? auction.toObject() : null;
+    
+    return { tournament: { ...tournamentObj, isRegistered: isRegistered.length > 0 }, auction: auctionObj };
   }
 
   async getTournamentByIdPoster(id) {

@@ -8,9 +8,14 @@ const bankAccountRouter = require('./organiser/bankAccount');
 const notificationRouter = require("./organiser/notification")
 const clipBoardRouter = require("./organiser/clipboard")
 const downloadRouter=require("./organiser/download")
+const orderRouter = require('./organiser/order');
+const posterPlanRouter = require('./organiser/posterPlan');
+const auctionPlanRouter = require('./organiser/auctionPlan');
+
 const profileRouter=require("./organiser/profile")
 const TeamManagerController = require('../controllers/teamManagerController');
 const TemplateController = require('../controllers/templateController');
+
 const teamManagerController = new TeamManagerController();
 const templateController = new TemplateController();
 
@@ -39,7 +44,9 @@ router.use("/clipboards", clipBoardRouter)
 router.use("/notification", notificationRouter)
 router.use("/document-download",downloadRouter)
 router.use('/bank-account',bankAccountRouter);
-
+router.use('/poster-plans', posterPlanRouter);
+router.use('/auction-plans', auctionPlanRouter);
+router.use('/order', orderRouter);
 /**
  * @swagger
  * /organiser/team-managers:

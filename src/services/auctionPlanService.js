@@ -3,27 +3,67 @@ const { NotFoundError } = require("../utils/errors");
 
 class AuctionPlanService {
   async createAuctionPlan(auctionPlanData) {
-    const { maxAllowedTeams } = auctionPlanData;
+    const { maxAllowedTeams, price, isFree, isUnlimitedTeamsAllowed } =
+      auctionPlanData;
     console.log("create auction plan", auctionPlanData);
-    const auctionPlan = await AuctionPlan.findOne({ maxAllowedTeams });
-    if (!auctionPlan) {
-      throw new Error(`Auction plan Already exists with ${maxAllowedTeams}!`);
+
+    if (!isFree && price <= 0) {
+      throw new Error("Price must be greater than 0 !");
     }
+
+    if (!isUnlimitedTeamsAllowed && maxAllowedTeams <= 0) {
+      throw new Error("Maximum allowed teams count is required !");
+    }
+
+    const query = { $or: [] };
+
+    if (isFree) {
+      query.$or.push({ isFree: true });
+    }
+
+    if (isUnlimitedTeamsAllowed) {
+      query.$or.push({ isUnlimitedTeamsAllowed: true });
+    }
+
+    if (!isUnlimitedTeamsAllowed) {
+      query.$or.push({ maxAllowedTeams });
+    }
+
+    const auctionPlan = await AuctionPlan.findOne(query);
+    if (auctionPlan) {
+      let msg = "Auction plan already exists with ";
+      if (isFree) {
+        msg = "Free auction plan already exists! ";
+      }
+      if (isUnlimitedTeamsAllowed) {
+        msg = "Auction plan already exists with Unlimited Teams! ";
+      }
+      if (!isUnlimitedTeamsAllowed) {
+        msg += `maximum Teams allowed: ${maxAllowedTeams}`;
+      }
+      throw new Error(msg);
+    }
+
     const newAuctionPlan = new AuctionPlan({
       ...auctionPlanData,
     });
     await newAuctionPlan.save();
+
     return newAuctionPlan;
   }
 
   async getAuctionPlans(page, limit, skip) {
-    let pipeline = [];
+    let pipeline = [
+      {
+        $sort: { maxAllowedTeams: -1 },
+      },
+    ];
 
     if (skip && page && limit) {
+      page = parseInt(page);
+      limit = parseInt(limit);
+
       pipeline.push(
-        {
-          $sort: { createdAt: -1 },
-        },
         {
           $skip: (page - 1) * limit,
         },
@@ -54,11 +94,18 @@ class AuctionPlanService {
 
   async updateAuctionPlan(id, auctionPlanData) {
     const { maxAllowedTeams } = auctionPlanData;
-    const auctionPlanExist = await AuctionPlan.findOne({ maxAllowedTeams, _id: { $ne: id } });
-    if (!auctionPlanExist) {
+    const auctionPlanExist = await AuctionPlan.findOne({
+      maxAllowedTeams,
+      _id: { $ne: id },
+    });
+    if (auctionPlanExist) {
       throw new Error(`Auction plan Already exists with ${maxAllowedTeams}!`);
     }
-    const auctionPlan = await AuctionPlan.findByIdAndUpdate(id, auctionPlanData, { new: true });
+    const auctionPlan = await AuctionPlan.findByIdAndUpdate(
+      id,
+      auctionPlanData,
+      { new: true }
+    );
     if (!auctionPlan) {
       throw new NotFoundError("Auction plan not found!");
     }
@@ -72,7 +119,6 @@ class AuctionPlanService {
     }
     return auctionPlan;
   }
-
 }
 
 module.exports = new AuctionPlanService();
