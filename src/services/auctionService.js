@@ -406,7 +406,7 @@ class AuctionService {
       if (pointsAfterBid < 0) {
         throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
       }
-      if (bid.points > team.maxPointsPerBid) {
+      if (bid.points > (team.maxPointsPerBid ?? team.remainingPoints)) {
         throw new BadRequestError(`Team max points per bid is ${team.maxPointsPerBid}`);
       }
       const bidObject = new Bid({
@@ -519,7 +519,7 @@ class AuctionService {
     if (pointsAfterBid < 0) {
       throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
     }
-    if (bid.points > team.maxPointsPerBid) {
+    if (bid.points > (team.maxPointsPerBid ?? team.remainingPoints)) {
       throw new BadRequestError(`Team max points per bid is ${team.maxPointsPerBid}`);
     }
     const bidObject = new Bid({
