@@ -137,10 +137,10 @@ const PLANS_TYPES = {
 
 const POSTER_PLAN_INCLUDES = {
    tournament_announcement: "Tournament Announcement poster",
+   team_registration: "Team Registration poster",
+   player_registration: "Player Registration poster",
    auction_announcement: "Auction Announcement poster",
    match_day_announcement: "Match Day Announcement poster",
-   player_registration: "Player Registration poster",
-   team_registration: "Team Registration poster",
    champions: "Champions Poster",
    runners_up: "Runners up Poster",
    each_game_mom: "Each game MOM poster",
