@@ -6,7 +6,7 @@ const Bid = require("../models/Bid");
 const Team = require("../models/Team");
 const ConcealedBidRequest = require("../models/ConcealedBidRequest");
 const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS, CONCEALED_BID_REQUEST_STATUS } = require("../utils/constants");
-const { NotFoundError, BadRequestError } = require("../utils/errors");
+const { NotFoundError, BadRequestError, ValidationError } = require("../utils/errors");
 const mongoose = require('mongoose');
 const { getIO } = require('../config/socket');
 const { info } = require("winston");
@@ -246,7 +246,7 @@ class AuctionService {
       }
       const teams = await TournamentTeams.find({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
       if (teams.length === 0) {
-        throw new BadRequestError('No teams to bid');
+        throw new ValidationError('No teams to bid');
       }
       // const tournament = await Tournament.findById(auction.tournament);
       // const teamsCount = await TournamentTeams.countDocuments({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
@@ -255,9 +255,16 @@ class AuctionService {
       // }
 
       // update max points per bid
-      const tournament = await Tournament.findById(auction.tournament, { session });
-      const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      // const tournament = await Tournament.findById(auction.tournament, { session });
+      // const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      // const maxPointsPerBid = auction.biddingPointPerTeam - totalMinBidPointsRequired;
+
+      const tournament = await Tournament.findById(auction.tournament).session(session);
+      // const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * auction.minBidPerPlayer;
+
       const maxPointsPerBid = auction.biddingPointPerTeam - totalMinBidPointsRequired;
+      console.log("totalMinBidPointsRequired", totalMinBidPointsRequired)
 
       // Set bidding points for each team
       await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam, maxPointsPerBid: maxPointsPerBid } }, { session });
@@ -314,6 +321,7 @@ class AuctionService {
 
       if (await this.checkIfAllTeamsAreFilled(auctionId)) {
         auction.status = AUCTION_STATUS.COMPLETED;
+        await TournamentPlayers.updateMany({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }, { $set: { status: PLAYER_STATUS.UNSOLD } }, { session });
       } else {
         let players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
         if (players.length === 0) {
@@ -418,14 +426,14 @@ class AuctionService {
       });
       await bidObject.save({ session });
 
-      const player = await TournamentPlayers.findById(bid.playerId);
+      const player = await TournamentPlayers.findById(bid.playerId).session(session);
       player.currentBid = {
         bid: bidObject._id,
         team: bid.placedBy,
       };
       await player.save({ session });
       await session.commitTransaction();
-      return bid;
+      return bid
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -433,6 +441,10 @@ class AuctionService {
       session.endSession();
     }
   }
+
+
+
+  
 
   async deleteBid(bidId) {
     const bid = await Bid.findById(bidId)
@@ -581,7 +593,7 @@ class AuctionService {
       }
 
       if (!auction.currentBiddingPlayer) {
-        throw new BadRequestError('No player to mark sold');
+        throw new BadRequestError('No player to mark sold. You have to revert the player unsold status first');
       }
 
       const player = await TournamentPlayers.findOne({
@@ -633,6 +645,84 @@ class AuctionService {
       });
 
       return updatedPlayer;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async revertMarkPlayerSold(auctionId, playerId) {
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+
+      const auction = await Auction.findById(auctionId).session(session);
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+
+      if (auction.status !== AUCTION_STATUS.LIVE) {
+        throw new BadRequestError('Auction is not live');
+      }
+
+      const player = await TournamentPlayers.findOne({
+        _id: playerId,
+        tournament: auction.tournament,
+        status: PLAYER_STATUS.SOLD
+      })
+        .populate('currentBid.bid')
+        .session(session);
+
+      if (!player) {
+        throw new NotFoundError('Player not found or not sold');
+      }
+
+      // Revert player status and remove sold information
+      player.status = PLAYER_STATUS.BIDDING;
+      player.signedForPoints = null;
+      player.signedForTeam = null;
+      await player.save({ session });
+
+      // Set the player back as current bidding player
+      auction.currentBiddingPlayer = player._id;
+      await auction.save({ session });
+
+      // Revert team changes
+      const team = await TournamentTeams.findById(player.currentBid.team).session(session);
+      if (!team) {
+        throw new NotFoundError('Team not found');
+      }
+
+      // Restore team's remaining points
+      team.remainingPoints = team.remainingPoints + player.currentBid.bid.points;
+
+      // Remove player from team's players array
+      team.players = team.players.filter(p => p.player.toString() !== player._id.toString());
+
+      // Remove bid from team's wonBids
+      team.wonBids = team.wonBids.filter(bid => bid.toString() !== player.currentBid.bid._id.toString());
+
+      // Recalculate max points per bid
+      const tournament = await Tournament.findById(auction.tournament, { session });
+      const numberOfPlayersInTeam = team.players ? team.players.length : 0;
+      const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
+      const totalMinBidPointsRequired = remainingPlayersRequired * tournament.settings.minBidPoints;
+      team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+
+      await team.save({ session });
+      await session.commitTransaction();
+
+      // Emit socket event for live preview
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('player-sold-reverted', {
+        message: `player sold status reverted`,
+        auctionId: auction._id,
+        player: player
+      });
+
+      return player;
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -743,6 +833,9 @@ class AuctionService {
       if (!auction) {
         throw new NotFoundError('Auction not found');
       }
+      if (!auction.currentBiddingPlayer) {
+        throw new BadRequestError('No player to mark unsold. You have to revert the player sold status first');
+      }
       const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player });
       if (!player) {
         throw new NotFoundError('Player not found');
@@ -755,6 +848,57 @@ class AuctionService {
       await session.commitTransaction();
       const updatedPlayer = await TournamentPlayers.findById(player._id);
       return updatedPlayer;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  async revertMarkPlayerUnsold(auctionId, playerId) {
+    const session = await mongoose.startSession();
+    try {
+      await session.startTransaction();
+
+      const auction = await Auction.findById(auctionId).session(session);
+      if (!auction) {
+        throw new NotFoundError('Auction not found');
+      }
+
+      if (auction.status !== AUCTION_STATUS.LIVE) {
+        throw new BadRequestError('Auction is not live');
+      }
+
+      const player = await TournamentPlayers.findOne({
+        _id: playerId,
+        tournament: auction.tournament,
+        status: PLAYER_STATUS.UNSOLD
+      }).session(session);
+
+      if (!player) {
+        throw new NotFoundError('Player not found or not marked as unsold');
+      }
+
+      // Revert player status back to BIDDING
+      player.status = PLAYER_STATUS.BIDDING;
+      await player.save({ session });
+
+      // Set the player back as current bidding player
+      auction.currentBiddingPlayer = player._id;
+      await auction.save({ session });
+
+      await session.commitTransaction();
+
+      // Emit socket event for live preview
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('player-unsold-reverted', {
+        message: `player unsold status reverted`,
+        auctionId: auction._id,
+        player: player
+      });
+
+      return player;
     } catch (error) {
       await session.abortTransaction();
       throw error;

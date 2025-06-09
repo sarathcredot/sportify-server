@@ -30,6 +30,9 @@ class AuctionController extends BaseController {
     this.playGallery = this.playGallery.bind(this);
     this.deleteBid = this.deleteBid.bind(this)
     this.getTeamManagerAuctions = this.getTeamManagerAuctions.bind(this);
+    this.revertMarkPlayerSold = this.revertMarkPlayerSold.bind(this);
+    this.revertMarkPlayerUnsold = this.revertMarkPlayerUnsold.bind(this);
+    this.markPlayerUnsoldForConcealedBid = this.markPlayerUnsoldForConcealedBid.bind(this);
   }
 
   async getAuction(req, res) {
@@ -85,6 +88,7 @@ class AuctionController extends BaseController {
       const auction = await auctionService.startAuction(auctionId);
       this.handleSuccess(res, auction, "Auction started");
     } catch (error) {
+      console.log("auction contrler error", error)
       this.handleError(res, error);
     }
   }
@@ -155,6 +159,36 @@ class AuctionController extends BaseController {
     try {
       const auction = await auctionService.markPlayerUnsold(auctionId, req.body);
       this.handleSuccess(res, auction, "Player marked as unsold");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async revertMarkPlayerSold(req, res) {
+    const { auctionId, playerId } = req.params;
+    try {
+      const auction = await auctionService.revertMarkPlayerSold(auctionId, playerId);
+      this.handleSuccess(res, auction, "Player marked as sold");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async revertMarkPlayerUnsold(req, res) {
+    const { auctionId, playerId } = req.params;
+    try {
+      const auction = await auctionService.revertMarkPlayerUnsold(auctionId, playerId);
+      this.handleSuccess(res, auction, "Player marked as unsold");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async markPlayerUnsoldForConcealedBid(req, res) {
+    const { auctionId } = req.params;
+    try {
+      const auction = await auctionService.markPlayerUnsoldForConcealedBid(auctionId, req.body);
+      this.handleSuccess(res, auction, "Player marked as unsold for concealed bid");
     } catch (error) {
       this.handleError(res, error);
     }

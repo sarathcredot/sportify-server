@@ -333,6 +333,64 @@ router.post("/:auctionId/mark-player-unsold", auctionController.markPlayerUnsold
 
 /**
  * @swagger
+ * /organiser/auction/{auctionId}/revert-mark-player-sold/{playerId}:
+ *   post:
+ *     summary: Revert a player as sold
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *       - name: playerId
+ *         in: path
+ *         required: true
+ *         description: The ID of the player
+ *     responses:
+ *       200: 
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Player reverted as sold
+ */
+router.post("/:auctionId/revert-mark-player-sold/:playerId", auctionController.revertMarkPlayerSold);
+
+/**
+ * @swagger
+ * /organiser/auction/{auctionId}/revert-mark-player-unsold/{playerId}:
+ *   post:
+ *     summary: Revert a player as unsold
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the auction
+ *       - name: playerId
+ *         in: path
+ *         required: true
+ *         description: The ID of the player
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object 
+ *         description: Player reverted as unsold
+ */
+router.post("/:auctionId/revert-mark-player-unsold/:playerId", auctionController.revertMarkPlayerUnsold);
+
+/**
+ * @swagger
  * /organiser/auction/{auctionId}/bid-history:
  *   get:
  *     summary: Get bid history
