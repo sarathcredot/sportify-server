@@ -239,19 +239,28 @@ class AuctionService {
       if (!auction) {
         throw new NotFoundError('Auction not found');
       }
-      // Set bidding points for each team
-      await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam } }, { session });
       // return random player
       const players = await TournamentPlayers.find({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }).populate('player');
       if (players.length === 0) {
         throw new BadRequestError('No players to bid');
       }
-
-      const tournament = await Tournament.findById(auction.tournament);
-      const teamsCount = await TournamentTeams.countDocuments({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
-      if (players.length < tournament.settings.maxPlayersPerTeam * teamsCount) {
-        throw new BadRequestError('Not enough players to start auction');
+      const teams = await TournamentTeams.find({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
+      if (teams.length === 0) {
+        throw new BadRequestError('No teams to bid');
       }
+      // const tournament = await Tournament.findById(auction.tournament);
+      // const teamsCount = await TournamentTeams.countDocuments({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
+      // if (players.length < tournament.settings.maxPlayersPerTeam * teamsCount) {
+      //   throw new BadRequestError('Not enough players to start auction');
+      // }
+
+      // update max points per bid
+      const tournament = await Tournament.findById(auction.tournament, { session });
+      const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      const maxPointsPerBid = auction.biddingPointPerTeam - totalMinBidPointsRequired;
+
+      // Set bidding points for each team
+      await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam, maxPointsPerBid: maxPointsPerBid } }, { session });
 
       const randomPlayer = players[Math.floor(Math.random() * players.length)];
       auction.currentBiddingPlayer = randomPlayer._id;
@@ -385,9 +394,10 @@ class AuctionService {
       const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
       const pointsAfterBid = team.remainingPoints - bid.points;
 
-      if(tournament.settings.maxPlayersPerTeam===numberOfPlayersInTeam){
-
-           throw new BadRequestError(`Team has already filled the maximum number of players allowed in the tournament. Maximum players allowed is ${tournament.settings.maxPlayersPerTeam}`);
+      if (tournament.settings.maxPlayersPerTeam === numberOfPlayersInTeam) {
+        throw new BadRequestError(
+          `Team has already filled the maximum number of players allowed in the tournament. Maximum players allowed is ${tournament.settings.maxPlayersPerTeam}`
+        );
       }
 
       if (pointsAfterBid < minBidPoints) {
@@ -395,6 +405,9 @@ class AuctionService {
       }
       if (pointsAfterBid < 0) {
         throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
+      }
+      if (bid.points > team.maxPointsPerBid) {
+        throw new BadRequestError(`Team max points per bid is ${team.maxPointsPerBid}`);
       }
       const bidObject = new Bid({
         tournament: auction.tournament,
@@ -506,6 +519,9 @@ class AuctionService {
     if (pointsAfterBid < 0) {
       throw new BadRequestError(`Team remaining points are less than the bid points. Team remaining points is ${team.remainingPoints}`);
     }
+    if (bid.points > team.maxPointsPerBid) {
+      throw new BadRequestError(`Team max points per bid is ${team.maxPointsPerBid}`);
+    }
     const bidObject = new Bid({
       tournament: auction.tournament,
       auction: auction._id,
@@ -595,12 +611,19 @@ class AuctionService {
         signedForPoints: currentBid.bid.points
       });
       team.wonBids.push(currentBid.bid._id);
+
+      // update max points per bid
+      const tournament = await Tournament.findById(auction.tournament, { session });
+      const numberOfPlayersInTeam = team.players ? team.players.length : 0;
+      const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
+      const totalMinBidPointsRequired = remainingPlayersRequired * tournament.settings.minBidPoints;
+      team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+
       await team.save({ session });
       await session.commitTransaction();
       const updatedPlayer = await TournamentPlayers.findById(player._id);
 
       // socket.io setup of live preview 
-
       const io = getIO();
       io.to(`${auction._id}-organizer-live-preview`).emit('player-sold-live', {
         message: `player sold`,
@@ -608,7 +631,6 @@ class AuctionService {
         team: team,
         point: currentBid.bid.points
       });
-
 
       return updatedPlayer;
     } catch (error) {
@@ -665,6 +687,12 @@ class AuctionService {
         signedForPoints: concealedBid.points
       });
       team.wonBids.push(concealedBid._id);
+      // update max points per bid
+      const tournament = await Tournament.findById(auction.tournament, { session });
+      const numberOfPlayersInTeam = team.players ? team.players.length : 0;
+      const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
+      const totalMinBidPointsRequired = remainingPlayersRequired * tournament.settings.minBidPoints;
+      team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
       await team.save({ session });
       await ConcealedBidRequest.findByIdAndUpdate({ auction: auction._id, player: player._id }, { status: CONCEALED_BID_REQUEST_STATUS.COMPLETED }, { session });
       const updatedPlayer = await TournamentPlayers.findById(player._id);

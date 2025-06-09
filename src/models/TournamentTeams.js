@@ -47,6 +47,12 @@ const TournamentTeamsSchema = new mongoose.Schema({
     default: 0,
     min: 0,
     required: true
+  },
+  maxPointsPerBid: {
+    type: Number,
+    default: 0,
+    min: 0,
+    required: true
   }
 }, {
   timestamps: true
