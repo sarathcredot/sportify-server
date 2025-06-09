@@ -125,7 +125,7 @@ class TournamentService {
 
     console.log("user", tournamentData)
 
-    if(tournamentData?.auction?.maxBidPerPlayer < tournamentData?.auction?.minBidPerPlayer) {
+    if (tournamentData?.auction?.maxBidPerPlayer < tournamentData?.auction?.minBidPerPlayer) {
       throw new ValidationError("Max bid per player cannot be less than min bid per player");
     }
 
@@ -348,6 +348,34 @@ class TournamentService {
       tournament: tournamentId,
       player: playerId,
     });
+
+
+    if (plyaerdata?.status === PLAYER_STATUS.REJECTED && approve === false) {
+
+      const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
+        {
+          tournament: tournamentId,
+          player: playerId,
+        },
+        {
+          $set: {
+            status: PLAYER_STATUS.PENDING,
+          },
+        },
+        { new: true }
+      );
+
+      await sendEmail(
+        plyaerdata?.email,
+        "Player Registration Status",
+        `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
+      );
+      return tournamentPlayer;
+
+    }
+
+
+
     const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
       {
         tournament: tournamentId,
