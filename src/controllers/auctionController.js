@@ -85,6 +85,7 @@ class AuctionController extends BaseController {
       const auction = await auctionService.startAuction(auctionId);
       this.handleSuccess(res, auction, "Auction started");
     } catch (error) {
+      console.log("auction contrler error", error)
       this.handleError(res, error);
     }
   }

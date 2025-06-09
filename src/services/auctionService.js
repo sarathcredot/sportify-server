@@ -6,7 +6,7 @@ const Bid = require("../models/Bid");
 const Team = require("../models/Team");
 const ConcealedBidRequest = require("../models/ConcealedBidRequest");
 const { AUCTION_STATUS, PLAYER_STATUS, TEAM_STATUS, CONCEALED_BID_REQUEST_STATUS } = require("../utils/constants");
-const { NotFoundError, BadRequestError } = require("../utils/errors");
+const { NotFoundError, BadRequestError, ValidationError } = require("../utils/errors");
 const mongoose = require('mongoose');
 const { getIO } = require('../config/socket');
 const { info } = require("winston");
@@ -246,7 +246,7 @@ class AuctionService {
       }
       const teams = await TournamentTeams.find({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
       if (teams.length === 0) {
-        throw new BadRequestError('No teams to bid');
+        throw new ValidationError('No teams to bid');
       }
       // const tournament = await Tournament.findById(auction.tournament);
       // const teamsCount = await TournamentTeams.countDocuments({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED });
@@ -255,9 +255,16 @@ class AuctionService {
       // }
 
       // update max points per bid
-      const tournament = await Tournament.findById(auction.tournament, { session });
-      const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      // const tournament = await Tournament.findById(auction.tournament, { session });
+      // const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      // const maxPointsPerBid = auction.biddingPointPerTeam - totalMinBidPointsRequired;
+
+      const tournament = await Tournament.findById(auction.tournament).session(session);
+      // const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * tournament.settings.minBidPoints;
+      const totalMinBidPointsRequired = (tournament.settings.maxPlayersPerTeam - 1) * auction.minBidPerPlayer;
+
       const maxPointsPerBid = auction.biddingPointPerTeam - totalMinBidPointsRequired;
+      console.log("totalMinBidPointsRequired", totalMinBidPointsRequired)
 
       // Set bidding points for each team
       await TournamentTeams.updateMany({ tournament: auction.tournament, status: TEAM_STATUS.APPROVED }, { $set: { remainingPoints: auction.biddingPointPerTeam, maxPointsPerBid: maxPointsPerBid } }, { session });
@@ -418,14 +425,14 @@ class AuctionService {
       });
       await bidObject.save({ session });
 
-      const player = await TournamentPlayers.findById(bid.playerId);
+      const player = await TournamentPlayers.findById(bid.playerId).session(session);
       player.currentBid = {
         bid: bidObject._id,
         team: bid.placedBy,
       };
       await player.save({ session });
       await session.commitTransaction();
-      return bid;
+      return bid
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -433,6 +440,10 @@ class AuctionService {
       session.endSession();
     }
   }
+
+
+
+  
 
   async deleteBid(bidId) {
     const bid = await Bid.findById(bidId)

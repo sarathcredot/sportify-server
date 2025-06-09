@@ -7,10 +7,10 @@ class BaseController {
       NotFoundError: 404,
       UnauthorizedError: 401,
     };
-    
+
     const statusCode = errorMap[error.name] || 400;
-    console.log("error",error.name);
-    console.log("error msg",error.message);
+    console.log("error", error.name);
+    console.log("error msg", error.message);
     res.status(statusCode).json(
       ResponseHandler.error(error.message, null, statusCode)
     );

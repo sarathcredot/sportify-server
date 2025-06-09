@@ -476,8 +476,9 @@ class TournamentService {
       team: teamId,
     })
 
-    if (teamData?.status === TEAM_STATUS.REJECTED === approve === false) {
+    if (teamData?.status === TEAM_STATUS.REJECTED && approve === false) {
 
+      
       const tournamentTeam = await TournamentTeams.findOneAndUpdate(
         {
           tournament: tournamentId,
@@ -524,7 +525,10 @@ class TournamentService {
       "Team Registration Status",
       `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
     );
-    return tournamentTeam;
+    return {
+      data:tournamentTeam,
+      msg:""
+    };
   }
 
   async refundTeamInTournament(tournamentId, teamId, refund) {

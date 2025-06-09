@@ -15,6 +15,7 @@ class ResponseHandler {
 
   static error(message, errors = null, statusCode = 400) {
     logger.error(message, errors, statusCode);
+    console.log("response handiler", message)
     return {
       status: 'error',
       message: errors?.message || message,
