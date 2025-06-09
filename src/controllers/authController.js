@@ -18,6 +18,20 @@ exports.sendOTP = async (req, res) => {
   }
 };
 
+exports.registerTeamManager = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { phoneNumber, countryCode, fullName } = req.body;
+    const result = await authService.registerTeamManager(phoneNumber, countryCode, fullName);
+    res.json(ResponseHandler.success("Team manager registered successfully", result));
+  } catch (error) {
+    this.handleError(res, "Team manager registration failed", error);
+  }
+}
+
 exports.register = async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -26,7 +40,7 @@ exports.register = async (req, res) => {
     }
 
     const { phoneNumber, countryCode, fullName } = req.body;
-    await authService.register(phoneNumber, countryCode, fullName);
+    await authService.registerOrganiser(phoneNumber, countryCode, fullName);
     const result = await authService.initiateAuth(phoneNumber, countryCode);
     res.json(ResponseHandler.success("User registered successfully", result));
   } catch (error) {
@@ -78,4 +92,15 @@ exports.handleError = (res, message, error) => {
   res.status(statusCode).json(
     ResponseHandler.error(message, error, statusCode)
   );
+}
+
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userData = req.body;
+    const result = await authService.updateUser(userId, userData);
+    res.json(ResponseHandler.success("User updated successfully", result, 200));
+  } catch (error) {
+    this.handleError(res, "User update failed", error);
+  }
 }

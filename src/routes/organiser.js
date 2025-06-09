@@ -12,6 +12,7 @@ const orderRouter = require('./organiser/order');
 const posterPlanRouter = require('./organiser/posterPlan');
 const auctionPlanRouter = require('./organiser/auctionPlan');
 
+const profileRouter=require("./organiser/profile")
 const TeamManagerController = require('../controllers/teamManagerController');
 const TemplateController = require('../controllers/templateController');
 
@@ -37,7 +38,7 @@ router.use(checkIsOrganiser());
  */
 
 router.use('/tournaments', tournamentsRouter);
-
+router.use("/profile",profileRouter)
 router.use('/auction', auctionRouter);
 router.use("/clipboards", clipBoardRouter)
 router.use("/notification", notificationRouter)

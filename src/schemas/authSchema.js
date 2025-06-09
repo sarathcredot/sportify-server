@@ -44,10 +44,23 @@ const updateUserSchema = z.object({
   }
 })
 
+const updateUserProfileSchema = z.object({
+  fullName: z.string().nonempty({ message: "Full name is required" }),
+  email: z.string().email().optional(),
+  photoUrl: z.string().optional(),
+}).openapi({
+  example: {
+    fullName: "John Doe",
+    email: "john.doe@example.com",
+    photoUrl: "https://example.com/photo.jpg",
+  }
+});
+
 module.exports = {
   sendOTPSchema,
   verifyOTPSchema,
   registerSchema,
   loginSchema,
   updateUserSchema,
+  updateUserProfileSchema,
 };

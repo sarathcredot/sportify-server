@@ -66,7 +66,7 @@ router.get('/', tournamentController.getTeamManagerTournaments);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', tournamentController.getTournamentById);
+router.get('/:id', tournamentController.getTournamentForTeamManagerById);
 
 /**
  * @swagger

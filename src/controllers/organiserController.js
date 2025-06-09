@@ -14,13 +14,14 @@ class OrganiserController extends BaseController {
     this.deleteOrganiserById = this.deleteOrganiserById.bind(this);
     this.getTournamentsByOrganiserId = this.getTournamentsByOrganiserId.bind(this);
     this.toggleStatus = this.toggleStatus.bind(this);
+    this.getOrganiserProfile = this.getOrganiserProfile.bind(this)
   }
-  
+
   async getOrganiserDashboard(req, res) {
     try {
       const organiser = req.user;
       const tournaments = await tournamentService.getOrganiserTournamentsCount(organiser._id);
-      
+
       const dashboardData = {
         totalTournaments: tournaments.length,
         // Add more dashboard metrics as needed
@@ -85,12 +86,41 @@ class OrganiserController extends BaseController {
       const { id } = req.params;
       const { isActive } = req.body;
       const organiser = await userService.toggleStatus(id, isActive);
-      this.handleSuccess(res, organiser, "Status toggled successfully");  
+      this.handleSuccess(res, organiser, "Status toggled successfully");
     } catch (error) {
       this.handleError(res, error);
     }
   }
-  
+
+
+  async getOrganiserProfile(req, res) {
+
+    try {
+      const user = req.user
+      const organiser = await userService.getUserById(user?.id, ROLES.ORGANISER);
+      this.handleSuccess(res, organiser, "Organiser retrieved successfully");
+
+    } catch (error) {
+
+      this.handleError(res, error);
+
+    }
+  }
+
+
+  async updateOrganiserProfile(req, res) {
+
+    try {
+      const user=req.user
+      const organiser = await userService.u(user?.id, req.body, ROLES.ORGANISER);
+      this.handleSuccess(res, organiser, "Organiser updated successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+
+  }
+
+
 }
 
 module.exports = OrganiserController;

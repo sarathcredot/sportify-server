@@ -1,6 +1,8 @@
 const Player = require("../models/Player");
+const Team = require("../models/Team");
 const Tournament = require("../models/Tournament");
 const TournamentPlayers = require("../models/TournamentPlayers");
+const TeamManagerPlayer = require("../models/TeamManagerPlayer");
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const { PLAYER_STATUS } = require("../utils/constants");
 const { Types } = require("mongoose");
@@ -174,6 +176,32 @@ class PlayerService {
     await tournament.save();
     return playerId;
   }
+
+  async getPlayersOfTeamManager(teamManagerId) {
+    return await TeamManagerPlayer.find({ teamManager: teamManagerId });
+  }
+
+  async createPlayerOfTeamManager(playerData, teamManagerId) {
+    const player = await TeamManagerPlayer.create({ ...playerData, teamManager: teamManagerId });
+    return player;
+  }
+
+  async editPlayerOfTeamManager(playerId, playerData, teamManagerId) {
+    const player = await TeamManagerPlayer.findOneAndUpdate({ _id: playerId, teamManager: teamManagerId }, { ...playerData });
+    if (!player) {
+      throw new NotFoundError("Player not found");
+    }
+    return player;
+  }
+
+  async removePlayerOfTeamManager(playerId, teamManagerId) {
+    const player = await TeamManagerPlayer.findOneAndDelete({ _id: playerId, teamManager: teamManagerId });
+    if (!player) {
+      throw new NotFoundError("Player not found");
+    }
+    return player;
+  }
+
 }
 
 module.exports = new PlayerService();

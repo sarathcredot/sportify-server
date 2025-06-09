@@ -1,5 +1,5 @@
 const express = require('express');
-const { sendOTP, verifyOTP, register, login } = require('../controllers/authController');
+const { sendOTP, verifyOTP, register, login, registerTeamManager } = require('../controllers/authController');
 const validate = require('../utils/validate');  
 const { sendOTPSchema, verifyOTPSchema, registerSchema, loginSchema } = require('../schemas/authSchema');
 
@@ -48,6 +48,32 @@ router.post(
   validate(sendOTPSchema),
   sendOTP
 );
+
+/**
+ * @swagger
+ * /team-manager/register:
+ *   post:
+ *     summary: Register a team manager
+ *     tags: [Team Manager]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               phoneNumber:
+ *                 type: string
+ *               countryCode:
+ *                 type: string
+ *               fullName:
+ *                 type: string
+ *             required:
+ *               - phoneNumber
+ *               - countryCode
+ *               - fullName
+ */
+router.post('/team-manager/register', validate(registerSchema), registerTeamManager);
 
 /**
  * @swagger

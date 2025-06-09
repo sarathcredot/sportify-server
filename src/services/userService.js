@@ -20,10 +20,10 @@ class UserService {
       sort: { createdAt: -1 },
     };
 
-    if(!search){
+    if (!search) {
       options.skip = (page - 1) * limit;
       options.limit = parseInt(limit);
-    }else{
+    } else {
       options.skip = 0; // No pagination if search is provided
       options.limit = 10; // No limit if search is provided
     }
@@ -81,6 +81,31 @@ class UserService {
   async toggleStatus(id, isActive) {
     const user = await User.findByIdAndUpdate(id, { isActive }, { new: true });
     return user;
+  }
+
+  async updateOrganiserProfile(id, data, role) {
+
+    try {
+
+      const query = { _id: id };
+      if (role) {
+        query.role = role;
+      }
+
+
+      const user = await User.findOneAndUpdate(query, {
+
+        $set: data
+
+      }, { new: true });
+
+      return user;
+
+    } catch (error) {
+
+      throw new Error(`${role} not found`);
+
+    }
   }
 }
 module.exports = new UserService();

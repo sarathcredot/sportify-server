@@ -31,7 +31,6 @@ class TournamentController extends BaseController {
 
   async getTournamentById(req, res) {
     try {
-
       const tournament = await tournamentService.getTournamentById(req.params.id);
       res.status(200).json(ResponseHandler.success('Tournament retrieved', tournament));
     } catch (error) {
@@ -40,6 +39,15 @@ class TournamentController extends BaseController {
     }
   }
 
+  async getTournamentForTeamManagerById(req, res) {
+    try {
+      const tournament = await tournamentService.getTournamentForTeamManagerById(req.params.id, req.user);
+      res.status(200).json(ResponseHandler.success('Tournament retrieved', tournament));
+    } catch (error) {
+      console.log("get tour byid", error)
+      this.handleError(res, error);
+    }
+  }
 
   async getTournamentByIdPoster(req, res) {
     try {

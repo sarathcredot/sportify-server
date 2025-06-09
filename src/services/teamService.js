@@ -21,28 +21,37 @@ class TeamService {
       throw new ValidationError("Tournament registration is closed");
     }
 
-    // const existingTeam = await TournamentTeams.findOne({ tournament: tournamentId })
-    //   .populate({
-    //     path: 'team',
-    //     match: { manager: teamData.manager }
-    //   });
-    //   console.log("team exit",existingTeam)
-    // if (existingTeam) {
-    //   throw new ValidationError("You have already registered a team for this tournament");
+    const isAlreadyRegistered = await TournamentTeams.findOne({ tournament: tournamentId, teamManager: teamData.manager });
+    if (isAlreadyRegistered) {
+      throw new ValidationError("You have already registered a team for this tournament");
+    }
+
+    // const managerTeam = await Team.find({ manager: teamData.manager });
+    // console.log("managerteam data", managerTeam)
+
+    // if (managerTeam) {
+    //   for (let elm of managerTeam) {
+    //     const exitingManager = await TournamentTeams.findOne({ tournament: tournamentId, team: elm?._id })
+    //     if (exitingManager) {
+    //       throw new ValidationError("You have already registered a team for this tournament");
+    //     }
+    //   }
     // }
 
     const maxTeamAllowed = tournament?.settings?.maxTeamAllowed;
     const totalTeams = await TournamentTeams.find({ tournament: tournamentId, status: TEAM_STATUS.APPROVED })
 
     if (totalTeams.length === maxTeamAllowed) {
-      throw new NotFoundError("Maximum allowed teams reached");
+      throw new ValidationError("Maximum allowed teams reached");
     }
 
-    const team = new Team({
-      ...teamData,
-    });
-
-    await team.save();
+    let team = await Team.findOne({ manager: teamData.manager });
+    if (!team) {
+      team = new Team({
+        ...teamData,
+      });
+      await team.save();
+    }
 
     const teamId = await this.generateTeamId(tournament);
 
@@ -56,6 +65,7 @@ class TeamService {
       name: teamData.name,
       phoneNumber: teamData.phoneNumber,
       email: teamData.email,
+      teamManager: teamData.manager
     });
     // await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
 
