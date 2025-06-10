@@ -443,7 +443,10 @@ class AuctionService {
 
 
 
-  
+
+
+
+
 
   async deleteBid(bidId) {
     const bid = await Bid.findById(bidId)
@@ -765,6 +768,14 @@ class AuctionService {
       await auction.save({ session });
       await session.commitTransaction();
       const updatedPlayer = await TournamentPlayers.findById(player._id);
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('player-unsold-live', {
+        message: `player sold`,
+        auctionId: auction._id,
+        team: team,
+        point: currentBid.bid.points
+      });
+
       return updatedPlayer;
     } catch (error) {
       await session.abortTransaction();
