@@ -853,16 +853,15 @@ class AuctionService {
       // update auction current bidding player
       auction.currentBiddingPlayer = null;
       await auction.save({ session });
-      await session.commitTransaction();
+
       const updatedPlayer = await TournamentPlayers.findById(player._id);
       const io = getIO();
       io.to(`${auction._id}-organizer-live-preview`).emit('player-unsold-live', {
         message: `player sold`,
         auctionId: auction._id,
-        team: team,
-        point: currentBid.bid.points
+        // point: currentBid.bid.points
       });
-
+      await session.commitTransaction();
       return updatedPlayer;
     } catch (error) {
       await session.abortTransaction();

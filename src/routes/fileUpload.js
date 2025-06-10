@@ -47,15 +47,15 @@ router.post("/", imageUpload.single("media"), async (req, res) => {
     let fileToUpload = req.file;
 
     // Convert webp to jpeg if needed
-    if (req.file.mimetype === "image/webp") {
-      const jpegBuffer = await sharp(req.file.buffer).jpeg().toBuffer();
-      fileToUpload = {
-        ...req.file,
-        buffer: jpegBuffer,
-        mimetype: "image/jpeg",
-        originalname: req.file.originalname.replace(/\.webp$/i, ".jpeg"),
-      };
-    }
+    // if (req.file.mimetype === "image/webp") {
+    //   const jpegBuffer = await sharp(req.file.buffer).jpeg().toBuffer();
+    //   fileToUpload = {
+    //     ...req.file,
+    //     buffer: jpegBuffer,
+    //     mimetype: "image/jpeg",
+    //     originalname: req.file.originalname.replace(/\.webp$/i, ".jpeg"),
+    //   };
+    // }
 
     const fileUrl = await uploadFile(fileToUpload, uploadFolder);
 

@@ -15,6 +15,7 @@ class OrganiserController extends BaseController {
     this.getTournamentsByOrganiserId = this.getTournamentsByOrganiserId.bind(this);
     this.toggleStatus = this.toggleStatus.bind(this);
     this.getOrganiserProfile = this.getOrganiserProfile.bind(this)
+    this.updateOrganiserProfile=this.updateOrganiserProfile.bind(this)
   }
 
   async getOrganiserDashboard(req, res) {
