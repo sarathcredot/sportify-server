@@ -113,9 +113,10 @@ class OrganiserController extends BaseController {
 
     try {
       const user=req.user
-      const organiser = await userService.u(user?.id, req.body, ROLES.ORGANISER);
+      const organiser = await userService.updateOrganiserProfile(user?.id, req.body, ROLES.ORGANISER);
       this.handleSuccess(res, organiser, "Organiser updated successfully");
     } catch (error) {
+      console.error("Error in updateOrganiserProfile:", error);
       this.handleError(res, error);
     }
 
