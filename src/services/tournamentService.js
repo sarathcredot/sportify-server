@@ -15,7 +15,7 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-  async getTournaments(search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip = true) {
+  async getTournaments({search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip = true}) {
     const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
@@ -25,7 +25,7 @@ class TournamentService {
       query.createdBy = organiserId;
     }
 
-    if (statusList) {
+    if (statusList && statusList.length > 0) {
       console.log("status", statusList)
       // const statusListArray = statusList;
       // if (statusListArray.includes("upcoming")) {
@@ -62,7 +62,7 @@ class TournamentService {
 
     }
 
-    if (sportTypes) {
+    if (sportTypes && sportTypes.length > 0) {
       if (sportTypes.includes("other")) {
         query.sportType = { $nin: ["cricket", "football"] };
       } else {
@@ -70,7 +70,7 @@ class TournamentService {
       }
     }
 
-    if (locations) {
+    if (locations && locations.length > 0) {
       const locationListArray = locations;
       query.location = { $in: locationListArray };
     }
