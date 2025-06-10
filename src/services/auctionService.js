@@ -369,7 +369,7 @@ class AuctionService {
       const auction = await Auction.findById(auctionId)
         .populate('currentBiddingPlayer')
         .session(session);
-      const tournament = await Tournament.findById(auction.tournament).session(session);
+      const tournament = await Tournament.findById(auction.tournament);
 
       if (!auction) {
         throw new NotFoundError('Auction not found');
@@ -628,11 +628,14 @@ class AuctionService {
       team.wonBids.push(currentBid.bid._id);
 
       // update max points per bid
-      const tournament = await Tournament.findById(auction.tournament, { session });
+      const tournament = await Tournament.findById(auction.tournament).session(session);
       const numberOfPlayersInTeam = team.players ? team.players.length : 0;
       const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
-      const totalMinBidPointsRequired = remainingPlayersRequired * tournament.settings.minBidPoints;
-      team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+      if (remainingPlayersRequired > -1) {
+        const totalMinBidPointsRequired = remainingPlayersRequired * auction.minBidPerPlayer;
+        team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+      }
+
 
       await team.save({ session });
       await session.commitTransaction();
@@ -781,11 +784,13 @@ class AuctionService {
       });
       team.wonBids.push(concealedBid._id);
       // update max points per bid
-      const tournament = await Tournament.findById(auction.tournament, { session });
+      const tournament = await Tournament.findById(auction.tournament).session(session);
       const numberOfPlayersInTeam = team.players ? team.players.length : 0;
       const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
-      const totalMinBidPointsRequired = remainingPlayersRequired * tournament.settings.minBidPoints;
-      team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+      if (remainingPlayersRequired > -1) {
+        const totalMinBidPointsRequired = remainingPlayersRequired * auction.minBidPerPlayer;
+        team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+      }
       await team.save({ session });
       await ConcealedBidRequest.findByIdAndUpdate({ auction: auction._id, player: player._id }, { status: CONCEALED_BID_REQUEST_STATUS.COMPLETED }, { session });
       const updatedPlayer = await TournamentPlayers.findById(player._id);
