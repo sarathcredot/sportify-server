@@ -20,7 +20,8 @@ const corsOptions = {
       "https://sportify-pro-admin.vercel.app",
       "https://sportify-pro-admin-dashboard.vercel.app",
       "https://sportify-pro-admin-dashboard-green.vercel.app",
-      "https://sportify-pro-admin-cic8.vercel.app"
+      "https://sportify-pro-admin-cic8.vercel.app",
+      "https://sportifypro-git-dev-riyas-credots-projects.vercel.app"
     ];
 
     // Allow requests with no origin (like mobile apps or curl requests)
