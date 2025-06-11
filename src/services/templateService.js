@@ -167,15 +167,11 @@ class TemplateService {
     return template;
   }
 
-  async getAllTemplates(type, page = 1, limit = 10, availableForPlan) {
+  async getAllTemplates(type, page = 1, limit = 10) {
     const query = {};
 
     if (type) {
       query.templateType = type;
-    }
-
-    if (availableForPlan) {
-      query.availableForPlan = availableForPlan;
     }
 
     const skip = (page - 1) * limit;

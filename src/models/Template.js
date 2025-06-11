@@ -15,11 +15,11 @@ const templateSchema = new mongoose.Schema(
       ],
       default: [],
     },
-    availableForPlan: {
-      type: String,
-      enum: Object.values(PLANS_TYPES),
-      default: PLANS_TYPES.STARTER,
-    },
+    // availableForPlan: {
+    //   type: String,
+    //   enum: Object.values(PLANS_TYPES),
+    //   default: PLANS_TYPES.STARTER,
+    // },
     isFree: { type: Boolean, required: true, default: false },
     thumbnail: { type: String, default: null },
   },
