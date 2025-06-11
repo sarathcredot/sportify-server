@@ -97,7 +97,7 @@ class OrderService {
       }
     }
 
-    const newOrder = new Order(orderData);
+    const newOrder = new Order({ ...orderData, user });
     await newOrder.save();
 
     return newOrder;
@@ -405,10 +405,6 @@ class OrderService {
       throw new Error("Organizer id is required !");
     }
 
-    if (!tournamentId) {
-      throw new Error("Tournament id is required !");
-    }
-
     const queryObj = {
       type: ORDER_TYPE.POSTER_PLAN,
       user: new Types.ObjectId(userId),
@@ -417,13 +413,133 @@ class OrderService {
       isSuspended: false,
     };
 
-    const activePlan = await Order.findOne(queryObj);
+    let activePlan = await Order.aggregate([
+      { $match: queryObj },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "auctionplans",
+          localField: "auctionPlan",
+          foreignField: "_id",
+          as: "auctionPlan",
+        },
+      },
+      {
+        $unwind: {
+          path: "$auctionPlan",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "posterplans",
+          localField: "posterPlan",
+          foreignField: "_id",
+          as: "posterPlan",
+        },
+      },
+      {
+        $unwind: {
+          path: "$posterPlan",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "tournaments",
+          localField: "tournament",
+          foreignField: "_id",
+          as: "tournament",
+        },
+      },
+      {
+        $unwind: {
+          path: "$tournament",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
+
+    activePlan = activePlan?.length > 0 ? activePlan[0] : null;
 
     let activePlanForTournament = null;
 
-    if (activePlan) {
+    if (activePlan && tournamentId) {
       queryObj.tournament = new Types.ObjectId(tournamentId);
-      activePlanForTournament = await Order.findOne(queryObj);
+      activePlanForTournament = await Order.aggregate([
+        { $match: queryObj },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "auctionplans",
+            localField: "auctionPlan",
+            foreignField: "_id",
+            as: "auctionPlan",
+          },
+        },
+        {
+          $unwind: {
+            path: "$auctionPlan",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "posterplans",
+            localField: "posterPlan",
+            foreignField: "_id",
+            as: "posterPlan",
+          },
+        },
+        {
+          $unwind: {
+            path: "$posterPlan",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "tournaments",
+            localField: "tournament",
+            foreignField: "_id",
+            as: "tournament",
+          },
+        },
+        {
+          $unwind: {
+            path: "$tournament",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+      activePlanForTournament =
+        activePlanForTournament?.length > 0 ? activePlanForTournament[0] : null;
     }
 
     return { activePlan, activePlanForTournament };

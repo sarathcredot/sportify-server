@@ -115,7 +115,7 @@ class OrderController extends BaseController {
     try {
       const { tournamentId } = req.query;
       const user = req.user;
-      const activePlan = await orderService.subscriptionAnalytics(
+      const activePlan = await orderService.getOrganizerActivePosterPlanForTournament(
         user?._id,
         tournamentId
       );
