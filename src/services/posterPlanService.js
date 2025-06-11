@@ -7,7 +7,7 @@ class PosterPlanService {
   async createPosterPlan(posterPlanData) {
     const { name, type } = posterPlanData;
 
-    const posterPlan = await PosterPlan.findOne({ $or: [{ name }, { type }] });
+    const posterPlan = await PosterPlan.findOne({ $or: [{ name }, { type }], isActive: true });
     if (posterPlan) {
       throw new Error(` ${name} plan Already exists!`);
     }
@@ -16,8 +16,17 @@ class PosterPlanService {
     return newPosterPlan;
   }
 
-  async getPosterPlans() {
-    const posterPlans = await PosterPlan.find();
+  async getPosterPlans(isActive) {
+    
+    const queryObj = {};
+
+    if(isActive){
+      isActive = isActive === "true";
+
+      queryObj.isActive = isActive;
+    }
+
+    const posterPlans = await PosterPlan.find(queryObj);
     return posterPlans;
   }
 
@@ -38,6 +47,7 @@ class PosterPlanService {
       const posterPlan = await PosterPlan.findOne({
         $or: [{ name }, { type }],
         _id: { $ne: new Types.ObjectId(id) },
+        isActive: true
       });
 
       if (posterPlan) {
