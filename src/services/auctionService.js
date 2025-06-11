@@ -670,6 +670,9 @@ class AuctionService {
   }
 
   async revertMarkPlayerSold(auctionId, playerId) {
+    console.log("auctid", auctionId)
+    console.log("playid", playerId)
+
     const session = await mongoose.startSession();
     try {
       await session.startTransaction();
@@ -694,6 +697,8 @@ class AuctionService {
       if (!player) {
         throw new NotFoundError('Player not found or not sold');
       }
+
+      console.log("player", player)
 
       // Revert player status and remove sold information
       player.status = PLAYER_STATUS.BIDDING;
@@ -721,14 +726,15 @@ class AuctionService {
       team.wonBids = team.wonBids.filter(bid => bid.toString() !== player.currentBid.bid._id.toString());
 
       // Recalculate max points per bid
-      const tournament = await Tournament.findById(auction.tournament, { session });
+      const tournament = await Tournament.findById(auction.tournament).session(session);
       const numberOfPlayersInTeam = team.players ? team.players.length : 0;
       const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
-      const totalMinBidPointsRequired = remainingPlayersRequired * tournament.settings.minBidPoints;
+      const totalMinBidPointsRequired = remainingPlayersRequired * auction.minBidPerPlayer;
       team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
 
       await team.save({ session });
       await session.commitTransaction();
+
 
       // Emit socket event for live preview
       const io = getIO();
@@ -804,6 +810,14 @@ class AuctionService {
       await team.save({ session });
       await ConcealedBidRequest.findByIdAndUpdate({ auction: auction._id, player: player._id }, { status: CONCEALED_BID_REQUEST_STATUS.COMPLETED }, { session });
       const updatedPlayer = await TournamentPlayers.findById(player._id);
+
+      const io = getIO();
+      io.to(`${auction._id}-organizer-live-preview`).emit('player-sold-live', {
+        message: `player sold`,
+        auctionId: auction._id,
+
+      });
+
       return updatedPlayer;
     })
   }
@@ -813,6 +827,12 @@ class AuctionService {
     const auction = await Auction.findById(auctionId).populate('concealedBidRequest');
     auction.concealedBidRequest = null;
     await auction.save();
+    const io = getIO();
+    io.to(`${auction._id}-organizer-live-preview`).emit('player-unsold-live', {
+      message: `player sold`,
+      auctionId: auction._id,
+      // point: currentBid.bid.points
+    });
     return player;
   }
 
