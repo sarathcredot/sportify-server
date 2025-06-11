@@ -27,4 +27,6 @@ const auctionController = new AuctionController();
  */
 router.get('/', auctionController.getTeamManagerAuctions);
 
+router.post('/:auctionId/place-concealed-bid', auctionController.placeConcealedBid);
+
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require("express");
 const CityController = require("../controllers/cityController");
 const router = express.Router();
 const cityController = new CityController();
+const socketService = require("../services/socketService");
 
 
 
@@ -22,5 +23,12 @@ const cityController = new CityController();
  *                 $ref: '#/components/schemas/City'
  */
 router.get("/cities", cityController.getCities);
+
+router.get("/test-socket", (req, res) => {
+  //   const socketService = new SocketService();
+    socketService.sendMessageToAllTeamManagersInTournament("684802528d155d26cac7c54a", "Hello");
+//   socketService.sendMessageToUser('6800e70e5c037f229823c181', "Hi test Message");
+  res.send("Socket message sent");
+});
 
 module.exports = router;
