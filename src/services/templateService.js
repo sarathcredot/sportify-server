@@ -167,11 +167,17 @@ class TemplateService {
     return template;
   }
 
-  async getAllTemplates(type, page = 1, limit = 10) {
+  async getAllTemplates(type, page = 1, limit = 10, availableForPlan) {
     const query = {};
+
     if (type) {
       query.templateType = type;
     }
+
+    if (availableForPlan) {
+      query.availableForPlan = availableForPlan;
+    }
+
     const skip = (page - 1) * limit;
     const templates = await Template.find(query).skip(skip).limit(limit);
     const total = await Template.countDocuments(query);

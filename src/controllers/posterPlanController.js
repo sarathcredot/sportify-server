@@ -23,7 +23,8 @@ class PosterPlanController extends BaseController {
   }
   async getPosterPlans(req, res) {
     try {
-      const posterPlans = await posterPlanService.getPosterPlans();
+      let { isActive } = req.query;
+      const posterPlans = await posterPlanService.getPosterPlans(isActive);
       this.handleSuccess(res, posterPlans, "Plans retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
