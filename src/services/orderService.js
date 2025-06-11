@@ -97,7 +97,7 @@ class OrderService {
       }
     }
 
-    const newOrder = new Order(orderData);
+    const newOrder = new Order({ ...orderData, user });
     await newOrder.save();
 
     return newOrder;
@@ -204,12 +204,11 @@ class OrderService {
     }
 
     if (skip && page && limit) {
-      
       page = parseInt(page);
       limit = parseInt(limit);
 
-      if(search){
-        page = 1
+      if (search) {
+        page = 1;
       }
 
       pipeline.push(
@@ -398,6 +397,152 @@ class OrderService {
         totalRevenue: 0,
       }
     );
+  }
+
+  //FOR BOTH TYPE OF SUBSCRIPTIONS [POSTER PLAN, AUCTION PLAN]
+  async getOrganizerActivePosterPlanForTournament(userId, tournamentId) {
+    if (!userId) {
+      throw new Error("Organizer id is required !");
+    }
+
+    const queryObj = {
+      type: ORDER_TYPE.POSTER_PLAN,
+      user: new Types.ObjectId(userId),
+      isUsed: false,
+      isExpired: false,
+      isSuspended: false,
+    };
+
+    let activePlan = await Order.aggregate([
+      { $match: queryObj },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "auctionplans",
+          localField: "auctionPlan",
+          foreignField: "_id",
+          as: "auctionPlan",
+        },
+      },
+      {
+        $unwind: {
+          path: "$auctionPlan",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "posterplans",
+          localField: "posterPlan",
+          foreignField: "_id",
+          as: "posterPlan",
+        },
+      },
+      {
+        $unwind: {
+          path: "$posterPlan",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "tournaments",
+          localField: "tournament",
+          foreignField: "_id",
+          as: "tournament",
+        },
+      },
+      {
+        $unwind: {
+          path: "$tournament",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
+
+    activePlan = activePlan?.length > 0 ? activePlan[0] : null;
+
+    let activePlanForTournament = null;
+
+    if (activePlan && tournamentId) {
+      queryObj.tournament = new Types.ObjectId(tournamentId);
+      activePlanForTournament = await Order.aggregate([
+        { $match: queryObj },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "auctionplans",
+            localField: "auctionPlan",
+            foreignField: "_id",
+            as: "auctionPlan",
+          },
+        },
+        {
+          $unwind: {
+            path: "$auctionPlan",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "posterplans",
+            localField: "posterPlan",
+            foreignField: "_id",
+            as: "posterPlan",
+          },
+        },
+        {
+          $unwind: {
+            path: "$posterPlan",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "tournaments",
+            localField: "tournament",
+            foreignField: "_id",
+            as: "tournament",
+          },
+        },
+        {
+          $unwind: {
+            path: "$tournament",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+      activePlanForTournament =
+        activePlanForTournament?.length > 0 ? activePlanForTournament[0] : null;
+    }
+
+    return { activePlan, activePlanForTournament };
   }
 }
 

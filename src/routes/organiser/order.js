@@ -9,6 +9,7 @@ const orderController = new OrderController();
 router.post("/", validate(createOrderSchema), orderController.createOrder);
 router.get("/", orderController.getOrders);
 router.get("/:orderId", orderController.getOrderById);
+router.get("/active/plan", orderController.getOrganizerActivePosterPlanForTournament);
 router.patch("/:orderId", orderController.updateOrder);
 
 module.exports = router;

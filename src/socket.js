@@ -35,6 +35,10 @@ module.exports = (io) => {
   io.on('connection', (socket) => {
     logger.info(`New client connected - User ID: ${socket.userId}, Role: ${socket.userRole}`);
 
+    if (socket.userRole === ROLES.TEAM_MANAGER) {
+      socket.join(socket.userId.toString());
+    }
+
     // Handle joining an auction room
     socket.on('join-auction', (room) => {
       socket.join(room);
@@ -117,6 +121,11 @@ module.exports = (io) => {
       socket.leave(room);
       socket.leave(`${room}-organizer`);
       logger.info(`Client left auction room: ${room}`);
+    });
+
+    socket.on('leave-user', () => {
+      socket.leave(socket.userId.toString());
+      logger.info(`Client left user room: ${socket.userId}`);
     });
 
     socket.on('disconnect', () => {

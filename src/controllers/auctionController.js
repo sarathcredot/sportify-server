@@ -217,8 +217,9 @@ class AuctionController extends BaseController {
 
   async placeConcealedBid(req, res) {
     const { auctionId } = req.params;
+    const concealedBid = { ...req.body, placedBy: req.user._id };
     try {
-      const bid = await auctionService.placeConcealedBid(auctionId, req.body);
+      const bid = await auctionService.placeConcealedBid(auctionId, concealedBid);
       this.handleSuccess(res, bid, "Concealed bid placed");
     } catch (error) {
       this.handleError(res, error);

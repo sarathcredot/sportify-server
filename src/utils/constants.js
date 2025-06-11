@@ -144,11 +144,11 @@ const POSTER_PLAN_INCLUDES = {
    player_registration: "Player Registration poster",
    auction_announcement: "Auction Announcement poster",
    match_day_announcement: "Match Day Announcement poster",
-   champions: "Champions Poster",
+   teams_poster: "Teams Poster",
    runners_up: "Runners up Poster",
    each_game_mom: "Each game MOM poster",
    each_game_pot: "Each game POT poster",
-   teams_poster: "Teams Poster",
+   champions: "Champions Poster",
 };
 
 const ORDER_TYPE = {

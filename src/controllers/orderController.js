@@ -10,6 +10,8 @@ class OrderController extends BaseController {
     this.updateOrder = this.updateOrder.bind(this);
     this.suspendOrder = this.suspendOrder.bind(this);
     this.subscriptionAnalytics = this.subscriptionAnalytics.bind(this);
+    this.getOrganizerActivePosterPlanForTournament =
+      this.getOrganizerActivePosterPlanForTournament.bind(this);
   }
 
   async createOrder(req, res) {
@@ -25,7 +27,15 @@ class OrderController extends BaseController {
 
   async getOrders(req, res) {
     try {
-      const { page = 1, limit = 10, skip = "false", type, planId, userId, search } = req.query;
+      const {
+        page = 1,
+        limit = 10,
+        skip = "false",
+        type,
+        planId,
+        userId,
+        search,
+      } = req.query;
       const skipFlag = skip === "true" ? true : false;
       const orders = await orderService.getOrders(
         page,
@@ -96,6 +106,20 @@ class OrderController extends BaseController {
         analytics,
         "Subscription analytics retrieved successfully"
       );
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getOrganizerActivePosterPlanForTournament(req, res) {
+    try {
+      const { tournamentId } = req.query;
+      const user = req.user;
+      const activePlan = await orderService.getOrganizerActivePosterPlanForTournament(
+        user?._id,
+        tournamentId
+      );
+      this.handleSuccess(res, activePlan, "Active Plan retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
     }

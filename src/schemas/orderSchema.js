@@ -28,7 +28,7 @@ const createOrderSchema = z
     auctionPlan: z.string().optional(),
     posterPlan: z.string().optional(),
     tournament: z.string().optional(),
-    user: z.string(),
+    user: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.type === ORDER_TYPE.AUCTION_PLAN && !data.auctionPlan) {

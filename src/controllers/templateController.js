@@ -13,12 +13,13 @@ class TemplateController extends BaseController {
 
   async getAllTemplates(req, res) {
     try {
-      const { type, page, limit } = req.query;
+      const { type, page, limit, availableForPlan } = req.query;
       console.log("template", req.query)
       const templates = await templateService.getAllTemplates(
         type,
         parseInt(page),
-        parseInt(limit)
+        parseInt(limit),
+        availableForPlan
       );
       this.handleSuccess(res, templates, "Templates retrieved successfully");
     } catch (error) {

@@ -15,7 +15,7 @@ class AuctionPlanService {
       throw new Error("Maximum allowed teams count is required !");
     }
 
-    const query = { $or: [] };
+    const query = { isActive: true, $or: [] };
 
     if (isFree) {
       query.$or.push({ isFree: true });
@@ -52,10 +52,39 @@ class AuctionPlanService {
     return newAuctionPlan;
   }
 
-  async getAuctionPlans(page, limit, skip) {
+  async getAuctionPlans(page, limit, skip, isActive) {
+    let matchObj = {};
+
+    if (isActive) {
+      isActive = isActive === "true";
+    }
+
     let pipeline = [
       {
-        $sort: { maxAllowedTeams: -1 },
+        $match: matchObj,
+      },
+      {
+        $addFields: {
+          sortOrder: {
+            $cond: [
+              { $eq: ["$isFree", true] }, 
+              -1, 
+              {
+                $cond: [
+                  { $eq: ["$isUnlimitedTeamsAllowed", true] }, 
+                  1, 
+                  0, 
+                ],
+              },
+            ],
+          },
+        },
+      },
+      {
+        $sort: {
+          sortOrder: 1, 
+          maxAllowedTeams: -1, 
+        },
       },
     ];
 
@@ -90,13 +119,10 @@ class AuctionPlanService {
   }
 
   async updateAuctionPlan(id, auctionPlanData) {
-    const {
-      maxAllowedTeams,
-      isFree,
-      isUnlimitedTeamsAllowed,
-    } = auctionPlanData;
+    const { maxAllowedTeams, isFree, isUnlimitedTeamsAllowed } =
+      auctionPlanData;
 
-    const query = { $or: [], _id: { $ne: id } };
+    const query = { $or: [], _id: { $ne: id }, isActive: true };
 
     if (isFree) {
       query.$or.push({ isFree: true });
