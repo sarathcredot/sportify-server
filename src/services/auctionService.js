@@ -10,6 +10,8 @@ const { NotFoundError, BadRequestError, ValidationError } = require("../utils/er
 const mongoose = require('mongoose');
 const { getIO } = require('../config/socket');
 const { info } = require("winston");
+const socketService = require("./socketService");
+const { logger } = require("../config/logger");
 
 
 class AuctionService {
@@ -442,13 +444,6 @@ class AuctionService {
     }
   }
 
-
-
-
-
-
-
-
   async deleteBid(bidId) {
     const bid = await Bid.findById(bidId)
     console.log("bid>>>>>>>>>>", bid)
@@ -477,12 +472,27 @@ class AuctionService {
     });
     await auction.save();
 
-    const io = getIO();
-    io.to(`auction-${auction._id}`).emit('concealed-bid-requested', {
-      message: `Concealed bid requested for ${auction.currentBiddingPlayer.player.name}`,
-      auctionId: auction._id,
-      playerId: auction.currentBiddingPlayer._id,
-    });
+    // const io = getIO();
+    // io.to(`auction-${auction._id}`).emit('concealed-bid-requested', {
+    //   message: `Concealed bid requested for ${auction.currentBiddingPlayer.player.name}`,
+    //   auctionId: auction._id,
+    //   playerId: auction.currentBiddingPlayer._id,
+    // });
+    
+    try {
+      socketService.sendMessageToAllTeamManagersInTournament(auction.tournament, 'concealed-bid-requested', {
+        message: `Concealed bid requested for ${auction.currentBiddingPlayer.firstName} ${auction.currentBiddingPlayer.lastName || ''}`,
+        auctionId: auctionId,
+        playerId: auction.currentBiddingPlayer._id,
+        playerName: `${auction.currentBiddingPlayer.firstName} ${auction.currentBiddingPlayer.lastName || ''}`,
+      });
+    } catch (error) {
+      logger.error("Socket event failed to send message to team managers", {
+        error,
+        auctionId,
+      });
+    }
+    
     return auction;
   }
 
