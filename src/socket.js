@@ -95,6 +95,14 @@ module.exports = (io) => {
 
     })
 
+    socket.on("player-unsold-live", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("player-unsold-live", res)
+      console.log("live preview sent to sold player")
+    })
+
+
+
     // new player selcted details in live preview
 
     socket.on("biding-player-live", (res) => {

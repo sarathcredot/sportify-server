@@ -120,17 +120,17 @@ class TournamentController extends BaseController {
     try {
       const { search, organiserId, statusList, sportTypes, locations, feesType, page = 1, limit = 10, skip = "false" } = req.query;
       console.log("tour", req.query)
-      const tournaments = await tournamentService.getTournaments(
+      const tournaments = await tournamentService.getTournaments({
         search,
         organiserId,
-        statusList,
-        sportTypes,
-        locations,
-        feesType,
-        parseInt(page),
-        parseInt(limit),
-        skip === 'true' ? true : false
-      );
+        statusList: statusList ? Array.isArray(statusList) ? statusList : [statusList] : [],
+        sportTypes: sportTypes ? Array.isArray(sportTypes) ? sportTypes : [sportTypes] : [],
+        locations: locations ? Array.isArray(locations) ? locations : [locations] : [],
+        feesType: feesType ? Array.isArray(feesType) ? feesType : [feesType] : [],
+        page: parseInt(page),
+        limit: parseInt(limit),
+        skip: skip === 'true' ? true : false
+      });
       res.status(200).json(ResponseHandler.success('Tournaments retrieved successfully', tournaments));
     } catch (error) {
       this.handleError(res, error);
