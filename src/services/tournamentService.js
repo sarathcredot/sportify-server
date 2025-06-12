@@ -15,7 +15,7 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-  async getTournaments({search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip = true}) {
+  async getTournaments({ search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip = true }) {
     const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
@@ -205,6 +205,8 @@ class TournamentService {
 
   async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
+
+
 
     const city = await City.findOneAndUpdate(
       { name: updateData.location?.toLowerCase() },
@@ -478,7 +480,7 @@ class TournamentService {
 
     if (teamData?.status === TEAM_STATUS.REJECTED && approve === false) {
 
-      
+
       const tournamentTeam = await TournamentTeams.findOneAndUpdate(
         {
           tournament: tournamentId,
@@ -526,8 +528,8 @@ class TournamentService {
       `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
     );
     return {
-      data:tournamentTeam,
-      msg:""
+      data: tournamentTeam,
+      msg: ""
     };
   }
 

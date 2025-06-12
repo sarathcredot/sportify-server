@@ -165,15 +165,15 @@ const createTournamentSchema = z.object({
       }),
   }),
   auction: z.object({
-    auctionDate: dateSchema.openapi({
-      example: "2024-01-01",
-    }),
-    auctionTime: z.string().openapi({
-      example: "10:00",
-    }),
-    auctionLocation: z.string().openapi({
-      example: "Auction Location",
-    }),
+    // auctionDate: dateSchema.openapi({
+    //   example: "2024-01-01",
+    // }),
+    // auctionTime: z.string().openapi({
+    //   example: "10:00",
+    // }),
+    // auctionLocation: z.string().openapi({
+    //   example: "Auction Location",
+    // }),
     biddingPointPerTeam: z.number().openapi({
       example: 1000,
     }),
@@ -206,9 +206,9 @@ const createTournamentSchema = z.object({
     } else {
       // Ensure all required fields are present in the auction object
       const requiredAuctionFields = [
-        "auctionDate",
-        "auctionTime",
-        "auctionLocation",
+        // "auctionDate",
+        // "auctionTime",
+        // "auctionLocation",
         "biddingPointPerTeam",
         "minBidPerPlayer",
         "maxBidPerPlayer",
