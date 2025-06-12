@@ -21,7 +21,7 @@ class OrderController extends BaseController {
       const orderData = req.body;
       const user = req.user;
       const order = await orderService.createOrder(orderData, user?._id);
-      this.handleSuccess(res, order, "Order created successfully");
+      this.handleSuccess(res, order, "Subscription completed successfully");
     } catch (error) {
       this.handleError(res, error);
     }
