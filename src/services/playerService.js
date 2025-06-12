@@ -53,7 +53,7 @@ class PlayerService {
 
     // Notify tournament organizer about new player registration
 
-     await notificationService.sendNotificationToOrganizer({
+    await notificationService.sendNotificationToOrganizer({
       tournamentId: tournament._id,
       type: "player_register"
     });
@@ -114,7 +114,7 @@ class PlayerService {
   async getPlayersByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     let query = { tournament: tournamentId };
     if (status) {
-      query.status = status;
+      query.status = { $ne: PLAYER_STATUS.PENDING };
     }
 
     if (search) {
@@ -124,7 +124,7 @@ class PlayerService {
         { contactNumber: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
         { playerId: { $regex: search, $options: 'i' } }
-        
+
       ];
     }
 
