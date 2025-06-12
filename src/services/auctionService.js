@@ -478,7 +478,7 @@ class AuctionService {
     //   auctionId: auction._id,
     //   playerId: auction.currentBiddingPlayer._id,
     // });
-    
+
     try {
       socketService.sendMessageToAllTeamManagersInTournament(auction.tournament, 'concealed-bid-requested', {
         message: `Concealed bid requested for ${auction.currentBiddingPlayer.firstName} ${auction.currentBiddingPlayer.lastName || ''}`,
@@ -492,7 +492,7 @@ class AuctionService {
         auctionId,
       });
     }
-    
+
     return auction;
   }
 
@@ -691,7 +691,7 @@ class AuctionService {
         tournament: auction.tournament,
         status: PLAYER_STATUS.SOLD
       })
-        .populate('currentBid.bid')
+        // .populate('currentBid.bid')
         .session(session);
 
       if (!player) {
@@ -710,6 +710,8 @@ class AuctionService {
       auction.currentBiddingPlayer = player._id;
       await auction.save({ session });
 
+      const bid = await Bid.findById(player?.currentBid?.bid).session(session);
+
       // Revert team changes
       const team = await TournamentTeams.findById(player.currentBid.team).session(session);
       if (!team) {
@@ -717,20 +719,31 @@ class AuctionService {
       }
 
       // Restore team's remaining points
-      team.remainingPoints = team.remainingPoints + player.currentBid.bid.points;
+      team.remainingPoints = team.remainingPoints + bid.points;
 
       // Remove player from team's players array
-      team.players = team.players.filter(p => p.player.toString() !== player._id.toString());
+      // team.players = team.players.filter(p => p.player.toString() !== player._id.toString());
+      const filteredPlayers = team.players.filter(p => p.player.toString() !== playerId);
+      team.players = [];
+      team.players.push(...filteredPlayers.map(p => ({
+        player: p.player,
+        signedForPoints: p.signedForPoints
+      })));
 
       // Remove bid from team's wonBids
-      team.wonBids = team.wonBids.filter(bid => bid.toString() !== player.currentBid.bid._id.toString());
+      team.wonBids = team.wonBids.filter(bid => bid.toString() !== player.currentBid.bid.toString());
 
       // Recalculate max points per bid
       const tournament = await Tournament.findById(auction.tournament).session(session);
       const numberOfPlayersInTeam = team.players ? team.players.length : 0;
       const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
-      const totalMinBidPointsRequired = remainingPlayersRequired * auction.minBidPerPlayer;
-      team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+      // const totalMinBidPointsRequired = remainingPlayersRequired * auction.minBidPerPlayer;
+      // team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+
+      if (remainingPlayersRequired > -1) {
+        const totalMinBidPointsRequired = remainingPlayersRequired * auction.minBidPerPlayer;
+        team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
+      }
 
       await team.save({ session });
       await session.commitTransaction();
@@ -744,7 +757,7 @@ class AuctionService {
         player: player
       });
 
-      return player;
+      return "reverted";
     } catch (error) {
       await session.abortTransaction();
       throw error;
@@ -943,7 +956,7 @@ class AuctionService {
         player: player
       });
 
-      return player;
+      return "reverted";
     } catch (error) {
       await session.abortTransaction();
       throw error;

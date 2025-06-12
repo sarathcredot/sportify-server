@@ -4,11 +4,13 @@ const City = require("../models/City");
 const Team = require("../models/Team");
 const mongoose = require('mongoose');
 const { sendEmail } = require("./emailService")
+const { AUCTION_STATUS } = require("../utils/constants")
 
 const {
   ValidationError,
   NotFoundError,
   UnauthorizedError,
+  BadRequestError,
 } = require("../utils/errors");
 const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const TournamentPlayers = require("../models/TournamentPlayers");
@@ -206,6 +208,10 @@ class TournamentService {
   async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
 
+    if (tournament.auction.status === AUCTION_STATUS.LIVE || tournament.auction.status === AUCTION_STATUS.COMPLETED) {
+
+      throw new BadRequestError("this tournament can't edit")
+    }
 
 
     const city = await City.findOneAndUpdate(
