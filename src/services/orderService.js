@@ -520,7 +520,7 @@ class OrderService {
 
     let activePlanForTournament = null;
 
-    if (activePlan && tournamentId) {
+    if (tournamentId) {
       queryObj.tournament = new Types.ObjectId(tournamentId);
       queryObj.isExpired = true;
       queryObj.isUsed = true;
