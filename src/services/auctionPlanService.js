@@ -52,8 +52,13 @@ class AuctionPlanService {
     return newAuctionPlan;
   }
 
-  async getAuctionPlans(page, limit, skip, isActive) {
-    let matchObj = {};
+  async getAuctionPlans(page, limit, skip, isActive, maxAllowedTeams) {
+    let matchObj = {
+      $or: [
+        { maxAllowedTeams: { $gte: maxAllowedTeams } },
+        { isUnlimitedTeamsAllowed: true },
+      ],
+    };
 
     if (isActive) {
       isActive = isActive === "true";
@@ -67,14 +72,10 @@ class AuctionPlanService {
         $addFields: {
           sortOrder: {
             $cond: [
-              { $eq: ["$isFree", true] }, 
-              -1, 
+              { $eq: ["$isFree", true] },
+              -1,
               {
-                $cond: [
-                  { $eq: ["$isUnlimitedTeamsAllowed", true] }, 
-                  1, 
-                  0, 
-                ],
+                $cond: [{ $eq: ["$isUnlimitedTeamsAllowed", true] }, 1, 0],
               },
             ],
           },
@@ -82,8 +83,8 @@ class AuctionPlanService {
       },
       {
         $sort: {
-          sortOrder: 1, 
-          maxAllowedTeams: -1, 
+          sortOrder: 1,
+          maxAllowedTeams: -1,
         },
       },
     ];

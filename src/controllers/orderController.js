@@ -12,6 +12,8 @@ class OrderController extends BaseController {
     this.subscriptionAnalytics = this.subscriptionAnalytics.bind(this);
     this.getOrganizerActivePosterPlanForTournament =
       this.getOrganizerActivePosterPlanForTournament.bind(this);
+    this.getOrganizerActiveAuctionPlan =
+      this.getOrganizerActiveAuctionPlan.bind(this);
   }
 
   async createOrder(req, res) {
@@ -115,11 +117,31 @@ class OrderController extends BaseController {
     try {
       const { tournamentId } = req.query;
       const user = req.user;
-      const activePlan = await orderService.getOrganizerActivePosterPlanForTournament(
-        user?._id,
-        tournamentId
-      );
+      const activePlan =
+        await orderService.getOrganizerActivePosterPlanForTournament(
+          user?._id,
+          tournamentId
+        );
       this.handleSuccess(res, activePlan, "Active Plan retrieved successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getOrganizerActiveAuctionPlan(req, res) {
+    try {
+      const { maxAllowedTeams } = req.query;
+      const user = req.user;
+      const activePlan =
+        await orderService.getOrganizerActiveAuctionPlan(
+          user?._id,
+          maxAllowedTeams && parseInt(maxAllowedTeams)
+        );
+      this.handleSuccess(
+        res,
+        activePlan,
+        "Active Auction Plan retrieved successfully"
+      );
     } catch (error) {
       this.handleError(res, error);
     }

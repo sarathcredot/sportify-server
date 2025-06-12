@@ -53,7 +53,7 @@ class OrderService {
     if (
       type === ORDER_TYPE.POSTER_PLAN &&
       posterPlanExists &&
-      posterPlanExists?.isActive === false
+      !posterPlanExists?.isActive
     ) {
       throw new Error("Plan is currently not available !");
     }
@@ -75,10 +75,26 @@ class OrderService {
         user: new Types.ObjectId(user),
         isUsed: false,
         isExpired: false,
+        isSuspended: false,
       });
 
       if (existingOrder) {
         throw new Error("Same Plan already exists for this tournament !");
+      }
+    }
+
+    if (type === ORDER_TYPE.POSTER_PLAN) {
+      const existingOrder = await Order.findOne({
+        type: ORDER_TYPE.POSTER_PLAN,
+        posterPlan: new Types.ObjectId(posterPlan),
+        user: new Types.ObjectId(user),
+        isUsed: false,
+        isExpired: false,
+        isSuspended: false,
+      });
+
+      if (existingOrder) {
+        throw new Error("Same Plan already purchased !");
       }
     }
 
@@ -90,6 +106,7 @@ class OrderService {
         user: new Types.ObjectId(user),
         isUsed: false,
         isExpired: false,
+        isSuspended: false,
       });
 
       if (existingOrder) {
@@ -399,7 +416,7 @@ class OrderService {
     );
   }
 
-  //FOR BOTH TYPE OF SUBSCRIPTIONS [POSTER PLAN, AUCTION PLAN]
+  //FOR ACTIVE POSTER PLAN
   async getOrganizerActivePosterPlanForTournament(userId, tournamentId) {
     if (!userId) {
       throw new Error("Organizer id is required !");
@@ -473,7 +490,7 @@ class OrderService {
       },
     ]);
 
-    activePlan = activePlan?.length > 0 ? activePlan[0] : null;
+    activePlan = activePlan?.length > 0;
 
     let activePlanForTournament = null;
 
@@ -535,6 +552,160 @@ class OrderService {
           $unwind: {
             path: "$tournament",
             preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+      activePlanForTournament =
+        activePlanForTournament?.length > 0 ? activePlanForTournament[0] : null;
+    }
+
+    return { activePlan, activePlanForTournament };
+  }
+
+  async getOrganizerActiveAuctionPlan(userId, maxAllowedTeams = 0) {
+    if (!userId) {
+      throw new Error("Organizer id is required !");
+    }
+
+    const queryObj = {
+      type: ORDER_TYPE.AUCTION_PLAN,
+      user: new Types.ObjectId(userId),
+      isUsed: false,
+      isExpired: false,
+      isSuspended: false,
+    };
+
+    let activePlan = await Order.aggregate([
+      { $match: queryObj },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "auctionplans",
+          localField: "auctionPlan",
+          foreignField: "_id",
+          as: "auctionPlan",
+        },
+      },
+      {
+        $unwind: {
+          path: "$auctionPlan",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "posterplans",
+          localField: "posterPlan",
+          foreignField: "_id",
+          as: "posterPlan",
+        },
+      },
+      {
+        $unwind: {
+          path: "$posterPlan",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: "tournaments",
+          localField: "tournament",
+          foreignField: "_id",
+          as: "tournament",
+        },
+      },
+      {
+        $unwind: {
+          path: "$tournament",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $match: {
+          "auctionPlan.maxAllowedTeams": { $gte: maxAllowedTeams },
+        },
+      }, 
+    ]);
+
+    activePlan = activePlan?.length > 0;
+
+    let activePlanForTournament = null;
+
+    if (activePlan) {
+      activePlanForTournament = await Order.aggregate([
+        { $match: queryObj },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "auctionplans",
+            localField: "auctionPlan",
+            foreignField: "_id",
+            as: "auctionPlan",
+          },
+        },
+        {
+          $unwind: {
+            path: "$auctionPlan",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "posterplans",
+            localField: "posterPlan",
+            foreignField: "_id",
+            as: "posterPlan",
+          },
+        },
+        {
+          $unwind: {
+            path: "$posterPlan",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "tournaments",
+            localField: "tournament",
+            foreignField: "_id",
+            as: "tournament",
+          },
+        },
+        {
+          $unwind: {
+            path: "$tournament",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            "auctionPlan.maxAllowedTeams": { $gte: maxAllowedTeams },
           },
         },
       ]);

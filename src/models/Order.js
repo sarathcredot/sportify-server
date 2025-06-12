@@ -22,7 +22,7 @@ const orderSchema = new mongoose.Schema(
       default: false,
     },
     isSuspended: {
-      type: Boolean,  
+      type: Boolean,
       default: false,
     },
     paymentDetails: {
@@ -38,6 +38,7 @@ const orderSchema = new mongoose.Schema(
       },
       amount: {
         type: Number,
+        default: 0,
       },
       currency: {
         type: String,
