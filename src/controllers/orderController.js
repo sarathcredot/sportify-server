@@ -76,7 +76,7 @@ class OrderController extends BaseController {
         },
         user?._id
       );
-      this.handleSuccess(res, updatedOrder, "Order updated successfully");
+      this.handleSuccess(res, updatedOrder, "Subscription updated successfully");
     } catch (error) {
       this.handleError(res, error);
     }

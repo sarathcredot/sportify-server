@@ -130,11 +130,11 @@ class OrderService {
       matchObj.type = type;
     }
 
-    if (type === ORDER_TYPE.POSTER_PLAN) {
+    if (type === ORDER_TYPE.POSTER_PLAN && planId) {
       matchObj.posterPlan = new Types.ObjectId(planId);
     }
 
-    if (type === ORDER_TYPE.AUCTION_PLAN) {
+    if (type === ORDER_TYPE.AUCTION_PLAN && planId) {
       matchObj.auctionPlan = new Types.ObjectId(planId);
     }
 
