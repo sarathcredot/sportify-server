@@ -2,9 +2,9 @@ const Tournament = require("../models/Tournament");
 const Auction = require("../models/Auction");
 const City = require("../models/City");
 const Team = require("../models/Team");
-const mongoose = require('mongoose');
-const { sendEmail } = require("./emailService")
-const { AUCTION_STATUS } = require("../utils/constants")
+const mongoose = require("mongoose");
+const { sendEmail } = require("./emailService");
+const { AUCTION_STATUS } = require("../utils/constants");
 
 const {
   ValidationError,
@@ -17,7 +17,17 @@ const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 
 class TournamentService {
-  async getTournaments({ search, organiserId, statusList, sportTypes, locations, registrationFeesList, page, limit, skip = true }) {
+  async getTournaments({
+    search,
+    organiserId,
+    statusList,
+    sportTypes,
+    locations,
+    registrationFeesList,
+    page,
+    limit,
+    skip = true,
+  }) {
     const query = {};
     if (search) {
       query.name = { $regex: String(search).trim(), $options: "i" };
@@ -28,7 +38,7 @@ class TournamentService {
     }
 
     if (statusList && statusList.length > 0) {
-      console.log("status", statusList)
+      console.log("status", statusList);
       // const statusListArray = statusList;
       // if (statusListArray.includes("upcoming")) {
       //   query.startDate = { $gt: new Date() };
@@ -61,7 +71,6 @@ class TournamentService {
       if (statusConditions.length > 0) {
         query.$or = statusConditions;
       }
-
     }
 
     if (sportTypes && sportTypes.length > 0) {
@@ -90,13 +99,14 @@ class TournamentService {
     //   }
     // }
 
-    let skipCount = 0
+    let skipCount = 0;
 
     if (skip) {
       skipCount = (page - 1) * limit;
     }
 
-    const tournaments = await Tournament.find(query).populate('location')
+    const tournaments = await Tournament.find(query)
+      .populate("location")
       .skip(skipCount)
       .limit(limit);
 
@@ -123,12 +133,17 @@ class TournamentService {
       { $setOnInsert: { name: tournamentData.location?.toLowerCase() } },
       { upsert: true, new: true }
     );
-    console.log("city", city)
+    console.log("city", city);
 
-    console.log("user", tournamentData)
+    console.log("user", tournamentData);
 
-    if (tournamentData?.auction?.maxBidPerPlayer < tournamentData?.auction?.minBidPerPlayer) {
-      throw new ValidationError("Max bid per player cannot be less than min bid per player");
+    if (
+      tournamentData?.auction?.maxBidPerPlayer <
+      tournamentData?.auction?.minBidPerPlayer
+    ) {
+      throw new ValidationError(
+        "Max bid per player cannot be less than min bid per player"
+      );
     }
 
     let obj = {
@@ -154,7 +169,7 @@ class TournamentService {
   }
 
   async getTournamentById(id) {
-    const tournament = await Tournament.findById(id).populate('location');
+    const tournament = await Tournament.findById(id).populate("location");
     const auction = await Auction.findOne({ tournament: id });
 
     if (!tournament) {
@@ -169,57 +184,57 @@ class TournamentService {
   }
 
   async getTournamentForTeamManagerById(id, user) {
-    const tournament = await Tournament.findById(id).populate('location');
+    const tournament = await Tournament.findById(id).populate("location");
     const auction = await Auction.findOne({ tournament: id });
 
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
-    const isRegistered = await TournamentTeams.find({ tournament: id, teamManager: user._id });
+    const isRegistered = await TournamentTeams.find({
+      tournament: id,
+      teamManager: user._id,
+    });
 
     // Convert Mongoose document to plain object
     const tournamentObj = tournament.toObject();
     const auctionObj = auction ? auction.toObject() : null;
 
-    return { tournament: { ...tournamentObj, isRegistered: isRegistered.length > 0 }, auction: auctionObj };
+    return {
+      tournament: { ...tournamentObj, isRegistered: isRegistered.length > 0 },
+      auction: auctionObj,
+    };
   }
 
   async getTournamentByIdPoster(id) {
-
-    console.log("get tournament by id poster", id)
-    const tournament = await Tournament.findById(id).populate('location');
+    console.log("get tournament by id poster", id);
+    const tournament = await Tournament.findById(id).populate("location");
     const auction = await Auction.findOne({ tournament: id });
 
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
-    console.log(tournament)
+    console.log(tournament);
 
     return { tournament, auction: auction };
   }
 
-
-
-
-
-
   async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
 
-    if (tournament?.auction?.status === AUCTION_STATUS.LIVE || tournament.auction.status === AUCTION_STATUS.COMPLETED) {
-
-      throw new BadRequestError("this tournament can't edit")
+    if (
+      tournament?.auction?.status === AUCTION_STATUS.LIVE ||
+      tournament?.auction?.status === AUCTION_STATUS.COMPLETED
+    ) {
+      throw new BadRequestError("this tournament can't edit");
     }
-
 
     const city = await City.findOneAndUpdate(
       { name: updateData.location?.toLowerCase() },
-      { $setOnInsert: { name: updateData.location?.toLowerCase() } },
+      { $setOnInsert: { name: updateData?.location?.toLowerCase() } },
       { upsert: true, new: true }
     );
-
 
     if (!this.canUserModifyTournament(tournament, user)) {
       throw new UnauthorizedError("Not authorized to modify this tournament");
@@ -229,7 +244,7 @@ class TournamentService {
 
     const respo = await Tournament.findByIdAndUpdate(
       id,
-      { $set: { ...updateData, location: city._id } },
+      { $set: { ...updateData, location: city?._id } },
       { new: true, runValidators: true }
     );
 
@@ -285,7 +300,11 @@ class TournamentService {
 
     const skip = (page - 1) * limit;
     const [tournaments, total] = await Promise.all([
-      Tournament.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).populate("location"),
+      Tournament.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("location"),
       Tournament.countDocuments(query),
     ]);
 
@@ -304,7 +323,7 @@ class TournamentService {
     const team = await Team.findOne({ manager: teamManagerId });
 
     if (!team) {
-      console.log('No team found for manager');
+      console.log("No team found for manager");
       return {
         tournaments: [],
         pagination: {
@@ -329,7 +348,9 @@ class TournamentService {
       };
     }
 
-    const tournamentIds = tournamentTeams.map(tournamentTeam => new mongoose.Types.ObjectId(tournamentTeam.tournament));
+    const tournamentIds = tournamentTeams.map(
+      (tournamentTeam) => new mongoose.Types.ObjectId(tournamentTeam.tournament)
+    );
 
     const query = { _id: { $in: tournamentIds } };
     if (search) {
@@ -338,7 +359,11 @@ class TournamentService {
 
     const skip = (page - 1) * limit;
     const [tournaments, total] = await Promise.all([
-      Tournament.find(query).sort({ createdAt: -1 }).populate('location').skip(skip).limit(limit),
+      Tournament.find(query)
+        .sort({ createdAt: -1 })
+        .populate("location")
+        .skip(skip)
+        .limit(limit),
       Tournament.countDocuments(query),
     ]);
 
@@ -354,33 +379,28 @@ class TournamentService {
   }
 
   async approvePlayerInTournament(tournamentId, playerId, approve) {
-
     const tournament = await Tournament.findById(tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
     }
 
     if (approve) {
-
-      const maxPlayersAllowed = tournament?.settings?.maxPlayersAllowed
-      const tournamentPlayers = await TournamentPlayers.find({ tournament: tournament?._id, status: PLAYER_STATUS.APPROVED })
+      const maxPlayersAllowed = tournament?.settings?.maxPlayersAllowed;
+      const tournamentPlayers = await TournamentPlayers.find({
+        tournament: tournament?._id,
+        status: PLAYER_STATUS.APPROVED,
+      });
       if (tournamentPlayers && tournamentPlayers.length === maxPlayersAllowed) {
         throw new NotFoundError("Maximum allowed players reached");
       }
-
     }
-
-
-
 
     const plyaerdata = await TournamentPlayers.findOne({
       tournament: tournamentId,
       player: playerId,
     });
 
-
     if (plyaerdata?.status === PLAYER_STATUS.REJECTED && approve === false) {
-
       const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
         {
           tournament: tournamentId,
@@ -401,12 +421,9 @@ class TournamentService {
       );
       return {
         data: tournamentPlayer,
-        msg: "Player status changed successfully"
+        msg: "Player status changed successfully",
       };
-
     }
-
-
 
     const tournamentPlayer = await TournamentPlayers.findOneAndUpdate(
       {
@@ -429,11 +446,13 @@ class TournamentService {
     await sendEmail(
       plyaerdata?.email,
       "Player Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
+      `Your registration for the tournament ${tournament?.name} has been ${
+        approve ? "approved" : "rejected"
+      }`
     );
     return {
       data: tournamentPlayer,
-      msg: ""
+      msg: "",
     };
   }
 
@@ -458,35 +477,36 @@ class TournamentService {
   }
 
   async approveTeamInTournament(tournamentId, teamId, approve) {
-
     const tournament = await Tournament.findById(tournamentId);
     //  console.log("tournemt",tournament)
     if (!tournament) {
-
       throw new NotFoundError("Tournament not found");
     }
 
     if (approve) {
-
-      console.log("approve team in tournament>>>>>>>>>>>>>>>>>>>>>>>>>>>>", tournamentId, teamId, approve)
-      const maxTeamsAllowed = tournament?.settings?.maxTeamAllowed
-      const tournamentTeams = await TournamentTeams.find({ tournament: tournament?._id, status: TEAM_STATUS.APPROVED })
-      console.log("count", maxTeamsAllowed, tournamentTeams.length)
+      console.log(
+        "approve team in tournament>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+        tournamentId,
+        teamId,
+        approve
+      );
+      const maxTeamsAllowed = tournament?.settings?.maxTeamAllowed;
+      const tournamentTeams = await TournamentTeams.find({
+        tournament: tournament?._id,
+        status: TEAM_STATUS.APPROVED,
+      });
+      console.log("count", maxTeamsAllowed, tournamentTeams.length);
       if (tournamentTeams && tournamentTeams.length === maxTeamsAllowed) {
         throw new NotFoundError("Maximum allowed teams reached");
       }
-
     }
-
 
     const teamData = await TournamentTeams.findOne({
       tournament: tournamentId,
       team: teamId,
-    })
+    });
 
     if (teamData?.status === TEAM_STATUS.REJECTED && approve === false) {
-
-
       const tournamentTeam = await TournamentTeams.findOneAndUpdate(
         {
           tournament: tournamentId,
@@ -494,7 +514,7 @@ class TournamentService {
         },
         {
           $set: {
-            status: TEAM_STATUS.PENDING
+            status: TEAM_STATUS.PENDING,
           },
         },
         { new: true }
@@ -507,10 +527,9 @@ class TournamentService {
       );
       return {
         data: tournamentTeam,
-        msg: "Team status changed successfully"
+        msg: "Team status changed successfully",
       };
     }
-
 
     const tournamentTeam = await TournamentTeams.findOneAndUpdate(
       {
@@ -531,11 +550,13 @@ class TournamentService {
     await sendEmail(
       tournamentTeam?.email,
       "Team Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"}`
+      `Your registration for the tournament ${tournament?.name} has been ${
+        approve ? "approved" : "rejected"
+      }`
     );
     return {
       data: tournamentTeam,
-      msg: ""
+      msg: "",
     };
   }
 
@@ -582,13 +603,9 @@ class TournamentService {
     }
   }
 
-
-
-
   async getLatestTournaments() {
-
     const result = await Tournament.find()
-      .populate('location')
+      .populate("location")
       .sort({ createdAt: -1 })
       .limit(6);
 
