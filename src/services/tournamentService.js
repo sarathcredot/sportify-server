@@ -208,7 +208,7 @@ class TournamentService {
   async updateTournamentById(id, updateData, user) {
     const tournament = await this.getTournamentById(id);
 
-    if (tournament.auction.status === AUCTION_STATUS.LIVE || tournament.auction.status === AUCTION_STATUS.COMPLETED) {
+    if (tournament?.auction?.status === AUCTION_STATUS.LIVE || tournament.auction.status === AUCTION_STATUS.COMPLETED) {
 
       throw new BadRequestError("this tournament can't edit")
     }
