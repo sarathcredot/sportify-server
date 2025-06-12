@@ -2,7 +2,7 @@ const { Types } = require("mongoose");
 const AuctionPlan = require("../models/AuctionPlan");
 const Order = require("../models/Order");
 const PosterPlan = require("../models/PosterPlan");
-const { ORDER_TYPE, ORDER_STATUS } = require("../utils/constants");
+const { ORDER_TYPE, ORDER_STATUS, PLANS_TYPES } = require("../utils/constants");
 const Tournament = require("../models/Tournament");
 
 class OrderService {
@@ -490,7 +490,30 @@ class OrderService {
       },
     ]);
 
-    activePlan = activePlan?.length > 0;
+    activePlan =
+      activePlan?.length > 0
+        ? activePlan?.reduce((acc, curr) => {
+            let pro = null;
+            let basic = null;
+            let start = null;
+
+            if (curr?.posterPlan?.type === PLANS_TYPES.PRO) {
+              pro = curr;
+            }
+
+            if (curr?.posterPlan?.type === PLANS_TYPES.BASIC) {
+              basic = curr;
+            }
+
+            if (curr?.posterPlan?.type === PLANS_TYPES.STARTER) {
+              start = curr;
+            }
+
+            acc = pro ? pro : basic ? basic : start;
+
+            return acc;
+          }, {})
+        : null;
 
     let activePlanForTournament = null;
 
@@ -637,7 +660,7 @@ class OrderService {
         $match: {
           "auctionPlan.maxAllowedTeams": { $gte: maxAllowedTeams },
         },
-      }, 
+      },
     ]);
 
     activePlan = activePlan?.length > 0;
