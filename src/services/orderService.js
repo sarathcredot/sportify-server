@@ -73,14 +73,17 @@ class OrderService {
         posterPlan: new Types.ObjectId(posterPlan),
         tournament: new Types.ObjectId(tournament),
         user: new Types.ObjectId(user),
-        isUsed: false,
-        isExpired: false,
+        // isUsed: false,
+        // isExpired: false,
         isSuspended: false,
       });
 
       if (existingOrder) {
         throw new Error("Same Plan already exists for this tournament !");
       }
+
+      orderData?.isExpired = true;
+      orderData?.isUsed = true;
     }
 
     if (type === ORDER_TYPE.POSTER_PLAN) {
@@ -519,6 +522,9 @@ class OrderService {
 
     if (activePlan && tournamentId) {
       queryObj.tournament = new Types.ObjectId(tournamentId);
+      queryObj.isExpired = true;
+      queryObj.isUsed = true;
+      
       activePlanForTournament = await Order.aggregate([
         { $match: queryObj },
         {
@@ -663,80 +669,7 @@ class OrderService {
       },
     ]);
 
-    activePlan = activePlan?.length > 0;
-
-    let activePlanForTournament = null;
-
-    if (activePlan) {
-      activePlanForTournament = await Order.aggregate([
-        { $match: queryObj },
-        {
-          $lookup: {
-            from: "users",
-            localField: "user",
-            foreignField: "_id",
-            as: "user",
-          },
-        },
-        {
-          $unwind: {
-            path: "$user",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: "auctionplans",
-            localField: "auctionPlan",
-            foreignField: "_id",
-            as: "auctionPlan",
-          },
-        },
-        {
-          $unwind: {
-            path: "$auctionPlan",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: "posterplans",
-            localField: "posterPlan",
-            foreignField: "_id",
-            as: "posterPlan",
-          },
-        },
-        {
-          $unwind: {
-            path: "$posterPlan",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: "tournaments",
-            localField: "tournament",
-            foreignField: "_id",
-            as: "tournament",
-          },
-        },
-        {
-          $unwind: {
-            path: "$tournament",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $match: {
-            "auctionPlan.maxAllowedTeams": { $gte: maxAllowedTeams },
-          },
-        },
-      ]);
-      activePlanForTournament =
-        activePlanForTournament?.length > 0 ? activePlanForTournament[0] : null;
-    }
-
-    return { activePlan, activePlanForTournament };
+    return { activePlan };
   }
 }
 
