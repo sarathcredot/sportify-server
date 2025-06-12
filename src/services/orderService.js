@@ -82,8 +82,8 @@ class OrderService {
         throw new Error("Same Plan already exists for this tournament !");
       }
 
-      orderData?.isExpired = true;
-      orderData?.isUsed = true;
+      orderData.isExpired = true;
+      orderData.isUsed = true;
     }
 
     if (type === ORDER_TYPE.POSTER_PLAN) {
