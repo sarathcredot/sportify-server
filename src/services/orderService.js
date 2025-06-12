@@ -157,7 +157,7 @@ class OrderService {
       {
         $unwind: {
           path: "$user",
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -171,7 +171,7 @@ class OrderService {
       {
         $unwind: {
           path: "$auctionPlan",
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -185,7 +185,7 @@ class OrderService {
       {
         $unwind: {
           path: "$posterPlan",
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
       {
@@ -199,7 +199,7 @@ class OrderService {
       {
         $unwind: {
           path: "$tournament",
-          preserveNullAndEmptyArrays: false,
+          preserveNullAndEmptyArrays: true,
         },
       },
     ];
