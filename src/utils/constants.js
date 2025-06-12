@@ -117,21 +117,6 @@ const SPONSOR_TYPES = {
 
 const SPONSOR_TYPES_VALUES = Object.values(SPONSOR_TYPES);
 
-const TEMPLATE_TYPES = {
-  TOURNAMENT_ANNOUNCEMENT: "tournament_announcement",
-  TEAM_REGISTRATION: "team_registration",
-  TEAM_POSTER: "team_poster",
-  CHAMPIONS: "champions",
-  RUNNER_UP: "runner_up",
-  MOTM: "motm",
-  POT: "pot",
-  PLAYER_REGISTRATION: "player_registration",
-  AUCTION_ANNOUNCEMENT: "auction_announcement",
-  MATCH_DAY_ANNOUNCEMENT: "match_day_announcement"
-};
-
-const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
-
 const PLANS_TYPES = {
   STARTER: "starter_plan",
   BASIC: "basic_plan",
@@ -150,6 +135,22 @@ const POSTER_PLAN_INCLUDES = {
    each_game_pot: "Each game POT poster",
    champions: "Champions Poster",
 };
+
+const TEMPLATE_TYPES = {
+  TOURNAMENT_ANNOUNCEMENT: "tournament_announcement",
+  TEAM_REGISTRATION: "team_registration",
+  TEAM_POSTER: "teams_poster",
+  CHAMPIONS: "champions",
+  RUNNER_UP: "runners_up",
+  MOTM: "each_game_mom",
+  POT: "each_game_pot",
+  PLAYER_REGISTRATION: "player_registration",
+  AUCTION_ANNOUNCEMENT: "auction_announcement",
+  MATCH_DAY_ANNOUNCEMENT: "match_day_announcement"
+};
+
+const TEMPLATE_TYPES_VALUES = Object.values(TEMPLATE_TYPES);
+
 
 const ORDER_TYPE = {
   AUCTION_PLAN: "auction_plan",
@@ -226,6 +227,7 @@ module.exports = {
   ALLOWED_VIDEO_TYPES,
 
   TEMPLATE_TYPES,
+  TEMPLATE_TYPES_VALUES,
   NOTIFICATION_TYPES,
 
   PLANS_TYPES,
@@ -233,4 +235,5 @@ module.exports = {
 
   ORDER_TYPE,
   ORDER_STATUS
+
 };
