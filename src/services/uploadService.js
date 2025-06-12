@@ -18,7 +18,9 @@ const uploadFile = async (file, folder) => {
         fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const fileKey = `${uuidv4()}-${file.originalname}`;
+    const sanitizedOriginalName = file.originalname.replace(/\s+/g, "_");
+
+    const fileKey = `${uuidv4()}-${sanitizedOriginalName}`;
     const filePath = path.join(uploadDir, fileKey);
 
     fs.writeFileSync(filePath, file.buffer);
