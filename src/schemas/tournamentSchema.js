@@ -122,6 +122,7 @@ const createTournamentSchema = z.object({
     playerRegistrationFee: z.number().int().min(0).openapi({
       example: 100,
     }),
+    auctionPlan: z.string().optional()
   })
     .superRefine((data, ctx) => {
       validateMatchType(data, ctx);

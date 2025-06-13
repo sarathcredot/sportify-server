@@ -15,6 +15,7 @@ const {
 const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
+const AuctionPlan = require("../models/AuctionPlan");
 
 class TournamentService {
   async getTournaments({
@@ -154,23 +155,51 @@ class TournamentService {
     };
 
     // console.log("obj", obj)
+    let tournament = null;
 
-    const tournament = new Tournament(obj);
-    await tournament.save();
+    const createNewTournament = async () => {
+      tournament = new Tournament(obj);
+      await tournament.save();
+    };
 
     if (tournamentData?.settings?.auctionEnabled) {
-      let auction = new Auction({
+      const auctionPlanExist = await AuctionPlan.findById(
+        tournamentData?.auctionPlan
+      );
+
+      if (!auctionPlanExist) {
+        throw new Error("Auction plan not found !");
+      }
+
+      if (
+        tournamentData?.settings?.maxTeamAllowed >
+        auctionPlanExist?.maxAllowedTeams
+      ) {
+        throw new Error(
+          `Auction plan maximum teams allowed is ${auctionPlanExist?.maxAllowedTeams} !`
+        );
+      }
+
+      await createNewTournament();
+
+      let newAuction = new Auction({
         ...tournamentData?.auction,
         tournament: tournament?._id,
+        auctionPlan: new mongoose.Types.ObjectId(auctionPlan),
       });
-      auction = await auction.save();
+      newAuction = await newAuction.save();
     }
+
+    await createNewTournament();
+
     return tournament;
   }
 
   async getTournamentById(id) {
     const tournament = await Tournament.findById(id).populate("location");
-    const auction = await Auction.findOne({ tournament: id });
+    const auction = await Auction.findOne({ tournament: id }).populate(
+      "auctionPlan"
+    );
 
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
