@@ -29,7 +29,7 @@ class OrderController extends BaseController {
 
   async getOrders(req, res) {
     try {
-      const {
+      let {
         page = 1,
         limit = 10,
         skip = "false",
