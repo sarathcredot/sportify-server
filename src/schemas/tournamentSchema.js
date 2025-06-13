@@ -122,7 +122,6 @@ const createTournamentSchema = z.object({
     playerRegistrationFee: z.number().int().min(0).openapi({
       example: 100,
     }),
-    auctionPlan: z.string().optional()
   })
     .superRefine((data, ctx) => {
       validateMatchType(data, ctx);
@@ -165,6 +164,7 @@ const createTournamentSchema = z.object({
         example: "organiser@example.com",
       }),
   }),
+
   auction: z.object({
     // auctionDate: dateSchema.openapi({
     //   example: "2024-01-01",
@@ -175,6 +175,7 @@ const createTournamentSchema = z.object({
     // auctionLocation: z.string().openapi({
     //   example: "Auction Location",
     // }),
+    auctionPlan: z.string().optional(),
     biddingPointPerTeam: z.number().openapi({
       example: 1000,
     }),
@@ -277,6 +278,7 @@ const updateTournamentSchema = z.object({
     maxBidPerPlayer: z.number().optional(),
     bidIncreaseBy: z.number().optional(),
     biddingTimerLimit: z.string().optional(),
+    auctionPlan: z.string().optional()
   }).optional(),
 }).openapi({
   example: {

@@ -164,7 +164,7 @@ class TournamentService {
 
     if (tournamentData?.settings?.auctionEnabled) {
       const auctionPlanExist = await AuctionPlan.findById(
-        tournamentData?.auctionPlan
+        tournamentData?.auction?.auctionPlan
       );
 
       if (!auctionPlanExist) {
@@ -185,7 +185,6 @@ class TournamentService {
       let newAuction = new Auction({
         ...tournamentData?.auction,
         tournament: new mongoose.Types.ObjectId(tournament?._id),
-        auctionPlan: new mongoose.Types.ObjectId(tournamentData?.auctionPlan),
       });
       newAuction = await newAuction.save();
     }
