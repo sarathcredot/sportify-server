@@ -123,8 +123,26 @@ class OrderService {
     return newOrder;
   }
 
-  async getOrders(page, limit, skip, type, planId, user, search) {
+  async getOrders(
+    page,
+    limit,
+    skip,
+    type,
+    planId,
+    user,
+    search,
+    isUsed,
+    isExpired
+  ) {
     let matchObj = {};
+
+    if (typeof isUsed === "boolean") {
+      matchObj.isUsed = isUsed;
+    }
+
+    if (typeof isExpired === "boolean") {
+      matchObj.isExpired = isExpired;
+    }
 
     if (type) {
       matchObj.type = type;
@@ -524,7 +542,7 @@ class OrderService {
       queryObj.tournament = new Types.ObjectId(tournamentId);
       queryObj.isExpired = true;
       queryObj.isUsed = true;
-      
+
       activePlanForTournament = await Order.aggregate([
         { $match: queryObj },
         {

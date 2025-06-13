@@ -37,7 +37,14 @@ class OrderController extends BaseController {
         planId,
         userId,
         search,
+        isUsed,
+        isExpired,
       } = req.query;
+
+      isUsed = isUsed === "true" ? true : isUsed === "false" ? false : null;
+      isExpired =
+        isExpired === "true" ? true : isExpired === "false" ? false : null;
+
       const skipFlag = skip === "true" ? true : false;
       const orders = await orderService.getOrders(
         page,
@@ -46,7 +53,9 @@ class OrderController extends BaseController {
         type,
         planId,
         userId,
-        search
+        search,
+        isUsed,
+        isExpired
       );
       this.handleSuccess(res, orders, "Orders retrieved successfully");
     } catch (error) {
@@ -76,7 +85,11 @@ class OrderController extends BaseController {
         },
         user?._id
       );
-      this.handleSuccess(res, updatedOrder, "Subscription updated successfully");
+      this.handleSuccess(
+        res,
+        updatedOrder,
+        "Subscription updated successfully"
+      );
     } catch (error) {
       this.handleError(res, error);
     }
@@ -132,11 +145,10 @@ class OrderController extends BaseController {
     try {
       const { maxAllowedTeams } = req.query;
       const user = req.user;
-      const activePlan =
-        await orderService.getOrganizerActiveAuctionPlan(
-          user?._id,
-          maxAllowedTeams && parseInt(maxAllowedTeams)
-        );
+      const activePlan = await orderService.getOrganizerActiveAuctionPlan(
+        user?._id,
+        maxAllowedTeams && parseInt(maxAllowedTeams)
+      );
       this.handleSuccess(
         res,
         activePlan,
