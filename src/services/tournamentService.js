@@ -184,8 +184,8 @@ class TournamentService {
 
       let newAuction = new Auction({
         ...tournamentData?.auction,
-        tournament: tournament?._id,
-        auctionPlan: new mongoose.Types.ObjectId(auctionPlan),
+        tournament: new mongoose.Types.ObjectId(tournament?._id),
+        auctionPlan: new mongoose.Types.ObjectId(tournamentData?.auctionPlan),
       });
       newAuction = await newAuction.save();
     }

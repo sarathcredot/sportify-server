@@ -335,12 +335,13 @@ class OrderService {
         type: order.type,
         tournament: new Types.ObjectId(tournament),
         user: new Types.ObjectId(user),
-        isUsed: false,
+        isUsed: true,
         isExpired: false,
-        _id: { $ne: order._id }, // Exclude the current order from the check
+        _id: { $ne: order?._id }, // Exclude the current order from the check
       });
 
       if (existingOrder) {
+        await Order.findByIdAndUpdate(order?._id, { isExpired: true })
         throw new Error("Same order already exists for this tournament!");
       }
 
@@ -397,7 +398,7 @@ class OrderService {
                   $and: [
                     { $eq: ["$isExpired", false] },
                     { $eq: ["$isSuspended", false] },
-                    { $eq: ["$isUsed", false] },
+                    // { $eq: ["$isUsed", false] },
                   ],
                 },
                 1,
@@ -540,7 +541,7 @@ class OrderService {
 
     if (tournamentId) {
       queryObj.tournament = new Types.ObjectId(tournamentId);
-      queryObj.isExpired = true;
+      queryObj.isExpired = false;
       queryObj.isUsed = true;
 
       activePlanForTournament = await Order.aggregate([
