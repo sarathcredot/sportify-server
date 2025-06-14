@@ -52,7 +52,7 @@ class AuctionPlanService {
     return newAuctionPlan;
   }
 
-  async getAuctionPlans(page, limit, skip, isActive, maxAllowedTeams, isFree = "true") {
+  async getAuctionPlans(page, limit, skip, isActive, maxAllowedTeams, isFree) {
     let matchObj = {
       $or: [
         { maxAllowedTeams: { $gte: maxAllowedTeams } },
