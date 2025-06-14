@@ -341,8 +341,7 @@ class OrderService {
       });
 
       if (existingOrder) {
-        await Order.findByIdAndUpdate(order?._id, { isExpired: true })
-        throw new Error("Same order already exists for this tournament!");
+        throw new Error("Plan already exists for this Tournament!");
       }
 
       order.tournament = new Types.ObjectId(tournament);
