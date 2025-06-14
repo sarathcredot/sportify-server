@@ -293,6 +293,23 @@ class AuctionService {
     }
   }
 
+  async checkIfAllApprovedPlayersAreSold(auctionId) {
+    const auction = await Auction.findOne({ _id: auctionId }).populate(
+      "tournament"
+    );
+    const remainingPlayersCount = await TournamentPlayers.countDocuments({
+      tournament: auction.tournament,
+      status: {
+        $in: [
+          PLAYER_STATUS.APPROVED,
+          PLAYER_STATUS.BIDDING,
+          PLAYER_STATUS.UNSOLD,
+        ],
+      },
+    });
+    return remainingPlayersCount === 0;
+  }
+
   async checkIfAllTeamsAreFilled(auctionId) {
     const auction = await Auction.findOne({ _id: auctionId }).populate('tournament');
     const soldPlayersCount = await TournamentPlayers.countDocuments({ tournament: auction.tournament, status: PLAYER_STATUS.SOLD });
@@ -320,10 +337,16 @@ class AuctionService {
       if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
         throw new BadRequestError('Current bidding player is not sold or unsold yet');
       }
+<<<<<<< HEAD
 
       
 
       if (await this.checkIfAllTeamsAreFilled(auctionId)) {
+=======
+      if (await this.checkIfAllApprovedPlayersAreSold(auctionId)) {
+        auction.status = AUCTION_STATUS.COMPLETED;
+      } else if (await this.checkIfAllTeamsAreFilled(auctionId)) {
+>>>>>>> 328540298fe52afe60cf395c124c65c1619aa1f7
         auction.status = AUCTION_STATUS.COMPLETED;
         await TournamentPlayers.updateMany({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }, { $set: { status: PLAYER_STATUS.UNSOLD } }, { session });
       } else {
@@ -448,9 +471,35 @@ class AuctionService {
 
   async deleteBid(bidId) {
     const bid = await Bid.findById(bidId)
-    console.log("bid>>>>>>>>>>", bid)
     if (!bid) {
       throw new NotFoundError('Bid not found');
+    }
+    const auction = await Auction.findById(bid.auction);
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    if (auction.status !== AUCTION_STATUS.LIVE) {
+      throw new BadRequestError('Auction is not live');
+    }
+    if (!auction.currentBiddingPlayer) {
+      throw new BadRequestError('No bidding player to delete bid');
+    }
+    const currentBiddingPlayer = await TournamentPlayers.findById(auction.currentBiddingPlayer);
+    if (currentBiddingPlayer.status !== PLAYER_STATUS.BIDDING) {
+      throw new BadRequestError('Current bidding player is not bidding');
+    }
+    if (currentBiddingPlayer.currentBid.bid.toString() === bidId) {
+      // find the next highest bid and set it as current bid and update the player
+      const nextHighestBid = await Bid.findOne({ auction: auction._id, player: currentBiddingPlayer._id, _id: { $ne: bidId } }).sort({ points: -1 });
+      if (!nextHighestBid) {
+        currentBiddingPlayer.currentBid = null;
+      } else {
+        currentBiddingPlayer.currentBid = {
+          bid: nextHighestBid._id,
+          team: nextHighestBid.placedBy,
+        };
+      }
+      await currentBiddingPlayer.save();
     }
     await bid.deleteOne();
     return "deleted";
