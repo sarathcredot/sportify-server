@@ -128,15 +128,11 @@ class TournamentService {
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 
-    // const city = await City.findOne({ name: tournamentData.location }, { upsert: true, new: true });
-    const city = await City.findOneAndUpdate(
-      { name: tournamentData.location?.toLowerCase() },
-      { $setOnInsert: { name: tournamentData.location?.toLowerCase() } },
-      { upsert: true, new: true }
-    );
-    console.log("city", city);
-
-    console.log("user", tournamentData);
+    let city = await City.findOne({ name: tournamentData.location.toLowerCase() });
+    if (!city) {
+      city = new City({ name: tournamentData.location.toLowerCase() });
+      await city.save();
+    }
 
     if (
       tournamentData?.auction?.maxBidPerPlayer <

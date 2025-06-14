@@ -78,18 +78,25 @@ const tournamentRoutes = require("./src/routes/tournament");
 const organiserRoutes = require("./src/routes/organiser");
 const adminRoutes = require("./src/routes/admin");
 const teamManagerRoutes = require("./src/routes/teamManager");
+const posterPlanRouter = require("./src/routes/posterPlan");
+const auctionPlanRouter = require("./src/routes/auctionPlan");
+
 if (process.env.NODE_ENV === "production") {
   app.use("/api/tournaments", cacheMiddleware(300), tournamentRoutes);
   app.use("/api/organiser", cacheMiddleware(300), organiserRoutes);
   app.use("/api/admin", cacheMiddleware(300), adminRoutes);
   app.use("/api/", cacheMiddleware(300), otherRoutes);
   app.use("/api/team-manager", cacheMiddleware(300), teamManagerRoutes);
+  app.use("/api/poster-plans", cacheMiddleware(300), posterPlanRouter);
+  app.use("/api/auction-plans", cacheMiddleware(300), auctionPlanRouter);
 } else {
   app.use("/api/tournaments", tournamentRoutes);
   app.use("/api/organiser", organiserRoutes);
   app.use("/api/admin", adminRoutes);
   app.use("/api/", otherRoutes);
   app.use("/api/team-manager", teamManagerRoutes);
+  app.use("/api/poster-plans", posterPlanRouter);
+  app.use("/api/auction-plans", auctionPlanRouter);
 }
 
 app.use("/api/auth", require("./src/routes/auth"));
