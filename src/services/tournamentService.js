@@ -173,7 +173,8 @@ class TournamentService {
 
       if (
         tournamentData?.settings?.maxTeamAllowed >
-        auctionPlanExist?.maxAllowedTeams
+          auctionPlanExist?.maxAllowedTeams ||
+        !auctionPlanExist?.isUnlimitedTeamsAllowed
       ) {
         throw new Error(
           `Auction plan maximum teams allowed is ${auctionPlanExist?.maxAllowedTeams} !`
@@ -187,10 +188,9 @@ class TournamentService {
         tournament: new mongoose.Types.ObjectId(tournament?._id),
       });
       newAuction = await newAuction.save();
-    }else{
+    } else {
       await createNewTournament();
     }
-
 
     return tournament;
   }
