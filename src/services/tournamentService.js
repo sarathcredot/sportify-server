@@ -187,9 +187,10 @@ class TournamentService {
         tournament: new mongoose.Types.ObjectId(tournament?._id),
       });
       newAuction = await newAuction.save();
+    }else{
+      await createNewTournament();
     }
 
-    await createNewTournament();
 
     return tournament;
   }
