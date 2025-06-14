@@ -451,7 +451,7 @@ class OrderService {
       isSuspended: false,
     };
 
-    let activePlan = await Order.aggregate([
+    let allActivePlans = await Order.aggregate([
       { $match: queryObj },
       {
         $lookup: {
@@ -511,9 +511,9 @@ class OrderService {
       },
     ]);
 
-    activePlan =
-      activePlan?.length > 0
-        ? activePlan?.reduce((acc, curr) => {
+   let activePlan =
+      allActivePlans?.length > 0
+        ? allActivePlans?.reduce((acc, curr) => {
             let pro = null;
             let basic = null;
             let start = null;
@@ -606,7 +606,7 @@ class OrderService {
         activePlanForTournament?.length > 0 ? activePlanForTournament[0] : null;
     }
 
-    return { activePlan, activePlanForTournament };
+    return { activePlan, activePlanForTournament, allActivePlans };
   }
 
   async getOrganizerActiveAuctionPlan(userId, maxAllowedTeams = 0) {
