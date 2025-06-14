@@ -293,6 +293,23 @@ class AuctionService {
     }
   }
 
+  async checkIfAllApprovedPlayersAreSold(auctionId) {
+    const auction = await Auction.findOne({ _id: auctionId }).populate(
+      "tournament"
+    );
+    const remainingPlayersCount = await TournamentPlayers.countDocuments({
+      tournament: auction.tournament,
+      status: {
+        $in: [
+          PLAYER_STATUS.APPROVED,
+          PLAYER_STATUS.BIDDING,
+          PLAYER_STATUS.UNSOLD,
+        ],
+      },
+    });
+    return remainingPlayersCount === 0;
+  }
+
   async checkIfAllTeamsAreFilled(auctionId) {
     const auction = await Auction.findOne({ _id: auctionId }).populate('tournament');
     const soldPlayersCount = await TournamentPlayers.countDocuments({ tournament: auction.tournament, status: PLAYER_STATUS.SOLD });
@@ -320,8 +337,9 @@ class AuctionService {
       if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
         throw new BadRequestError('Current bidding player is not sold or unsold yet');
       }
-
-      if (await this.checkIfAllTeamsAreFilled(auctionId)) {
+      if (await this.checkIfAllApprovedPlayersAreSold(auctionId)) {
+        auction.status = AUCTION_STATUS.COMPLETED;
+      } else if (await this.checkIfAllTeamsAreFilled(auctionId)) {
         auction.status = AUCTION_STATUS.COMPLETED;
         await TournamentPlayers.updateMany({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }, { $set: { status: PLAYER_STATUS.UNSOLD } }, { session });
       } else {
