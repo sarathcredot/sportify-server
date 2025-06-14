@@ -260,7 +260,12 @@ class OrderService {
           $limit: limit,
         }
       );
+    }else{
+      pipeline.push({
+        $sort: { createdAt: -1 },
+      });
     }
+
 
     const orders = await Order.aggregate(pipeline);
 
@@ -509,9 +514,14 @@ class OrderService {
           preserveNullAndEmptyArrays: true,
         },
       },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
     ]);
 
-   let activePlan =
+    let activePlan =
       allActivePlans?.length > 0
         ? allActivePlans?.reduce((acc, curr) => {
             let pro = null;
@@ -599,6 +609,11 @@ class OrderService {
           $unwind: {
             path: "$tournament",
             preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $sort: {
+            createdAt: -1,
           },
         },
       ]);
