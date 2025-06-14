@@ -321,6 +321,8 @@ class AuctionService {
         throw new BadRequestError('Current bidding player is not sold or unsold yet');
       }
 
+      
+
       if (await this.checkIfAllTeamsAreFilled(auctionId)) {
         auction.status = AUCTION_STATUS.COMPLETED;
         await TournamentPlayers.updateMany({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }, { $set: { status: PLAYER_STATUS.UNSOLD } }, { session });

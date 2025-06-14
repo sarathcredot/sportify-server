@@ -65,6 +65,7 @@ class PlayerService {
   }
 
   async createPlayer(playerData) {
+    console.log("plyer data",playerData)
     const tournament = await Tournament.findById(playerData.tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
@@ -112,6 +113,7 @@ class PlayerService {
   }
 
   async getPlayersByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
+    console.log("player",search)
     let query = { tournament: tournamentId };
     if (status) {
       query.status = { $ne: PLAYER_STATUS.PENDING };

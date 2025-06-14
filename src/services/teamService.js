@@ -76,13 +76,22 @@ class TeamService {
   }
 
   async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
+    console.log("search", search)
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
     }
 
+    // if (search) {
+    //   query.teamId = { $regex: search, $options: 'i' };
+    // }
+
     if (search) {
-      query.teamId = { $regex: search, $options: 'i' };
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { phoneNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
     }
 
     const skip = (page - 1) * limit;
