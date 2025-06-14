@@ -337,16 +337,9 @@ class AuctionService {
       if (currentBiddingPlayer && currentBiddingPlayer.status !== PLAYER_STATUS.UNSOLD) {
         throw new BadRequestError('Current bidding player is not sold or unsold yet');
       }
-<<<<<<< HEAD
-
-      
-
-      if (await this.checkIfAllTeamsAreFilled(auctionId)) {
-=======
       if (await this.checkIfAllApprovedPlayersAreSold(auctionId)) {
         auction.status = AUCTION_STATUS.COMPLETED;
       } else if (await this.checkIfAllTeamsAreFilled(auctionId)) {
->>>>>>> 328540298fe52afe60cf395c124c65c1619aa1f7
         auction.status = AUCTION_STATUS.COMPLETED;
         await TournamentPlayers.updateMany({ tournament: auction.tournament, status: PLAYER_STATUS.APPROVED }, { $set: { status: PLAYER_STATUS.UNSOLD } }, { session });
       } else {
