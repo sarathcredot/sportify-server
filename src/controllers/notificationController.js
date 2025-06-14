@@ -1,4 +1,4 @@
-const NotificationService = require('../services/notificationService');
+const notificationService = require('../services/notificationService');
 const { handleError, handleSuccess } = require('../utils/controllerUtils');
 
 module.exports = {
@@ -6,7 +6,7 @@ module.exports = {
     getAllNotificationByOrganizer: async (req, res) => {
         try {
             const user = req.user;
-            const result = await NotificationService.getAllNotificationByOrganizer(user._id);
+            const result = await notificationService.getAllNotificationByOrganizer(user._id);
             handleSuccess(res, result, 'Notifications retrieved successfully');
         } catch (error) {
             handleError(res, error);
@@ -17,7 +17,7 @@ module.exports = {
         try {
             const { notificationId } = req.params;
             const user = req.user;
-            const result = await NotificationService.notificationViewByOrganizer(user._id, notificationId);
+            const result = await notificationService.notificationViewByOrganizer(user._id, notificationId);
             handleSuccess(res, result, 'Notification viewed successfully');
         } catch (error) {
             handleError(res, error);
@@ -29,7 +29,7 @@ module.exports = {
         try {
             const user = req.user;
             console.log('User ID:', user?._id);
-            const result = await NotificationService.notificationAllReadByOrganizer(user?._id);
+            const result = await notificationService.notificationAllReadByOrganizer(user?._id);
             handleSuccess(res, result, 'All notifications marked as read');
         } catch (error) {
             handleError(res, error);
@@ -40,7 +40,7 @@ module.exports = {
         try {
             const user = req.user;
             const { page, limit } = req.query;
-            const result = await NotificationService.getAllNotificationsOfUser(user._id, parseInt(page), parseInt(limit));
+            const result = await notificationService.getAllNotificationsOfUser(user._id, parseInt(page), parseInt(limit));
             handleSuccess(res, result, 'Notifications retrieved successfully');
         } catch (error) {
             handleError(res, error);
@@ -51,7 +51,7 @@ module.exports = {
         try {
             const { notificationId } = req.params;
             const user = req.user;
-            const result = await NotificationService.markNotificationViewed(user._id, notificationId);
+            const result = await notificationService.markNotificationViewed(user._id, notificationId);
             handleSuccess(res, result, 'Notification viewed successfully');
         } catch (error) {
             handleError(res, error);
@@ -61,7 +61,7 @@ module.exports = {
     markNotificationAllRead: async (req, res) => {
         try {
             const user = req.user;
-            const result = await NotificationService.markNotificationAllRead(user._id);
+            const result = await notificationService.markNotificationAllRead(user._id);
             handleSuccess(res, result, 'All notifications marked as read');
         } catch (error) {
             handleError(res, error);
