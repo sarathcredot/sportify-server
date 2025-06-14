@@ -173,7 +173,7 @@ class TournamentService {
 
       if (
         tournamentData?.settings?.maxTeamAllowed >
-          auctionPlanExist?.maxAllowedTeams ||
+          auctionPlanExist?.maxAllowedTeams &&
         !auctionPlanExist?.isUnlimitedTeamsAllowed
       ) {
         throw new Error(
