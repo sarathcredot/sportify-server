@@ -10,8 +10,10 @@ class GalleryService {
       throw new NotFoundError('Auction not found');
     }
     const gallery = await AuctionGalleryAsset.find({ auction: auctionId })
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
+
 
     const total = await AuctionGalleryAsset.countDocuments({ auction: auctionId });
     return {

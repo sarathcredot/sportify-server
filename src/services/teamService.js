@@ -7,6 +7,7 @@ const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
 const { parsePhoneNumber } = require("libphonenumber-js");
 const { Types } = require("mongoose");
 const { sendEmail } = require("./emailService");
+const notificationService = require("./notificationService");
 
 class TeamService {
 
@@ -70,19 +71,35 @@ class TeamService {
       email: teamData.email,
       teamManager: teamData.manager
     });
+
+    await notificationService.sendNotificationToOrganizer({
+      tournamentId: tournament._id,
+      type: "team_register"
+    });
+
+
     // await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
 
     return team;
   }
 
   async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
+    console.log("search", search)
     let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
     }
 
+    // if (search) {
+    //   query.teamId = { $regex: search, $options: 'i' };
+    // }
+
     if (search) {
-      query.teamId = { $regex: search, $options: 'i' };
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { phoneNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
     }
 
     const skip = (page - 1) * limit;

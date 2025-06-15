@@ -60,16 +60,18 @@ module.exports = (io) => {
 
       if (socket.userRole === ROLES.ORGANISER) {
 
+        console.log("notification connect", socket?.userId)
         socket.join(`${socket?.userId}-organizer-notification`);
-        logger.info(`Organizer joined auction room: ${room}-organizer`);
+        logger.info(`Organizer joined notification room: ${socket?.userId}-organizer`);
       }
     });
 
 
     socket.on("notification-sent", (res) => {
 
-      io.to(`${res?.organiserId}-organizer-notification`).emit('notification-sent', { result });
-      console.log("notification", res)
+      console.log("notification>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", res)
+
+      io.to(`${res?.organiserId}-organizer-notification`).emit('notification-sent', { res });
 
     })
 

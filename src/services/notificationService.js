@@ -47,7 +47,7 @@ module.exports = {
 
                             const notification = {
 
-                               user: organiserId,
+                                user: organiserId,
                                 tournamentId: elm._id,
                                 logoUrl: elm.logoUrl,
                                 msg: "Reminder: Your tournament " + elm.name + " is starting soon.",
@@ -93,7 +93,7 @@ module.exports = {
 
                                 const notification = {
 
-                                   user: organiserId,
+                                    user: organiserId,
                                     tournamentId: elm._id,
                                     logoUrl: elm.logoUrl,
                                     msg: "Reminder: Your auction for tournament " + elm.name + " is starting soon.",
@@ -125,7 +125,9 @@ module.exports = {
                             createdAt: { $gte: fiveDaysAgo } // within last 5 days
                         }
                     ]
-                });
+
+                })
+                    .sort({ createdAt: -1 });
                 resolve(result)
 
             } catch (error) {
@@ -141,7 +143,7 @@ module.exports = {
             try {
 
                 const result = await Notification.findOneAndUpdate(
-                    { _id: notificationId, user:organiserId},
+                    { _id: notificationId, user: organiserId },
                     { $set: { isViewed: true } },
                     { new: true }
                 );
@@ -193,7 +195,7 @@ module.exports = {
                 // add sokect.io
 
                 const io = getIO()
-                io.to(`${result?.organiserId}-organizer-notification`).emit('notification-sent', { result });
+                io.to(`${result?.user}-organizer-notification`).emit('notification-sent', { result });
                 resolve();
 
             } catch (error) {
@@ -208,7 +210,7 @@ module.exports = {
             console.log("Marking all notifications as read for organiser:", organiserId);
             try {
                 const result = await Notification.updateMany(
-                    { user:organiserId, isViewed: false },
+                    { user: organiserId, isViewed: false },
                     { $set: { isViewed: true } }
                 );
 
