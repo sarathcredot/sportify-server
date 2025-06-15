@@ -182,7 +182,7 @@ module.exports = {
                 if (data?.type === "team_register") {
 
                     notification.tournamentId = getTournament?._id,
-                        notification.logoUrl = gregietTournament?.logoUrl,
+                        notification.logoUrl = getTournament?.logoUrl,
                         notification.user = getTournament?.createdBy,
                         notification.msg = `New team registered in your tournament ${getTournament.name}`,
                         notification.type = data?.type
