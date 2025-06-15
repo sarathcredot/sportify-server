@@ -323,6 +323,7 @@ class TournamentService {
         }
       }
     } else {
+      await Auction.findOneAndDelete({ tournament: id });
       respo = await updateTournament();
     }
 
