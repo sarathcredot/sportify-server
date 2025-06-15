@@ -46,6 +46,14 @@ class TeamService {
       throw new ValidationError("Maximum allowed teams reached");
     }
 
+    if (!tournament.settings.auctionEnabled && teamData.squad === null) {
+      throw new ValidationError("Squad is required for this tournament");
+    }
+
+    if (tournament.settings.auctionEnabled && teamData.squad !== null) {
+      throw new ValidationError("Squad is not allowed for this auction tournament");
+    }
+
     // let team = await Team.findOne({ manager: teamData.manager });
     // if (!team) {
     //   team = new Team({
@@ -69,7 +77,8 @@ class TeamService {
       name: teamData.name,
       phoneNumber: teamData.phoneNumber,
       email: teamData.email,
-      teamManager: teamData.manager
+      teamManager: teamData.manager,
+      squad: teamData.squad
     });
 
     await notificationService.sendNotificationToOrganizer({
