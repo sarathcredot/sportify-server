@@ -107,6 +107,9 @@ class TournamentService {
     }
 
     const tournaments = await Tournament.find(query)
+      .sort({
+        createdAt: -1
+      })
       .populate("location")
       .skip(skipCount)
       .limit(limit);
@@ -169,7 +172,7 @@ class TournamentService {
 
       if (
         tournamentData?.settings?.maxTeamAllowed >
-          auctionPlanExist?.maxAllowedTeams &&
+        auctionPlanExist?.maxAllowedTeams &&
         !auctionPlanExist?.isUnlimitedTeamsAllowed
       ) {
         throw new Error(
@@ -471,8 +474,7 @@ class TournamentService {
     await sendEmail(
       plyaerdata?.email,
       "Player Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${
-        approve ? "approved" : "rejected"
+      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"
       }`
     );
     return {
@@ -575,8 +577,7 @@ class TournamentService {
     await sendEmail(
       tournamentTeam?.email,
       "Team Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${
-        approve ? "approved" : "rejected"
+      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"
       }`
     );
     return {

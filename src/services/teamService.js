@@ -7,6 +7,7 @@ const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
 const { parsePhoneNumber } = require("libphonenumber-js");
 const { Types } = require("mongoose");
 const { sendEmail } = require("./emailService");
+const notificationService = require("./notificationService");
 
 class TeamService {
 
@@ -70,6 +71,13 @@ class TeamService {
       email: teamData.email,
       teamManager: teamData.manager
     });
+
+    await notificationService.sendNotificationToOrganizer({
+      tournamentId: tournament._id,
+      type: "team_register"
+    });
+
+
     // await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
 
     return team;

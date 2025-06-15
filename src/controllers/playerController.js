@@ -21,6 +21,7 @@ class PlayerController extends BaseController {
 
   async registerPlayer(req, res) {
     try {
+      
       const playerData = {
         ...req.body,
         tournamentId: req.params.tournamentId
