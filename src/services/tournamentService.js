@@ -315,7 +315,7 @@ class TournamentService {
             { new: true, runValidators: true }
           );
         } else {
-          const newAuction = new Auction({
+          let newAuction = new Auction({
             ...updateData?.auction,
             tournament: new mongoose.Types.ObjectId(tournament?._id),
           });
