@@ -100,14 +100,16 @@ class OrderService {
 
         if (
           existingOrderPosterPlan?.type === PLANS_TYPES.BASIC &&
-          currentPosterPlan?.type === PLANS_TYPES.STARTER
+          (currentPosterPlan?.type === PLANS_TYPES.STARTER ||
+            currentPosterPlan?.type === PLANS_TYPES.BASIC)
         ) {
           throw new Error("Tournament already have higher plan! ");
         }
         if (
           existingOrderPosterPlan?.type === PLANS_TYPES.PRO &&
           (currentPosterPlan?.type === PLANS_TYPES.STARTER ||
-            currentPosterPlan?.type === PLANS_TYPES.BASIC)
+            currentPosterPlan?.type === PLANS_TYPES.BASIC ||
+            currentPosterPlan?.type === PLANS_TYPES.PRO)
         ) {
           throw new Error("Tournament already have higher plan! ");
         }
