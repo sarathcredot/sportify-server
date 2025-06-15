@@ -108,7 +108,7 @@ class TournamentService {
 
     const tournaments = await Tournament.find(query)
       .sort({
-        createdAt: -1
+        createdAt: -1,
       })
       .populate("location")
       .skip(skipCount)
@@ -131,7 +131,9 @@ class TournamentService {
   async createTournament(tournamentData, user) {
     this.validateTournamentData(tournamentData);
 
-    let city = await City.findOne({ name: tournamentData.location.toLowerCase() });
+    let city = await City.findOne({
+      name: tournamentData.location.toLowerCase(),
+    });
     if (!city) {
       city = new City({ name: tournamentData.location.toLowerCase() });
       await city.save();
@@ -172,7 +174,7 @@ class TournamentService {
 
       if (
         tournamentData?.settings?.maxTeamAllowed >
-        auctionPlanExist?.maxAllowedTeams &&
+          auctionPlanExist?.maxAllowedTeams &&
         !auctionPlanExist?.isUnlimitedTeamsAllowed
       ) {
         throw new Error(
@@ -270,24 +272,58 @@ class TournamentService {
 
     this.validateUpdateData(updateData);
 
-    const respo = await Tournament.findByIdAndUpdate(
-      id,
-      { $set: { ...updateData, location: city?._id } },
-      { new: true, runValidators: true }
-    );
-
-    console.log(respo, '= TOURNAMENT UPDATED RESULT')
-    console.log(updateData?.auction, '= AUCTION DATA')
-    console.log(!!(respo && updateData?.auction), '= AUCTION DATA UPDATE CONDITION')
-    
-
-    if (respo && updateData?.auction) {
-      const auctionRespo = await Auction.findOneAndUpdate(
-        { tournament: id },
-        { $set: updateData?.auction },
+    const updateTournament = async () => {
+      return await Tournament.findByIdAndUpdate(
+        id,
+        { $set: { ...updateData, location: city?._id } },
         { new: true, runValidators: true }
       );
-      console.log(auctionRespo, '= AUCTION UPDATED RESULT')
+    };
+
+    let respo = null;
+
+    if (updateData?.settings?.auctionEnabled) {
+      const auctionPlanExist = await AuctionPlan.findById(
+        updateData?.auction?.auctionPlan
+      );
+
+      if (!auctionPlanExist) {
+        throw new Error("Auction plan not found !");
+      }
+
+      if (
+        updateData?.settings?.maxTeamAllowed >
+          auctionPlanExist?.maxAllowedTeams &&
+        !auctionPlanExist?.isUnlimitedTeamsAllowed
+      ) {
+        throw new Error(
+          `Auction plan maximum teams allowed is ${auctionPlanExist?.maxAllowedTeams} !`
+        );
+      }
+
+      respo = await updateTournament();
+
+      if (respo && updateData?.auction) {
+        const auctionExist = await Auction.findOne({
+          tournament: new mongoose.Types.ObjectId(id),
+        });
+
+        if (auctionExist) {
+          await Auction.findOneAndUpdate(
+            { tournament: id },
+            { $set: updateData?.auction },
+            { new: true, runValidators: true }
+          );
+        } else {
+          const newAuction = new Auction({
+            ...updateData?.auction,
+            tournament: new mongoose.Types.ObjectId(tournament?._id),
+          });
+          newAuction = await newAuction.save();
+        }
+      }
+    } else {
+      respo = await updateTournament();
     }
 
     return respo;
@@ -480,7 +516,8 @@ class TournamentService {
     await sendEmail(
       plyaerdata?.email,
       "Player Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"
+      `Your registration for the tournament ${tournament?.name} has been ${
+        approve ? "approved" : "rejected"
       }`
     );
     return {
@@ -583,7 +620,8 @@ class TournamentService {
     await sendEmail(
       tournamentTeam?.email,
       "Team Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"
+      `Your registration for the tournament ${tournament?.name} has been ${
+        approve ? "approved" : "rejected"
       }`
     );
     return {
