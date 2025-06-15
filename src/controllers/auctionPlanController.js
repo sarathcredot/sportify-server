@@ -25,14 +25,15 @@ class AuctionPlanController extends BaseController {
 
   async getAuctionPlans(req, res) {
     try {
-      const { page = 1, limit = 10, skip = "false", isActive, maxAllowedTeams } = req.query;
+      const { page = 1, limit = 10, skip = "false", isActive, maxAllowedTeams, isFree } = req.query;
       skip === "true" ? true : false;
       const auctionPlans = await auctionPlanService.getAuctionPlans(
         page,
         limit,
         skip,
         isActive,
-        maxAllowedTeams ? parseInt(maxAllowedTeams): 0
+        maxAllowedTeams ? parseInt(maxAllowedTeams): 0,
+        isFree
       );
       this.handleSuccess(
         res,

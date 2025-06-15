@@ -52,7 +52,7 @@ class AuctionPlanService {
     return newAuctionPlan;
   }
 
-  async getAuctionPlans(page, limit, skip, isActive, maxAllowedTeams) {
+  async getAuctionPlans(page, limit, skip, isActive, maxAllowedTeams, isFree) {
     let matchObj = {
       $or: [
         { maxAllowedTeams: { $gte: maxAllowedTeams } },
@@ -61,7 +61,11 @@ class AuctionPlanService {
     };
 
     if (isActive) {
-      isActive = isActive === "true";
+      matchObj.isActive = isActive === "true";
+    }
+
+    if (isFree) {
+      matchObj.isFree = isFree === "true";
     }
 
     let pipeline = [
