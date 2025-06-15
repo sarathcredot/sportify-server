@@ -26,7 +26,12 @@ router.get("/cities", cityController.getCities);
 
 router.get("/test-socket", (req, res) => {
   //   const socketService = new SocketService();
-    socketService.sendMessageToAllTeamManagersInTournament("684802528d155d26cac7c54a", "Hello");
+    socketService.sendMessageToAllTeamManagersInTournament("684802528d155d26cac7c54a", "concealed-bid-requested", {
+      message: "Concealed bid requested",
+      auctionId: "684802528d155d26cac7c54a",
+      playerId: "684802528d155d26cac7c54a",
+      playerName: "John Doe",
+    });
 //   socketService.sendMessageToUser('6800e70e5c037f229823c181', "Hi test Message");
   res.send("Socket message sent");
 });

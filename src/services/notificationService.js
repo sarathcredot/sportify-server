@@ -3,7 +3,7 @@ const Notification = require('../models/Notification')
 const Tournament = require("../models/Tournament");
 const { getIO } = require('../config/socket');
 const Auction = require('../models/Auction');
-
+const TournamentTeams = require('../models/TournamentTeams');
 
 module.exports = {
     getAllNotificationByOrganizer: async (organiserId) => {
@@ -260,6 +260,31 @@ module.exports = {
                 const result = await Notification.updateMany({ user: userId, isViewed: false }, { $set: { isViewed: true } });
                 resolve(result);
             } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    sendNotificationAllTeamManagersInTournament: async (tournamentId, data) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournamentTeams = await TournamentTeams.find({
+                    tournament: tournamentId,
+                });
+                const teamManagerIds = tournamentTeams.map((team) =>
+                    team.teamManager.toString()
+                );
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl')    ;
+                const notifications = await Notification.insertMany(teamManagerIds.map((teamManagerId) => ({
+                    user: teamManagerId,
+                    tournamentId: tournamentId,
+                    logoUrl: tournament.logoUrl,
+                    msg: data.message,
+                    type: "concealed_bid_requested",
+                    data: data
+                })));
+                resolve(notifications);
+            } catch (error) {x
                 reject(error);
             }
         });
