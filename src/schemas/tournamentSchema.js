@@ -270,6 +270,7 @@ const updateTournamentSchema = z.object({
     email: z.string().email().optional(),
   }).optional(),
   auction: z.object({
+    auctionId: z.string().optional(),
     auctionDate: dateSchema.optional(),
     auctionTime: z.string().optional(),
     auctionLocation: z.string().optional(),

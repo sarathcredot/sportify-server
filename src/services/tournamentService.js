@@ -273,12 +273,18 @@ class TournamentService {
       { new: true, runValidators: true }
     );
 
+    console.log(respo, '= TOURNAMENT UPDATED RESULT')
+    console.log(updateData?.auction, '= AUCTION DATA')
+    console.log(!!(respo && updateData?.auction), '= AUCTION DATA UPDATE CONDITION')
+    
+
     if (respo && updateData?.auction) {
       const auctionRespo = await Auction.findOneAndUpdate(
         { tournament: id },
         { $set: updateData?.auction },
         { new: true, runValidators: true }
       );
+      console.log(auctionRespo, '= AUCTION UPDATED RESULT')
     }
 
     return respo;
