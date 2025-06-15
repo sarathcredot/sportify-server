@@ -346,7 +346,7 @@ class OrderService {
     const order = await Order.findById(id);
 
     if (!order) {
-      throw new Error("Order not found!");
+      throw new Error("Subscription not found!");
     }
 
     if (orderStatus && Object.values(ORDER_STATUS).includes(orderStatus)) {
@@ -371,17 +371,53 @@ class OrderService {
         throw new Error("Tournament does not exist!");
       }
 
-      const existingOrder = await Order.findOne({
-        type: order.type,
-        tournament: new Types.ObjectId(tournament),
-        user: new Types.ObjectId(user),
-        isUsed: true,
-        isExpired: false,
-        _id: { $ne: order?._id }, // Exclude the current order from the check
-      });
+      //CHECK FOR HIGHER PLAN EXIST
+      if (order.type === ORDER_TYPE.POSTER_PLAN) {
+        const existingOrderPosterPlan = await PosterPlan.findById(
+          order?.posterPlan
+        );
+        const currentPosterPlanType = existingOrderPosterPlan?.type;
 
-      if (existingOrder) {
-        throw new Error("Plan already exists for this Tournament!");
+        const existingPosterPlanForTournament = await Order.findOne({
+          type: order.type,
+          tournament: new Types.ObjectId(tournament),
+          user: new Types.ObjectId(user),
+          isUsed: true,
+          isExpired: false,
+          _id: { $ne: order?._id }, // Exclude the current order from the check
+        });
+
+        //CHECK HIGHER PLAN EXISTANCE
+        if (existingPosterPlanForTournament) {
+          const existingPosterPlan = await PosterPlan.findById(
+            existingPosterPlanForTournament?.posterPlan
+          );
+          if (existingPosterPlan) {
+            if (
+              existingPosterPlan?.type === PLANS_TYPES.BASIC &&
+              (currentPosterPlanType === PLANS_TYPES.STARTER ||
+                currentPosterPlanType === PLANS_TYPES.BASIC)
+            ) {
+              throw new Error("Tournament already have higher plan! ");
+            }
+            if (
+              existingPosterPlan?.type === PLANS_TYPES.PRO &&
+              (currentPosterPlanType === PLANS_TYPES.STARTER ||
+                currentPosterPlanType === PLANS_TYPES.BASIC ||
+                currentPosterPlanType === PLANS_TYPES.PRO)
+            ) {
+              throw new Error("Tournament already have higher plan! ");
+            }
+          }
+          await Order.findByIdAndUpdate(existingPosterPlanForTournament?._id, {
+            isExpired: true,
+          });
+        }
+        
+
+        // if (existingOrder) {
+        //   throw new Error("Plan already exists for this Tournament!");
+        // }
       }
 
       order.tournament = new Types.ObjectId(tournament);
