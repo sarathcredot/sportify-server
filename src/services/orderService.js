@@ -81,6 +81,42 @@ class OrderService {
       if (existingOrder) {
         throw new Error("Same Plan already exists for this tournament !");
       }
+
+      const existingOrderForSameTournament = await Order.findOneAndUpdate({
+        type: ORDER_TYPE.POSTER_PLAN,
+        // posterPlan: new Types.ObjectId(posterPlan),
+        tournament: new Types.ObjectId(tournament),
+        user: new Types.ObjectId(user),
+        isSuspended: false,
+        isExpired: false,
+      });
+
+      if (existingOrderForSameTournament) {
+        const currentPosterPlan = posterPlanExists;
+
+        const existingOrderPosterPlan = await PosterPlan.findById(
+          existingOrderForSameTournament?.posterPlan
+        );
+
+        if (
+          existingOrderPosterPlan?.type === PLANS_TYPES.BASIC &&
+          currentPosterPlan?.type === PLANS_TYPES.STARTER
+        ) {
+          throw new Error("Tournament already have higher plan! ");
+        }
+        if (
+          existingOrderPosterPlan?.type === PLANS_TYPES.PRO &&
+          (currentPosterPlan?.type === PLANS_TYPES.STARTER ||
+            currentPosterPlan?.type === PLANS_TYPES.BASIC)
+        ) {
+          throw new Error("Tournament already have higher plan! ");
+        }
+
+        await Order.findByIdAndUpdate(existingOrderForSameTournament?._id, {
+          isExpired: true,
+        });
+      }
+
       orderData.isUsed = true;
     }
 
@@ -258,12 +294,11 @@ class OrderService {
           $limit: limit,
         }
       );
-    }else{
+    } else {
       pipeline.push({
         $sort: { createdAt: -1 },
       });
     }
-
 
     const orders = await Order.aggregate(pipeline);
 
