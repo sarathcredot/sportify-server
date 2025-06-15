@@ -81,8 +81,6 @@ class OrderService {
       if (existingOrder) {
         throw new Error("Same Plan already exists for this tournament !");
       }
-
-      orderData.isExpired = true;
       orderData.isUsed = true;
     }
 
