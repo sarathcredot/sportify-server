@@ -271,9 +271,9 @@ const updateTournamentSchema = z.object({
   }).optional(),
   auction: z.object({
     auctionId: z.string().optional(),
-    auctionDate: dateSchema.optional(),
-    auctionTime: z.string().optional(),
-    auctionLocation: z.string().optional(),
+    // auctionDate: dateSchema.optional(),
+    // auctionTime: z.string().optional(),
+    // auctionLocation: z.string().optional(),
     biddingPointPerTeam: z.number().optional(),
     minBidPerPlayer: z.number().optional(),
     maxBidPerPlayer: z.number().optional(),
