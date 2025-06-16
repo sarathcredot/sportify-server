@@ -77,6 +77,7 @@ class OrderController extends BaseController {
     try {
       const { orderId } = req.params;
       const orderData = req.body;
+      console.log({ORDER_DATA: orderData})
       const user = req.user;
       const updatedOrder = await orderService.updateOrder(
         {

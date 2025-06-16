@@ -31,6 +31,7 @@ const registerTeamSchema = z.object({
   phoneNumber: z.string().nonempty("Contact number is required"),
   email: z.string().email("Invalid email address").optional(),
   location: z.string().optional(),
+  squad: z.string().optional(),
 }).openapi();
 
 const approveTeamSchema = z.object({

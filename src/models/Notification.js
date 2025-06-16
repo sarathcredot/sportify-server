@@ -30,6 +30,10 @@ const NotificationSchema = new mongoose.Schema({
         type: String,
         required: true,
         enam: NOTIFICATION_TYPES
+    },
+    data: {
+        type: Object,
+        required: false
     }
 },
     {

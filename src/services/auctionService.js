@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const { getIO } = require('../config/socket');
 const { info } = require("winston");
 const socketService = require("./socketService");
+const notificationService = require("./notificationService");
 const { logger } = require("../config/logger");
 
 
@@ -525,6 +526,12 @@ class AuctionService {
 
     try {
       socketService.sendMessageToAllTeamManagersInTournament(auction.tournament, 'concealed-bid-requested', {
+        message: `Concealed bid requested for ${auction.currentBiddingPlayer.firstName} ${auction.currentBiddingPlayer.lastName || ''}`,
+        auctionId: auctionId,
+        playerId: auction.currentBiddingPlayer._id,
+        playerName: `${auction.currentBiddingPlayer.firstName} ${auction.currentBiddingPlayer.lastName || ''}`,
+      });
+      notificationService.sendNotificationAllTeamManagersInTournament(auction.tournament, {
         message: `Concealed bid requested for ${auction.currentBiddingPlayer.firstName} ${auction.currentBiddingPlayer.lastName || ''}`,
         auctionId: auctionId,
         playerId: auction.currentBiddingPlayer._id,

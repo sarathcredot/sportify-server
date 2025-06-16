@@ -51,6 +51,10 @@ const TournamentTeamsSchema = new mongoose.Schema({
   maxPointsPerBid: {
     type: Number,
     min: 0
+  },
+  squad: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Squad"
   }
 }, {
   timestamps: true
