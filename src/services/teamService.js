@@ -72,10 +72,7 @@ class TeamService {
       teamManager: teamData.manager
     });
 
-    await notificationService.sendNotificationToOrganizer({
-      tournamentId: tournament._id,
-      type: "team_register"
-    });
+
 
 
     // await sendEmail(teamData.email, "Team Registration Confirmation", `You have successfully registered your team: ${teamData.name}. Your Team ID is ${teamId}.`);
