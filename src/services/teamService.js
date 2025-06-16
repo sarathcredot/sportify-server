@@ -50,7 +50,7 @@ class TeamService {
       throw new ValidationError("Squad is required for this tournament");
     }
 
-    if (tournament.settings.auctionEnabled && teamData.squad !== null) {
+    if (tournament.settings.auctionEnabled && teamData.squad) {
       throw new ValidationError("Squad is not allowed for this auction tournament");
     }
 
