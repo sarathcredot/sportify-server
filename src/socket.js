@@ -91,6 +91,40 @@ module.exports = (io) => {
 
     })
 
+    // auction paused
+
+    socket.on("auction-pause", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("auction-pause", res)
+      console.log("live preview sent to  auction resume")
+
+
+    })
+
+    // auction resumed
+    socket.on("auction-resume", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("auction-resume", res)
+      console.log("live preview sent to auction resume")
+
+
+    })
+
+    // auction last action reverted 
+
+    socket.on("player-sold-reverted", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("player-sold-reverted", res)
+      console.log("live preview sent player sold reverted")
+
+    })
+
+    socket.on("player-unsold-reverted", (res) => {
+
+      io.to(`${res?.auctionId}-organizer-live-preview`).emit("player-unsold-reverted", res)
+      console.log("live preview sent player unsold reverted")
+
+    })
 
     //  when player sold sent details in live preview   biding-player-live
 
@@ -106,8 +140,6 @@ module.exports = (io) => {
       io.to(`${res?.auctionId}-organizer-live-preview`).emit("player-unsold-live", res)
       console.log("live preview sent to sold player")
     })
-
-
 
     // new player selcted details in live preview
 

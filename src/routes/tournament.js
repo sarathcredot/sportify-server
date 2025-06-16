@@ -96,7 +96,7 @@ router.get("/:id", tournamentController.getTournamentById);
  *       404:
  *         description: Tournament not found
  */
-router.get("/:tournamentId/players", playerController.getPlayersByTournamentId);
+router.get("/:tournamentId/players", playerController.getPlayersByTournamentIdCommon);
 
 /**
  * @swagger

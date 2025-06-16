@@ -11,6 +11,7 @@ class PlayerController extends BaseController {
     this.registerPlayer = this.registerPlayer.bind(this);
     this.createPlayer = this.createPlayer.bind(this);
     this.getPlayersByTournamentId = this.getPlayersByTournamentId.bind(this);
+    this.getPlayersByTournamentIdCommon = this.getPlayersByTournamentIdCommon.bind(this)
     this.approvePlayer = this.approvePlayer.bind(this);
     this.getPlayersOfTeamManager = this.getPlayersOfTeamManager.bind(this);
     this.createPlayerOfTeamManager = this.createPlayerOfTeamManager.bind(this);
@@ -21,7 +22,7 @@ class PlayerController extends BaseController {
 
   async registerPlayer(req, res) {
     try {
-      
+
       const playerData = {
         ...req.body,
         tournamentId: req.params.tournamentId
@@ -58,6 +59,29 @@ class PlayerController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+
+
+
+  async getPlayersByTournamentIdCommon(req, res) {
+    try {
+      const { tournamentId } = req.params;
+      const { status, search } = req.query;
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 10;
+      const players = await playerService.getPlayersByTournamentIdCommon(tournamentId, status, search, page, limit);
+      this.handleSuccess(res, players, 'Players retrieved successfully');
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+
+
+
+
+
+
 
   async approvePlayer(req, res) {
     console.log("aprove player", req.body)

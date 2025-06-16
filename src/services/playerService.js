@@ -65,7 +65,7 @@ class PlayerService {
   }
 
   async createPlayer(playerData) {
-    console.log("plyer data",playerData)
+    console.log("plyer data", playerData)
     const tournament = await Tournament.findById(playerData.tournamentId);
     if (!tournament) {
       throw new NotFoundError("Tournament not found");
@@ -113,7 +113,47 @@ class PlayerService {
   }
 
   async getPlayersByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
-    console.log("player",search)
+    console.log("player", search)
+    let query = { tournament: tournamentId };
+    if (status) {
+      query.status = status;
+    }
+
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { contactNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { playerId: { $regex: search, $options: 'i' } }
+
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [players, total] = await Promise.all([
+      TournamentPlayers.find(query)
+        .populate('player')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      TournamentPlayers.countDocuments(query)
+    ]);
+
+    return {
+      players: players,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    };
+  }
+
+  async getPlayersByTournamentIdCommon(tournamentId, status, search, page = 1, limit = 10) {
+    console.log("player", search)
     let query = { tournament: tournamentId };
     if (status) {
       query.status = { $ne: PLAYER_STATUS.PENDING };
@@ -151,6 +191,7 @@ class PlayerService {
       }
     };
   }
+
 
   async generatePlayerId(tournament) {
     let words = tournament.name.split(' ');
