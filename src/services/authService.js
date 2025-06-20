@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { parsePhoneNumber } = require('libphonenumber-js');
+const { parsePhoneNumberWithError } = require('libphonenumber-js');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { ROLES } = require('../utils/constants');
@@ -28,7 +28,7 @@ class AuthService {
   async initiateAuth(phoneNumber, countryCode) {
     try {
       // Validate phone number format
-      const parsedNumber = parsePhoneNumber(phoneNumber, countryCode.replace('+', ''));
+      const parsedNumber = parsePhoneNumberWithError(phoneNumber, countryCode.replace('+', ''));
       if (!parsedNumber.isValid()) {
         throw new Error('Invalid phone number');
       }
@@ -163,6 +163,10 @@ class AuthService {
   }
 
   async register(phoneNumber, countryCode, fullName, role) {
+    const parsedNumber = parsePhoneNumberWithError(phoneNumber, countryCode);
+    if (!parsedNumber.isValid()) {
+      throw new Error('Invalid phone number');
+    }
     let user = await this.getUserByPhoneNumberAndRole(phoneNumber, countryCode, role);
     if (user) {
       throw new Error('User already exists');
