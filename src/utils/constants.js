@@ -186,7 +186,16 @@ const NOTIFICATION_TYPES = [
   "player_register",
   "team_register",
   "auction_reminder",
-  "tournament_reminder"
+  "tournament_reminder",
+  "team_approved",
+  "team_rejected",
+  "player_sold",
+  "player_unsold",
+  "auction_started",
+  "auction_completed",
+  "new_player_bidding",
+  "bid_placed",
+  "concealed_bid_requested"
 ]
 
 module.exports = {
