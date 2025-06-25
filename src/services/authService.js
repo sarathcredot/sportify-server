@@ -59,7 +59,7 @@ class AuthService {
 
   async verifyOTP(phoneNumber, countryCode, otp) {
     try {
-      const parsedNumber = parsePhoneNumber(phoneNumber, countryCode.replace('+', ''));
+      const parsedNumber = parsePhoneNumberWithError(phoneNumber, countryCode.replace('+', ''));
       const normalizedPhone = parsedNumber.nationalNumber;
 
       const user = await User.findOne({ phoneNumber: normalizedPhone });
