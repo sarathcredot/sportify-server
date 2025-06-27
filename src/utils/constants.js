@@ -198,6 +198,11 @@ const NOTIFICATION_TYPES = [
   "concealed_bid_requested"
 ]
 
+const NOTIFICATION_FOR = {
+  AUCTION: "auction",
+  TOURNAMENT: "tournament",
+}
+
 module.exports = {
   OTP_LENGTH,
   SPORT_TYPES,
@@ -238,6 +243,7 @@ module.exports = {
   TEMPLATE_TYPES,
   TEMPLATE_TYPES_VALUES,
   NOTIFICATION_TYPES,
+  NOTIFICATION_FOR,
 
   PLANS_TYPES,
   POSTER_PLAN_INCLUDES,
