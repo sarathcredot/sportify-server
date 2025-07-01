@@ -186,8 +186,22 @@ const NOTIFICATION_TYPES = [
   "player_register",
   "team_register",
   "auction_reminder",
-  "tournament_reminder"
+  "tournament_reminder",
+  "team_approved",
+  "team_rejected",
+  "player_sold",
+  "player_unsold",
+  "auction_started",
+  "auction_completed",
+  "new_player_bidding",
+  "bid_placed",
+  "concealed_bid_requested"
 ]
+
+const NOTIFICATION_FOR = {
+  AUCTION: "auction",
+  TOURNAMENT: "tournament",
+}
 
 module.exports = {
   OTP_LENGTH,
@@ -229,6 +243,7 @@ module.exports = {
   TEMPLATE_TYPES,
   TEMPLATE_TYPES_VALUES,
   NOTIFICATION_TYPES,
+  NOTIFICATION_FOR,
 
   PLANS_TYPES,
   POSTER_PLAN_INCLUDES,

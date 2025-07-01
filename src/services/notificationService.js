@@ -1,4 +1,3 @@
-
 const Notification = require('../models/Notification')
 const Tournament = require("../models/Tournament");
 const { getIO } = require('../config/socket');
@@ -284,7 +283,248 @@ module.exports = {
                     data: data
                 })));
                 resolve(notifications);
-            } catch (error) {x
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Send notification to specific team manager
+    sendNotificationToTeamManager: async (data) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const getTournament = await Tournament.findById({ _id: data?.tournamentId });
+                const notification = {
+                    user: data?.teamManagerId,
+                    tournamentId: getTournament?._id,
+                    logoUrl: getTournament?.logoUrl,
+                    msg: data?.message,
+                    type: data?.type,
+                    data: data?.additionalData || {}
+                };
+
+                const final = new Notification(notification);
+                const result = await final.save();
+
+                // Send socket.io notification
+                const io = getIO();
+                io.to(result?.user).emit('notification-sent', { result });
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Send notification to all team managers in tournament
+    sendNotificationToAllTeamManagers: async (tournamentId, data) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournamentTeams = await TournamentTeams.find({
+                    tournament: tournamentId,
+                });
+                const teamManagerIds = tournamentTeams.map((team) =>
+                    team.teamManager.toString()
+                );
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                
+                const notifications = await Notification.insertMany(teamManagerIds.map((teamManagerId) => ({
+                    user: teamManagerId,
+                    tournamentId: tournamentId,
+                    logoUrl: tournament.logoUrl,
+                    msg: data.message,
+                    type: data.type,
+                    data: data.additionalData || {}
+                })));
+
+                // Send socket.io notifications to all team managers
+                const io = getIO();
+                teamManagerIds.forEach(teamManagerId => {
+                    io.to(teamManagerId).emit('notification-sent', { 
+                        notifications: notifications.filter(n => n.user.toString() === teamManagerId)
+                    });
+                });
+
+                resolve(notifications);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Team approval/rejection notification
+    sendTeamStatusNotification: async (tournamentId, teamId, teamManagerId, status, teamName) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = status === 'approved' 
+                    ? `Your team "${teamName}" has been approved for tournament "${tournament.name}"`
+                    : `Your team "${teamName}" has been rejected for tournament "${tournament.name}"`;
+
+                const notification = {
+                    user: teamManagerId,
+                    tournamentId: tournamentId,
+                    logoUrl: tournament.logoUrl,
+                    msg: message,
+                    type: `team_${status}`,
+                    data: {
+                        teamId: teamId,
+                        teamName: teamName,
+                        status: status
+                    }
+                };
+
+                const final = new Notification(notification);
+                const result = await final.save();
+
+                // Send socket.io notification
+                const io = getIO();
+                io.to(result?.user).emit('notification-sent', { result });
+                resolve(result);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Player sold notification to all team managers
+    sendPlayerSoldNotification: async (tournamentId, playerData, winningTeam, bidAmount) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = `Player ${playerData.firstName} ${playerData.lastName || ''} has been sold to ${winningTeam.name} for ${bidAmount} points`;
+
+                await this.sendNotificationToAllTeamManagers(tournamentId, {
+                    message: message,
+                    type: 'player_sold',
+                    additionalData: {
+                        playerId: playerData._id,
+                        playerName: `${playerData.firstName} ${playerData.lastName || ''}`,
+                        winningTeamId: winningTeam._id,
+                        winningTeamName: winningTeam.name,
+                        bidAmount: bidAmount
+                    }
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Player unsold notification to all team managers
+    sendPlayerUnsoldNotification: async (tournamentId, playerData) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = `Player ${playerData.firstName} ${playerData.lastName || ''} went unsold in the auction`;
+
+                await this.sendNotificationToAllTeamManagers(tournamentId, {
+                    message: message,
+                    type: 'player_unsold',
+                    additionalData: {
+                        playerId: playerData._id,
+                        playerName: `${playerData.firstName} ${playerData.lastName || ''}`
+                    }
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Auction started notification
+    sendAuctionStartedNotification: async (tournamentId, auctionData) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = `Auction for tournament "${tournament.name}" has started!`;
+
+                await this.sendNotificationToAllTeamManagers(tournamentId, {
+                    message: message,
+                    type: 'auction_started',
+                    additionalData: {
+                        auctionId: auctionData._id,
+                        auctionDate: auctionData.auctionDate
+                    }
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Auction completed notification
+    sendAuctionCompletedNotification: async (tournamentId) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = `Auction for tournament "${tournament.name}" has been completed!`;
+
+                await this.sendNotificationToAllTeamManagers(tournamentId, {
+                    message: message,
+                    type: 'auction_completed',
+                    additionalData: {
+                        tournamentName: tournament.name
+                    }
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // New player available for bidding
+    sendNewPlayerBiddingNotification: async (tournamentId, playerData) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = `New player ${playerData.firstName} ${playerData.lastName || ''} is now available for bidding`;
+
+                await this.sendNotificationToAllTeamManagers(tournamentId, {
+                    message: message,
+                    type: 'new_player_bidding',
+                    additionalData: {
+                        playerId: playerData._id,
+                        playerName: `${playerData.firstName} ${playerData.lastName || ''}`,
+                        playerCategory: playerData.category
+                    }
+                });
+
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        });
+    },
+
+    // Bid placed notification (to all team managers)
+    sendBidPlacedNotification: async (tournamentId, playerData, bidAmount, teamName) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const tournament = await Tournament.findById(tournamentId).select('logoUrl name');
+                const message = `New bid of ${bidAmount} points placed for ${playerData.firstName} ${playerData.lastName || ''} by ${teamName}`;
+
+                await this.sendNotificationToAllTeamManagers(tournamentId, {
+                    message: message,
+                    type: 'bid_placed',
+                    additionalData: {
+                        playerId: playerData._id,
+                        playerName: `${playerData.firstName} ${playerData.lastName || ''}`,
+                        bidAmount: bidAmount,
+                        teamName: teamName
+                    }
+                });
+
+                resolve();
+            } catch (error) {
                 reject(error);
             }
         });

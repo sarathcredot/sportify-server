@@ -88,7 +88,7 @@ class AuctionPlanService {
       {
         $sort: {
           sortOrder: 1,
-          maxAllowedTeams: -1,
+          maxAllowedTeams: 1,
         },
       },
     ];

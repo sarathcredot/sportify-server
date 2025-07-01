@@ -5,17 +5,12 @@ const Team = require("../models/Team");
 const mongoose = require("mongoose");
 const { sendEmail } = require("./emailService");
 const { AUCTION_STATUS } = require("../utils/constants");
-
-const {
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-  BadRequestError,
-} = require("../utils/errors");
+const { ValidationError, NotFoundError } = require("../utils/errors");
 const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
 const AuctionPlan = require("../models/AuctionPlan");
+const notificationService = require("./notificationService");
 
 class TournamentService {
   async getTournaments({
@@ -625,6 +620,20 @@ class TournamentService {
         approve ? "approved" : "rejected"
       }`
     );
+
+    // Send in-app notification to team manager
+    try {
+      await notificationService.sendTeamStatusNotification(
+        tournamentId,
+        teamId,
+        tournamentTeam.teamManager,
+        approve ? 'approved' : 'rejected',
+        tournamentTeam.name
+      );
+    } catch (notificationError) {
+      console.error('Failed to send team status notification:', notificationError);
+    }
+
     return {
       data: tournamentTeam,
       msg: "",

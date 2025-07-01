@@ -285,6 +285,16 @@ class AuctionService {
         auctionId: auction._id,
       });
 
+      // Send notification to all team managers about auction started
+      try {
+        await notificationService.sendAuctionStartedNotification(
+          auction.tournament,
+          updatedAuction
+        );
+      } catch (notificationError) {
+        logger.error('Failed to send auction started notification:', notificationError);
+      }
+
       return updatedAuction;
     } catch (error) {
       await session.abortTransaction();
@@ -366,6 +376,19 @@ class AuctionService {
         auctionId: auction._id,
 
       });
+
+      // Send notification to all team managers about new player available for bidding
+      if (updatedAuction.currentBiddingPlayer) {
+        try {
+          await notificationService.sendNewPlayerBiddingNotification(
+            auction.tournament,
+            updatedAuction.currentBiddingPlayer
+          );
+        } catch (notificationError) {
+          logger.error('Failed to send new player bidding notification:', notificationError);
+        }
+      }
+
       return updatedAuction;
     } catch (error) {
       await session.abortTransaction();
@@ -380,6 +403,14 @@ class AuctionService {
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
+
+    // Send notification to all team managers about auction completed
+    try {
+      await notificationService.sendAuctionCompletedNotification(auction.tournament);
+    } catch (notificationError) {
+      logger.error('Failed to send auction completed notification:', notificationError);
+    }
+
     return auction;
   }
 
@@ -453,6 +484,19 @@ class AuctionService {
         team: bid.placedBy,
       };
       await player.save({ session });
+
+      // Send notification to all team managers about bid placed
+      try {
+        await notificationService.sendBidPlacedNotification(
+          auction.tournament,
+          player,
+          bid.points,
+          team.name
+        );
+      } catch (notificationError) {
+        logger.error('Failed to send bid placed notification:', notificationError);
+      }
+
       await session.commitTransaction();
       return bid
     } catch (error) {
@@ -711,6 +755,18 @@ class AuctionService {
         point: currentBid.bid.points
       });
 
+      // Send notification to all team managers about player sold
+      try {
+        await notificationService.sendPlayerSoldNotification(
+          auction.tournament,
+          player,
+          team,
+          currentBid.bid.points
+        );
+      } catch (notificationError) {
+        logger.error('Failed to send player sold notification:', notificationError);
+      }
+
       return updatedPlayer;
     } catch (error) {
       await session.abortTransaction();
@@ -955,6 +1011,17 @@ class AuctionService {
         auctionId: auction._id,
         // point: currentBid.bid.points
       });
+
+      // Send notification to all team managers about player unsold
+      try {
+        await notificationService.sendPlayerUnsoldNotification(
+          auction.tournament,
+          player
+        );
+      } catch (notificationError) {
+        logger.error('Failed to send player unsold notification:', notificationError);
+      }
+
       await session.commitTransaction();
       return updatedPlayer;
     } catch (error) {
