@@ -55,6 +55,8 @@ app.use(express.urlencoded({ extended: true, limit: requestSizeLimit }));
 app.use("/api/", apiLimiter);
 app.use(morgan(morganFormat, { stream }));
 app.use(morgan("dev"));
+app.use('/utils', express.static(path.join(__dirname, 'src/utils')));
+
 
 app.use("/media", (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

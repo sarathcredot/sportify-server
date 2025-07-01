@@ -59,7 +59,17 @@ class PlayerService {
     });
 
     // sent email to player
-    await sendEmail(player.email, "Player Registration Confirmation", `You have successfully registered for the tournament: ${tournament.name}. Your Player ID is ${playerId}.`);
+    console.log("Sending email");
+    await sendEmail(player.email, "Player Registration Confirmation",
+
+      {
+        title: "Player Registration Confirmation",
+        name: player.firstName,
+        des: `You have successfully registered for the tournament: ${tournament.name}. Your Player ID is ${playerId}.`,
+      }
+
+      
+    );
 
     return player;
   }
