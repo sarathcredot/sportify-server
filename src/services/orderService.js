@@ -58,13 +58,13 @@ class OrderService {
       throw new Error("Plan is currently not available !");
     }
 
-    if (
-      type === ORDER_TYPE.POSTER_PLAN &&
-      posterPlanExists &&
-      !posterPlanExists.isActive
-    ) {
-      throw new Error("Plan is not active !");
-    }
+    // if (
+    //   type === ORDER_TYPE.POSTER_PLAN &&
+    //   posterPlanExists &&
+    //   !posterPlanExists.isActive
+    // ) {
+    //   throw new Error("Plan is not active !");
+    // }
 
     //POSTER_PLAN ORDER EXIST FOR SAME TOURNAMENT AND USER CHECKS
     if (type === ORDER_TYPE.POSTER_PLAN && tournament) {
@@ -122,20 +122,20 @@ class OrderService {
       orderData.isUsed = true;
     }
 
-    if (type === ORDER_TYPE.POSTER_PLAN) {
-      const existingOrder = await Order.findOne({
-        type: ORDER_TYPE.POSTER_PLAN,
-        posterPlan: new Types.ObjectId(posterPlan),
-        user: new Types.ObjectId(user),
-        isUsed: false,
-        isExpired: false,
-        isSuspended: false,
-      });
+    // if (type === ORDER_TYPE.POSTER_PLAN) {
+    //   const existingOrder = await Order.findOne({
+    //     type: ORDER_TYPE.POSTER_PLAN,
+    //     posterPlan: new Types.ObjectId(posterPlan),
+    //     user: new Types.ObjectId(user),
+    //     isUsed: false,
+    //     isExpired: false,
+    //     isSuspended: false,
+    //   });
 
-      if (existingOrder) {
-        throw new Error("Same Plan already purchased !");
-      }
-    }
+    //   if (existingOrder) {
+    //     throw new Error("Same Plan already purchased !");
+    //   }
+    // }
 
     //SAME AUCTION_PLAN ORDER EXIST FOR SAME USER CHECKS
     if (type === ORDER_TYPE.AUCTION_PLAN) {
