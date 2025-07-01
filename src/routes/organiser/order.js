@@ -18,5 +18,6 @@ router.get(
   orderController.getOrganizerActiveAuctionPlan
 );
 router.patch("/:orderId", orderController.updateOrder);
+router.get("/:planId/plan-count", orderController.getPurchasedPlansCount)
 
 module.exports = router;
