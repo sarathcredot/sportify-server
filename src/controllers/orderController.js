@@ -14,6 +14,7 @@ class OrderController extends BaseController {
       this.getOrganizerActivePosterPlanForTournament.bind(this);
     this.getOrganizerActiveAuctionPlan =
       this.getOrganizerActiveAuctionPlan.bind(this);
+    this.getPurchasedPlansCount = this.getPurchasedPlansCount.bind(this)
   }
 
   async createOrder(req, res) {
@@ -77,7 +78,7 @@ class OrderController extends BaseController {
     try {
       const { orderId } = req.params;
       const orderData = req.body;
-      console.log({ORDER_DATA: orderData})
+      console.log({ ORDER_DATA: orderData })
       const user = req.user;
       const updatedOrder = await orderService.updateOrder(
         {
@@ -156,6 +157,22 @@ class OrderController extends BaseController {
         "Active Auction Plan retrieved successfully"
       );
     } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getPurchasedPlansCount(req, res) {
+
+    try {
+      const user = req.user;
+      const { planId } = req.params;
+      const result = await orderService.getPurchasedPlanCount(user?._id, planId)
+
+      this.handleSuccess(res, result, "Purchased plans count retrieved successfully");
+
+
+    } catch (error) {
+
       this.handleError(res, error);
     }
   }

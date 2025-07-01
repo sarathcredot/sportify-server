@@ -413,7 +413,7 @@ class OrderService {
             isExpired: true,
           });
         }
-        
+
 
         // if (existingOrder) {
         //   throw new Error("Plan already exists for this Tournament!");
@@ -595,26 +595,26 @@ class OrderService {
     let activePlan =
       allActivePlans?.length > 0
         ? allActivePlans?.reduce((acc, curr) => {
-            let pro = null;
-            let basic = null;
-            let start = null;
+          let pro = null;
+          let basic = null;
+          let start = null;
 
-            if (curr?.posterPlan?.type === PLANS_TYPES.PRO) {
-              pro = curr;
-            }
+          if (curr?.posterPlan?.type === PLANS_TYPES.PRO) {
+            pro = curr;
+          }
 
-            if (curr?.posterPlan?.type === PLANS_TYPES.BASIC) {
-              basic = curr;
-            }
+          if (curr?.posterPlan?.type === PLANS_TYPES.BASIC) {
+            basic = curr;
+          }
 
-            if (curr?.posterPlan?.type === PLANS_TYPES.STARTER) {
-              start = curr;
-            }
+          if (curr?.posterPlan?.type === PLANS_TYPES.STARTER) {
+            start = curr;
+          }
 
-            acc = pro ? pro : basic ? basic : start;
+          acc = pro ? pro : basic ? basic : start;
 
-            return acc;
-          }, {})
+          return acc;
+        }, {})
         : null;
 
     let activePlanForTournament = null;
@@ -775,6 +775,29 @@ class OrderService {
 
     return { activePlan };
   }
+
+
+  async getPurchasedPlanCount(userId, planId) {
+
+    const findCount = await Order.countDocuments({
+      user: userId,
+      posterPlan: new Types.ObjectId(planId),
+      type: ORDER_TYPE.POSTER_PLAN,
+      orderStatus: ORDER_STATUS.COMPLETED,
+      isUsed: false,
+      isExpired: false,
+      isSuspended: false,
+
+    })
+
+    if (findCount === null || findCount === undefined) {
+      return 0;
+    }
+    return findCount;
+  }
+
+
+
 }
 
 module.exports = new OrderService();
