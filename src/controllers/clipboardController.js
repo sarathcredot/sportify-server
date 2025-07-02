@@ -8,6 +8,7 @@ class ClipboardController extends BaseController {
     this.createClipboard = this.createClipBoard.bind(this);
     this.deleteClipboardById = this.deleteClipBoardById.bind(this);
     this.deleteClipboardByIds = this.deleteClipBoardByIds.bind(this);
+    this.getAllClipBoardsForUser = this.getAllClipBoardsForUser.bind(this);
   }
 
   async getAllClipBoardsForUser(req, res) {
