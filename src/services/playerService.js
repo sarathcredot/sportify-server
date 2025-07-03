@@ -166,7 +166,7 @@ class PlayerService {
     console.log("player", search)
     let query = { tournament: tournamentId };
     if (status) {
-      query.status = { $ne: PLAYER_STATUS.PENDING };
+      query.status = { $nin: [PLAYER_STATUS.PENDING, PLAYER_STATUS.REFUNDED, PLAYER_STATUS.REJECTED] };
     }
 
     if (search) {
