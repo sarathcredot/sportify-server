@@ -3,6 +3,7 @@ const Tournament = require("../models/Tournament");
 const { getIO } = require('../config/socket');
 const Auction = require('../models/Auction');
 const TournamentTeams = require('../models/TournamentTeams');
+const { NOTIFICATION_FOR } = require('../utils/constants');
 
 module.exports = {
     getAllNotificationByOrganizer: async (organiserId) => {
@@ -51,6 +52,7 @@ module.exports = {
                                 logoUrl: elm.logoUrl,
                                 msg: "Reminder: Your tournament " + elm.name + " is starting soon.",
                                 type: "tournament_reminder",
+                                notificationFor: NOTIFICATION_FOR.TOURNAMENT
                             }
 
                             const final = new Notification(notification)
@@ -97,6 +99,7 @@ module.exports = {
                                     logoUrl: elm.logoUrl,
                                     msg: "Reminder: Your auction for tournament " + elm.name + " is starting soon.",
                                     type: "auction_reminder",
+                                    notificationFor: NOTIFICATION_FOR.AUCTION
                                 }
 
                                 const final = new Notification(notification)
@@ -175,7 +178,8 @@ module.exports = {
                         notification.logoUrl = getTournament?.logoUrl,
                         notification.user = getTournament?.createdBy,
                         notification.msg = `New player registered in your tournament ${getTournament.name}`,
-                        notification.type = data?.type
+                        notification.type = data?.type,
+                        notification.notificationFor = NOTIFICATION_FOR.TOURNAMENT
                 }
 
                 if (data?.type === "team_register") {
@@ -184,7 +188,8 @@ module.exports = {
                         notification.logoUrl = getTournament?.logoUrl,
                         notification.user = getTournament?.createdBy,
                         notification.msg = `New team registered in your tournament ${getTournament.name}`,
-                        notification.type = data?.type
+                        notification.type = data?.type,
+                        notification.notificationFor = NOTIFICATION_FOR.TOURNAMENT
                 }
 
                 const final = new Notification(notification)
