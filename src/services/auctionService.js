@@ -554,11 +554,13 @@ class AuctionService {
     if (!auction.currentBiddingPlayer) {
       throw new BadRequestError('No player to request concealed bid');
     }
-    auction.concealedBidRequest = new ConcealedBidRequest({
+    const concealedBidRequest = new ConcealedBidRequest({
       auction: auction._id,
       player: auction.currentBiddingPlayer._id,
       points: auction.currentBiddingPlayer.currentBid.points,
     });
+    await concealedBidRequest.save();
+    auction.concealedBidRequest = concealedBidRequest._id;
     await auction.save();
 
     // const io = getIO();
