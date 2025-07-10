@@ -632,7 +632,11 @@ class AuctionService {
       throw new BadRequestError('You have already placed a bid');
     }
     const tournament = await Tournament.findById(auction.tournament);
-    const team = await TournamentTeams.findById(bid.placedBy).populate('team');
+    // const team = await TournamentTeams.findById(bid.placedBy).populate('team');
+    const team = await TournamentTeams.findOne({
+      tournament: auction.tournament,
+      teamManager: bid.placedBy
+    }).populate('team');
     const numberOfPlayersInTeam = team.players ? team.players.length : 0;
     const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
     const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
