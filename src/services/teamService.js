@@ -91,7 +91,7 @@ class TeamService {
 
   async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     console.log("search", search)
-    let query = { tournament: tournamentId };
+    let query = { tournament: tournamentId, status: TEAM_STATUS.APPROVED }; 
     if (status) {
       query.status = status;
     }

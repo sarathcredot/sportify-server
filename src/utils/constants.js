@@ -13,6 +13,7 @@ const USER_TYPES = Object.values(ROLES);
 const SPORTS_NAMES = {
   CRICKET: "cricket",
   FOOTBALL: "football",
+  OTHER: "other",
 };
 
 const CRICKET_MATCH_TYPES = {
@@ -63,6 +64,9 @@ const SPORTS = {
     MATCH_TYPES: Object.values(FOOTBALL_MATCH_TYPES),
     BALL_TYPES: Object.values(FOOTBALL_BALL_TYPES),
     PLAYER_CATEGORIES: Object.values(FOOTBALL_PLAYER_CATEGORIES),
+  },
+  OTHER: {
+    NAME: SPORTS_NAMES.OTHER,
   },
 };
 

@@ -30,7 +30,7 @@ const TournamentSchema = new mongoose.Schema({
   settings: {
     matchType: {
       type: String,
-      required: true,
+      required: false,
       // validate: {
       //   validator: function (value) {
       //     if (this.sportType === SPORTS_NAMES.CRICKET) {
@@ -46,7 +46,7 @@ const TournamentSchema = new mongoose.Schema({
     },
     ballType: {
       type: String,
-      required: true,
+      required: false,
       // validate: {
       //   validator: function (value) {
       //     if (this.sportType === SPORTS_NAMES.CRICKET) {

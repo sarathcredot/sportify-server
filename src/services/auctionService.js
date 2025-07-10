@@ -554,11 +554,13 @@ class AuctionService {
     if (!auction.currentBiddingPlayer) {
       throw new BadRequestError('No player to request concealed bid');
     }
-    auction.concealedBidRequest = new ConcealedBidRequest({
+    const concealedBidRequest = new ConcealedBidRequest({
       auction: auction._id,
       player: auction.currentBiddingPlayer._id,
       points: auction.currentBiddingPlayer.currentBid.points,
     });
+    await concealedBidRequest.save();
+    auction.concealedBidRequest = concealedBidRequest._id;
     await auction.save();
 
     // const io = getIO();
@@ -592,20 +594,22 @@ class AuctionService {
   }
 
   async placeConcealedBid(auctionId, bid) {
-    const auction = await Auction.findById(auctionId).populate(['currentBiddingPlayer', 'concealedBidRequest']);
+    // const auction = await Auction.findById(auctionId).populate(['currentBiddingPlayer', 'concealedBidRequest']);
+    const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer');
     if (!auction) {
       throw new NotFoundError('Auction not found');
     }
     if (auction.status !== AUCTION_STATUS.LIVE) {
       throw new BadRequestError('Auction is not live');
     }
-    if (!auction.concealedBidRequest) {
-      throw new BadRequestError('No concealed bid request');
+    const concealedBidRequest = await ConcealedBidRequest.findById(auction.concealedBidRequest);
+    if (!concealedBidRequest) {
+      throw new NotFoundError('Concealed bid request not found');
     }
-    if (auction.concealedBidRequest.status === CONCEALED_BID_REQUEST_STATUS.COMPLETED) {
+    if (concealedBidRequest.status === CONCEALED_BID_REQUEST_STATUS.COMPLETED) {
       throw new BadRequestError('Concealed bid request is already completed');
     }
-    if (auction.concealedBidRequest.status === CONCEALED_BID_REQUEST_STATUS.CANCELLED) {
+    if (concealedBidRequest.status === CONCEALED_BID_REQUEST_STATUS.CANCELLED) {
       throw new BadRequestError('Concealed bid request is cancelled');
     }
     if (!auction.currentBiddingPlayer) {
@@ -623,7 +627,7 @@ class AuctionService {
     if (bid.points > auction.maxBidPerPlayer) {
       throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
     }
-    const existingBid = await Bid.findOne({ bidRequest: auction.concealedBidRequest._id, placedBy: bid.placedBy });
+    const existingBid = await Bid.findOne({ bidRequest: concealedBidRequest._id, placedBy: bid.placedBy });
     if (existingBid) {
       throw new BadRequestError('You have already placed a bid');
     }
@@ -649,7 +653,7 @@ class AuctionService {
       placedBy: bid.placedBy,
       points: bid.points,
       isConcealedBid: true,
-      bidRequest: auction.concealedBidRequest._id,
+      bidRequest: concealedBidRequest._id,
     });
     const savedBid = await bidObject.save();
     auction.currentBiddingPlayer.currentBid = {

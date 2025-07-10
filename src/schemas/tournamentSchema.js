@@ -89,10 +89,10 @@ const createTournamentSchema = z.object({
     example: "Ground",
   }),
   settings: z.object({
-    matchType: z.string().openapi({
+    matchType: z.string().optional().openapi({
       example: CRICKET_MATCH_TYPES.LIMITED_OVER,
     }),
-    ballType: z.string().openapi({
+    ballType: z.string().optional().openapi({
       example: CRICKET_BALL_TYPES.TENNIS,
     }),
     overs: z.string().optional().openapi({
