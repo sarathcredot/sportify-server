@@ -169,7 +169,7 @@ class TournamentService {
 
       if (
         tournamentData?.settings?.maxTeamAllowed >
-          auctionPlanExist?.maxAllowedTeams &&
+        auctionPlanExist?.maxAllowedTeams &&
         !auctionPlanExist?.isUnlimitedTeamsAllowed
       ) {
         throw new Error(
@@ -288,7 +288,7 @@ class TournamentService {
 
       if (
         updateData?.settings?.maxTeamAllowed >
-          auctionPlanExist?.maxAllowedTeams &&
+        auctionPlanExist?.maxAllowedTeams &&
         !auctionPlanExist?.isUnlimitedTeamsAllowed
       ) {
         throw new Error(
@@ -509,13 +509,19 @@ class TournamentService {
     if (!tournamentPlayer) {
       throw new NotFoundError("Tournament or player not found");
     }
-    await sendEmail(
-      plyaerdata?.email,
-      "Player Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${
-        approve ? "approved" : "rejected"
-      }`
+
+    await sendEmail(plyaerdata?.email, "Player Registration Status Updation",
+
+      {
+        title: "Player Registration Status Updation",
+        name: plyaerdata?.firstName,
+        des: `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"
+          }`,
+      }
+
+
     );
+
     return {
       data: tournamentPlayer,
       msg: "",
@@ -616,8 +622,7 @@ class TournamentService {
     await sendEmail(
       tournamentTeam?.email,
       "Team Registration Status",
-      `Your registration for the tournament ${tournament?.name} has been ${
-        approve ? "approved" : "rejected"
+      `Your registration for the tournament ${tournament?.name} has been ${approve ? "approved" : "rejected"
       }`
     );
 

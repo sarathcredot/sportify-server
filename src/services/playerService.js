@@ -68,7 +68,7 @@ class PlayerService {
         des: `You have successfully registered for the tournament: ${tournament.name}. Your Player ID is ${playerId}.`,
       }
 
-      
+
     );
 
     return player;
@@ -118,6 +118,17 @@ class PlayerService {
       contactNumber: player.contactNumber,
       email: player.email,
     });
+
+    await sendEmail(player.email, "Player Registration Confirmation",
+
+      {
+        title: "Player Registration Confirmation",
+        name: player.firstName,
+        des: `You have successfully registered for the tournament: ${tournament.name}. Your Player ID is ${playerId}.`,
+      }
+
+
+    );
 
     return player;
   }
