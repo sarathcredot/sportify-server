@@ -627,16 +627,16 @@ class AuctionService {
     if (bid.points > auction.maxBidPerPlayer) {
       throw new BadRequestError(`Maximum bid points is ${auction.maxBidPerPlayer}`);
     }
-    const existingBid = await Bid.findOne({ bidRequest: concealedBidRequest._id, placedBy: bid.placedBy });
-    if (existingBid) {
-      throw new BadRequestError('You have already placed a bid');
-    }
-    const tournament = await Tournament.findById(auction.tournament);
-    // const team = await TournamentTeams.findById(bid.placedBy).populate('team');
     const team = await TournamentTeams.findOne({
       tournament: auction.tournament,
       teamManager: bid.placedBy
     }).populate('team');
+
+    const existingBid = await Bid.findOne({ bidRequest: concealedBidRequest._id, placedBy: team._id });
+    if (existingBid) {
+      throw new BadRequestError('You have already placed a bid');
+    }
+    const tournament = await Tournament.findById(auction.tournament);
     const numberOfPlayersInTeam = team.players ? team.players.length : 0;
     const remainingPlayersRequired = tournament.settings.maxPlayersPerTeam - numberOfPlayersInTeam - 1;
     const minBidPoints = remainingPlayersRequired * tournament.settings.minBidPoints;
@@ -654,7 +654,7 @@ class AuctionService {
       tournament: auction.tournament,
       auction: auction._id,
       player: bid.playerId,
-      placedBy: bid.placedBy,
+      placedBy: team._id,
       points: bid.points,
       isConcealedBid: true,
       concealedBidRequest: concealedBidRequest._id,
@@ -662,7 +662,7 @@ class AuctionService {
     const savedBid = await bidObject.save();
     auction.currentBiddingPlayer.currentBid = {
       bid: bidObject._id,
-      team: bid.placedBy,
+      team: team._id,
     };
     await auction.currentBiddingPlayer.save();
 
