@@ -657,7 +657,7 @@ class AuctionService {
       placedBy: bid.placedBy,
       points: bid.points,
       isConcealedBid: true,
-      bidRequest: concealedBidRequest._id,
+      concealedBidRequest: concealedBidRequest._id,
     });
     const savedBid = await bidObject.save();
     auction.currentBiddingPlayer.currentBid = {

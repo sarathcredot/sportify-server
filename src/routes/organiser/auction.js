@@ -456,7 +456,7 @@ router.get("/:auctionId/request-concealed-bid", auctionController.getRequestConc
 
 /**
  * @swagger
- * /organiser/auction/{auctionId}/concealed-bids/{concealedBidRequestId}:
+ * /organiser/auction/{auctionId}/concealed-bids/:
  *   get:
  *     summary: Get concealed bids
  *     tags: [Organiser]
