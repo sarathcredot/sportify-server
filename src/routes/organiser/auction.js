@@ -544,6 +544,31 @@ router.post("/:auctionId/mark-player-sold-for-concealed-bid", auctionController.
 
 /**
  * @swagger
+ * /organiser/auction/{auctionId}/mark-player-unsold-for-concealed-bid:
+ *   post:
+ *     summary: Mark a player as unsold for a concealed bid
+ *     tags: [Organiser]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: auctionId
+ *         in: path
+ *         required: true 
+ *         description: The ID of the auction
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/ApiResponse'
+ *                 - type: object
+ *         description: Player marked as unsold for a concealed bid
+ */
+router.post("/:auctionId/mark-player-unsold-for-concealed-bid", auctionController.markPlayerUnsoldForConcealedBid);
+
+/**
+ * @swagger
  * /organiser/auction/{auctionId}/cancel-concealed-bid:
  *   post:
  *     summary: Cancel a concealed bid
