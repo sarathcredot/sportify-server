@@ -688,7 +688,14 @@ class AuctionService {
     if (!auction.concealedBidRequest) {
       throw new NotFoundError('Concealed bid request not found');
     }
-    const bids = await Bid.find({ concealedBidRequest: auction.concealedBidRequest._id, isConcealedBid: true }).populate('placedBy');
+    const bids = await Bid.find({ concealedBidRequest: auction.concealedBidRequest._id, isConcealedBid: true })
+      .populate({
+        path: 'placedBy',
+        populate: {
+          path: 'team'
+        }
+      })
+      .sort({ points: -1 });
     return bids;
   }
 
