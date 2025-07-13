@@ -13,6 +13,7 @@ const { info } = require("winston");
 const socketService = require("./socketService");
 const notificationService = require("./notificationService");
 const { logger } = require("../config/logger");
+const { runAsTransaction } = require("../utils/transaction");
 
 
 class AuctionService {
@@ -883,14 +884,14 @@ class AuctionService {
 
   async getHighestEarliestConcealedBid(bidRequestId) {
     const bid = await Bid.findOne({
-      bidRequest: bidRequestId,
+      concealedBidRequest: bidRequestId,
       isConcealedBid: true
     })
-      .sort({
-        points: -1,
-        createdAt: 1
-      })
-      .populate('placedBy');
+    .sort({
+      points: -1,
+      createdAt: 1
+    })
+    .populate('placedBy');
 
     if (!bid) {
       throw new NotFoundError('No concealed bids found for this request');
@@ -899,10 +900,14 @@ class AuctionService {
   }
 
   async markPlayerSoldForConcealedBid(auctionId) {
-    runAsTransaction(async (session) => {
+    await runAsTransaction(async (session) => {
       const auction = await Auction.findById(auctionId).populate('currentBiddingPlayer').session(session);
       if (!auction) {
         throw new NotFoundError('Auction not found');
+      }
+      const bidRequestId = auction.concealedBidRequest;
+      if (!bidRequestId) {
+        throw new NotFoundError('Concealed bid request not found');
       }
       const player = await TournamentPlayers.findOne({ tournament: auction.tournament, player: auction.currentBiddingPlayer.player }).session(session);
       if (!player) {
@@ -912,7 +917,6 @@ class AuctionService {
       auction.currentBiddingPlayer = null;
       auction.concealedBidRequest = null;
       await auction.save({ session });
-      await session.commitTransaction();
       const highestBid = await this.getHighestEarliestConcealedBid(bidRequestId);
       const team = await TournamentTeams.findById(highestBid.placedBy).session(session);
       if (!team) {
@@ -921,12 +925,12 @@ class AuctionService {
       player.signedForPoints = highestBid.points;
       player.signedForTeam = highestBid.placedBy;
       await player.save({ session });
-      team.remainingPoints = team.remainingPoints - concealedBid.points;
+      team.remainingPoints = team.remainingPoints - highestBid.points;
       team.players.push({
         player: player._id,
-        signedForPoints: concealedBid.points
+        signedForPoints: highestBid.points
       });
-      team.wonBids.push(concealedBid._id);
+      team.wonBids.push(highestBid._id);
       // update max points per bid
       const tournament = await Tournament.findById(auction.tournament).session(session);
       const numberOfPlayersInTeam = team.players ? team.players.length : 0;
@@ -936,14 +940,15 @@ class AuctionService {
         team.maxPointsPerBid = team.remainingPoints - totalMinBidPointsRequired;
       }
       await team.save({ session });
-      await ConcealedBidRequest.findByIdAndUpdate({ auction: auction._id, player: player._id }, { status: CONCEALED_BID_REQUEST_STATUS.COMPLETED }, { session });
+      await ConcealedBidRequest.findByIdAndUpdate({ _id: bidRequestId }, { status: CONCEALED_BID_REQUEST_STATUS.COMPLETED }, { session });
       const updatedPlayer = await TournamentPlayers.findById(player._id);
 
       const io = getIO();
       io.to(`${auction._id}-organizer-live-preview`).emit('player-sold-live', {
         message: `player sold`,
         auctionId: auction._id,
-
+        team: team,
+        point: highestBid.points
       });
 
       return updatedPlayer;
