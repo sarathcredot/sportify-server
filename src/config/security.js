@@ -13,7 +13,7 @@ const allowedOrigins = [
   "https://sportifypro.vercel.app",
   "https://sportify-pro.vercel.app",
   "https://sportify-pro-organiser.vercel.app",
-  "http://localhost:3000",
+  "http://localhost:5000",
   "http://192.168.29.18:3000",
   "https://sportify-pro-admin.vercel.app",
   "https://sportify-pro-admin-dashboard.vercel.app",
