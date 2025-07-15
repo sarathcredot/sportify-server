@@ -19,6 +19,7 @@ const allowedOrigins = [
   "https://sportify-pro-admin.vercel.app",
   "https://sportify-pro-admin-dashboard.vercel.app",
   "https://sportify-pro-admin-dashboard-green.vercel.app",
+  "https://sportify-admin-dashboard.vercel.app",
 ];
 
 const corsOptions = {
