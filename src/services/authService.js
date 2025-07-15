@@ -42,7 +42,12 @@ class AuthService {
       let user = await User.findOne({ phoneNumber: normalizedPhone });
       if (!user) {
         throw new Error('User not found');
-      } else {
+      } else if(!user.isActive){
+
+          throw new Error('Account is deactivated');
+      }
+      
+      else {
         user.otpData = {
           otp,
           expiresAt: otpExpiry
