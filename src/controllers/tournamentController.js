@@ -66,12 +66,13 @@ class TournamentController extends BaseController {
 
 
   async updateTournamentById(req, res) {
+    console.log("user in update tournament", req.user)
     try {
       const { id } = req.params;
       const updates = req.body;
       console.log(id, ' = PARAMS.ID')
       console.log(updates, ' = REQ.BODY')
-      const tournament = await tournamentService.updateTournamentById(id, updates);
+      const tournament = await tournamentService.updateTournamentById(id, updates,req.user);
       if (!tournament) {
         return res.status(404).json(ResponseHandler.error('Tournament not found', null, 404));
       }

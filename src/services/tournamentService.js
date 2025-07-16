@@ -282,7 +282,7 @@ class TournamentService {
         updateData?.auction?.auctionPlan
       );
 
-      if (!auctionPlanExist) {
+      if (!auctionPlanExist&& !user?.role === ROLES?.ADMIN) {
         throw new Error("Auction plan not found !");
       }
 
