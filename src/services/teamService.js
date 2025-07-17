@@ -231,6 +231,7 @@ class TeamService {
   async getTeamById(id) {
     const team = await TournamentTeams.findById(id)
       .populate('team')
+      .populate("tournament")
       .populate({
           path: 'players',
           populate: {

@@ -4,7 +4,7 @@ const Tournament = require("../models/Tournament");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const TeamManagerPlayer = require("../models/TeamManagerPlayer");
 const TeamManagerTeam = require("../models/TournamentTeams");
-const mongoose =require("mongoose")
+const mongoose = require("mongoose")
 
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const { PLAYER_STATUS } = require("../utils/constants");
@@ -271,7 +271,10 @@ class PlayerService {
   }
 
   async getPlayerById(playerId) {
-    const player = await Player.findById({ _id: playerId, });
+
+    const objectId = new mongoose.Types.ObjectId(playerId);
+
+    const player = TournamentPlayers.findById({_id:playerId}).populate("player")
     if (!player) {
       throw new NotFoundError("Player not found");
     }
@@ -281,19 +284,19 @@ class PlayerService {
   async deletePlayer(playerId) {
     const objectId = new mongoose.Types.ObjectId(playerId);
 
-  const updatedTeam = await TournamentTeams.findOneAndUpdate(
-    { "players.player": objectId }, // Ensure you're matching by ObjectId
-    { $pull: { players: { player: objectId } } },
-    { new: true }
-  );
+    const updatedTeam = await TournamentTeams.findOneAndUpdate(
+      { "players.player": objectId }, // Ensure you're matching by ObjectId
+      { $pull: { players: { player: objectId } } },
+      { new: true }
+    );
 
 
 
-  if (!updatedTeam) {
-    throw new NotFoundError("Player not found in any team");
-  }
+    if (!updatedTeam) {
+      throw new NotFoundError("Player not found in any team");
+    }
 
-  return updatedTeam;
+    return updatedTeam;
   }
 
 
