@@ -149,17 +149,18 @@ class TeamService {
   }
 
   async getTeamsByTeamManagerId(search, page = 1, limit = 10, teamManagerId) {
-    const query = { manager: teamManagerId };
+    const query = { teamManager: teamManagerId };
+    
     if (search) {
       query.name = { $regex: search, $options: 'i' };
     }
     const skip = (page - 1) * limit;
     const [teams, total] = await Promise.all([
-      Team.find(query)
+      TournamentTeams.find(query).populate("tournament")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-      Team.countDocuments(query)
+     TournamentTeams.countDocuments(query)
     ]);
 
     return {
