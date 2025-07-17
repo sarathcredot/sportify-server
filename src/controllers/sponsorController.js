@@ -10,6 +10,7 @@ class SponsorController extends BaseController {
     this.getSponsorsByTournamentId = this.getSponsorsByTournamentId.bind(this);
     this.updateSponsor = this.updateSponsor.bind(this);
     this.deleteSponsor = this.deleteSponsor.bind(this);
+    this.getSponsorsById=this.getSponsorsById.bind(this)
   }
 
   async createSponsor(req, res) {
@@ -49,6 +50,18 @@ class SponsorController extends BaseController {
       const { sponsorId } = req.params;
       await sponsorService.deleteSponsor(sponsorId);
       this.handleSuccess(res, null, "Sponsor deleted successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async getSponsorsById(req, res) {
+    try {
+      const {id } = req.params;
+      console.log("get sponser common",tournamentId)
+      const { page, limit, search } = req.query;
+      const sponsors = await sponsorService.getSponsorsByTournamentId(id, parseInt(page), parseInt(limit), search);
+      this.handleSuccess(res, sponsors, "Sponsors retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
     }

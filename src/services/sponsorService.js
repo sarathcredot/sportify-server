@@ -52,6 +52,17 @@ class SponsorService {
     return sponsor;
   }
 
+   async getSponsorById(sponsorId) {
+    const sponsor = await Sponsor.findById(sponsorId);
+    if (!sponsor) {
+      throw new NotFoundError("Sponsor not found");
+    }
+    return sponsor;
+  }
+
+
+  
+
   async deleteSponsor(sponsorId) {
     const sponsor = await Sponsor.findById(sponsorId);
     if (!sponsor) {

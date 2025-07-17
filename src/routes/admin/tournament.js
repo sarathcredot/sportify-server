@@ -4,9 +4,11 @@ const validate = require('../../utils/validate');
 const { createTournamentSchema, updateTournamentSchema } = require('../../schemas/tournamentSchema');
 const checkOwnership = require('../../middleware/checkOwnership');
 const Tournament = require('../../models/Tournament');
+const SponsorController =require("../../controllers/sponsorController")
 
 const router = express.Router();
 const tournamentController = new TournamentController();
+const sponsorController=new SponsorController()
 /**
  * @swagger
  * /admin/tournaments:
@@ -286,5 +288,7 @@ router.delete(
   '/:id',
   tournamentController.deleteTournamentById
 );
+
+router.get("/:id/sponsors",sponsorController.getSponsorsByTournamentId)
 
 module.exports = router;

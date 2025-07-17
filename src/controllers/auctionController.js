@@ -301,6 +301,17 @@ class AuctionController extends BaseController {
     }
   }
 
+  async getGalleryAssetbyId(req, res) {
+    const { auctionId, assetId } = req.params;
+    console.log("boday", req.params);
+    try {
+      const gallery = await galleryService.deleteGalleryAsset(auctionId, assetId);
+      this.handleSuccess(res, gallery, "Gallery asset deleted");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
   async playGallery(req, res) {
     const { auctionId } = req.params;
     try {

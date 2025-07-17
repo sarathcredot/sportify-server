@@ -12,6 +12,8 @@ const auctionPlanRouter = require('./admin/auctionPlan');
 const posterPlanRouter = require('./admin/posterPlan');
 const orderRouter = require('./admin/order');
 const playerRouter=require("./admin/players")
+const sponserRouter=require("./admin/sponsor")
+const galleryRouter=require("./admin/gallery")
 
 
 router.use(auth);
@@ -42,6 +44,9 @@ router.use('/templates', templatesRouter);
 router.use('/poster-plans', posterPlanRouter);
 router.use('/auction-plans', auctionPlanRouter);
 router.use('/order', orderRouter);
+router.use("/sponsor",sponserRouter)
+router.use("/gallery",galleryRouter)
+
 
 
 module.exports = router;

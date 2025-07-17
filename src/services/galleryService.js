@@ -54,6 +54,28 @@ class GalleryService {
     return galleryAsset;
   }
 
+
+
+  async getGalleryAssetById(auctionId, assetId) {
+    const auction = await Auction.findById(auctionId);
+    if (!auction) {
+      throw new NotFoundError('Auction not found');
+    }
+    const galleryAsset = await AuctionGalleryAsset.findById(assetId);
+    if (!galleryAsset) {
+      throw new NotFoundError('Gallery asset not found');
+    }
+    return galleryAsset;
+  }
+
+
+
+
+
+
+
+
+
   async playGallery(auctionId) {
     const auction = await Auction.findById(auctionId);
     if (!auction) {
