@@ -3,7 +3,7 @@ const Tournament = require("../models/Tournament");
 const { getIO } = require('../config/socket');
 const Auction = require('../models/Auction');
 const TournamentTeams = require('../models/TournamentTeams');
-const { NOTIFICATION_FOR } = require('../utils/constants');
+const { NOTIFICATION_FOR, TEAM_STATUS } = require('../utils/constants');
 
 module.exports = {
     getAllNotificationByOrganizer: async (organiserId) => {
@@ -274,6 +274,7 @@ module.exports = {
             try {
                 const tournamentTeams = await TournamentTeams.find({
                     tournament: tournamentId,
+                    status: TEAM_STATUS.APPROVED
                 });
                 const teamManagerIds = tournamentTeams.map((team) =>
                     team.teamManager.toString()
