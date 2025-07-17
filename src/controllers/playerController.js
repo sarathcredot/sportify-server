@@ -18,6 +18,9 @@ class PlayerController extends BaseController {
     this.editPlayerOfTeamManager = this.editPlayerOfTeamManager.bind(this);
     this.removePlayerOfTeamManager = this.removePlayerOfTeamManager.bind(this);
     this.refundPlayer = this.refundPlayer.bind(this)
+    this.editPlayerOfAdmin = this.editPlayerOfAdmin.bind(this)
+    this.getPlayerById = this.getPlayerById.bind(this)
+    this.deletePlayer=this.deletePlayer.bind(this)
   }
 
   async registerPlayer(req, res) {
@@ -142,6 +145,8 @@ class PlayerController extends BaseController {
     }
   }
 
+
+
   async removePlayerOfTeamManager(req, res) {
     try {
       const { playerId } = req.params;
@@ -152,6 +157,45 @@ class PlayerController extends BaseController {
       this.handleError(res, error);
     }
   }
+
+  async getPlayerById(req, res) {
+    try {
+      const { id } = req.params;
+      // const teamManagerId = req.user.id;
+      const player = await playerService.getPlayerById(id);
+      this.handleSuccess(res, player, 'Player find successfully');
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+
+
+  async editPlayerOfAdmin(req, res) {
+    try {
+      const {id } = req.params;
+      // const teamManagerId = req.user.id;
+      const player = await playerService.editPlayerOfAdmin(id, req.body);
+      this.handleSuccess(res, player, 'Player updated successfully');
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+  async deletePlayer(req, res) {
+    try {
+      const { id } = req.params;
+      // const teamManagerId = req.user.id;
+      const player = await playerService.deletePlayer(id);
+      this.handleSuccess(res, player, 'Player delete successfully');
+    } catch (error) {
+      this.handleError(res, error);
+    }
+
+  }
+
+
+
 }
 
 module.exports = PlayerController; 

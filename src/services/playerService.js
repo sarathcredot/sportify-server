@@ -3,11 +3,15 @@ const Team = require("../models/Team");
 const Tournament = require("../models/Tournament");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const TeamManagerPlayer = require("../models/TeamManagerPlayer");
+const TeamManagerTeam = require("../models/TournamentTeams");
+const mongoose =require("mongoose")
+
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const { PLAYER_STATUS } = require("../utils/constants");
 const { Types } = require("mongoose");
 const notificationService = require("./notificationService");
 const { sendEmail } = require("./emailService");
+const TournamentTeams = require("../models/TournamentTeams");
 
 class PlayerService {
   async registerPlayer(playerData) {
@@ -257,6 +261,42 @@ class PlayerService {
     }
     return player;
   }
+
+  async editPlayerOfAdmin(playerId, playerData, teamManagerId) {
+    const player = await Player.findOneAndUpdate({ _id: playerId, }, { ...playerData }, { new: true });
+    if (!player) {
+      throw new NotFoundError("Player not found");
+    }
+    return player;
+  }
+
+  async getPlayerById(playerId) {
+    const player = await Player.findById({ _id: playerId, });
+    if (!player) {
+      throw new NotFoundError("Player not found");
+    }
+    return player;
+  }
+
+  async deletePlayer(playerId) {
+    const objectId = new mongoose.Types.ObjectId(playerId);
+
+  const updatedTeam = await TournamentTeams.findOneAndUpdate(
+    { "players.player": objectId }, // Ensure you're matching by ObjectId
+    { $pull: { players: { player: objectId } } },
+    { new: true }
+  );
+
+
+
+  if (!updatedTeam) {
+    throw new NotFoundError("Player not found in any team");
+  }
+
+  return updatedTeam;
+  }
+
+
 
   async removePlayerOfTeamManager(playerId, teamManagerId) {
     const player = await TeamManagerPlayer.findOneAndDelete({ _id: playerId, teamManager: teamManagerId });

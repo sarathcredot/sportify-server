@@ -91,7 +91,7 @@ class TeamService {
 
   async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     console.log("search", search)
-    let query = { tournament: tournamentId}; 
+    let query = { tournament: tournamentId };
     if (status) {
       query.status = status;
     }
@@ -150,7 +150,7 @@ class TeamService {
 
   async getTeamsByTeamManagerId(search, page = 1, limit = 10, teamManagerId) {
     const query = { teamManager: teamManagerId };
-    
+
     if (search) {
       query.name = { $regex: search, $options: 'i' };
     }
@@ -160,7 +160,7 @@ class TeamService {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
-     TournamentTeams.countDocuments(query)
+      TournamentTeams.countDocuments(query)
     ]);
 
     return {
@@ -229,7 +229,19 @@ class TeamService {
   }
 
   async getTeamById(id) {
-    const team = await TournamentTeams.findById(id).populate('team');
+    const team = await TournamentTeams.findById(id)
+      .populate('team')
+      .populate({
+          path: 'players',
+          populate: {
+            path: 'player',
+            populate: {
+              path: 'player',
+
+            }
+          }
+        }
+        )
     if (!team) {
       throw new NotFoundError("Team not found");
     }
@@ -283,6 +295,9 @@ class TeamService {
     ]);
     return tournamentTeam;
   }
+
+
+ 
 }
 
 module.exports = new TeamService();
