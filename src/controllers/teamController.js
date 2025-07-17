@@ -92,11 +92,13 @@ class TeamController extends BaseController {
   }
 
   async getTeamById(req, res) {
+    console.log("team id", req)
     try {
       const { id } = req.params;
       const team = await teamService.getTeamById(id);
       this.handleSuccess(res, team, "Team retrieved successfully");
     } catch (error) {
+      console.log("team get by id error", error)
       this.handleError(res, error);
     }
   }

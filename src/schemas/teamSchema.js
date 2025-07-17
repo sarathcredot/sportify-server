@@ -1,5 +1,6 @@
 const { z } = require("zod");
 const { extendZodWithOpenApi, createSchema } = require('zod-openapi');
+const { TEAM_STATUS } = require("../utils/constants");
 
 extendZodWithOpenApi(z);
 
@@ -13,6 +14,7 @@ const createTeamSchema = z.object({
 }).openapi();
 
 const updateTeamSchema = z.object({
+  team: z.object({
   name: z.string().nonempty("Team name is required"),
   location: z.string().optional(),
   logoUrl: z.string().nonempty("Team photo is required"),
@@ -23,6 +25,7 @@ const updateTeamSchema = z.object({
   }, {
     message: "Invalid status"
   }),
+})
 }).openapi();
 
 const registerTeamSchema = z.object({

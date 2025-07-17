@@ -3,6 +3,7 @@ const auth = require('../middleware/auth');
 const checkIsAdmin = require('../middleware/checkIsAdmin');
 const router = express.Router();
 const tournamentsRouter = require('./admin/tournament');
+const teamsRouter = require('./admin/team');
 const teamManagersRouter = require('./admin/teammanagers');
 const organisersRouter = require('./admin/organiser');
 const clipboardsRouter = require('./admin/clipboard');
@@ -31,6 +32,7 @@ router.use(checkIsAdmin());
  */
 
 router.use('/tournaments', tournamentsRouter);
+router.use('/teams', teamsRouter);
 router.use('/teammanagers', teamManagersRouter);
 router.use('/organisers', organisersRouter);
 router.use('/clipboards', clipboardsRouter);

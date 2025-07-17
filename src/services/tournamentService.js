@@ -5,7 +5,7 @@ const Team = require("../models/Team");
 const mongoose = require("mongoose");
 const { sendEmail } = require("./emailService");
 const { AUCTION_STATUS } = require("../utils/constants");
-const { ValidationError, NotFoundError } = require("../utils/errors");
+const { ValidationError, NotFoundError, BadRequestError } = require("../utils/errors");
 const { ROLES, PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const TournamentPlayers = require("../models/TournamentPlayers");
 const TournamentTeams = require("../models/TournamentTeams");
@@ -282,7 +282,7 @@ class TournamentService {
         updateData?.auction?.auctionPlan
       );
 
-      if (!auctionPlanExist) {
+      if (!auctionPlanExist&& !user?.role === ROLES?.ADMIN) {
         throw new Error("Auction plan not found !");
       }
 
