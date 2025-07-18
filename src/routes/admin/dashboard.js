@@ -487,4 +487,122 @@ router.get('/top-team-managers', dashboardController.getTopTeamManagers);
  */
 router.get('/team-manager-stats', dashboardController.getTeamManagerStats);
 
+/**
+ * @swagger
+ * /admin/dashboard/top-tournaments:
+ *   get:
+ *     summary: Get top tournaments with organizer names
+ *     description: Retrieve top tournaments with their organizer names
+ *     tags: [Admin Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of top tournaments to fetch
+ *     responses:
+ *       200:
+ *         description: Top tournaments retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Top tournaments retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       tournament:
+ *                         type: string
+ *                         example: "Pepsi Indian Premier League"
+ *                       organizer:
+ *                         type: string
+ *                         example: "John Doe"
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/top-tournaments', dashboardController.getTopTournaments);
+
+/**
+ * @swagger
+ * /admin/dashboard/tournament-stats:
+ *   get:
+ *     summary: Get tournament statistics with time-based filtering and chart data
+ *     description: Retrieve tournament statistics with filtering options (day, week, month, year) and monthly chart data
+ *     tags: [Admin Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filterType
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, year]
+ *           default: month
+ *         description: Time period filter for chart data
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           default: 2024
+ *         description: Year for chart data
+ *     responses:
+ *       200:
+ *         description: Tournament statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Tournament statistics retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalTournaments:
+ *                       type: number
+ *                       example: 148
+ *                     thisMonth:
+ *                       type: number
+ *                       example: 15
+ *                     lastMonth:
+ *                       example: 12
+ *                     chartData:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           month:
+ *                             type: string
+ *                             example: "Jan"
+ *                           value:
+ *                             type: number
+ *                             example: 25
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/tournament-stats', dashboardController.getTournamentStats);
+
 module.exports = router; 
