@@ -1,5 +1,6 @@
 const Tournament = require("../models/Tournament");
 const Sponsor = require("../models/Sponsor");
+const { NotFoundError } = require("../utils/errors");
 
 class SponsorService {
 

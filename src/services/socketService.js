@@ -1,7 +1,7 @@
 const { getIO } = require("../config/socket");
 const User = require("../models/User");
 const TournamentTeams = require("../models/TournamentTeams");
-const { ROLES } = require("../utils/constants");
+const { ROLES, TEAM_STATUS } = require("../utils/constants");
 const { logger } = require("../config/logger");
 
 class SocketService {
@@ -53,6 +53,7 @@ class SocketService {
   async sendMessageToAllTeamManagersInTournament(tournamentId, event, message) {
     const tournamentTeams = await TournamentTeams.find({
       tournament: tournamentId,
+      status: TEAM_STATUS.APPROVED
     });
     const teamManagers = tournamentTeams.map((team) =>
       team.teamManager.toString()

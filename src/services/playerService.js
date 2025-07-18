@@ -7,11 +7,12 @@ const TeamManagerTeam = require("../models/TournamentTeams");
 const mongoose = require("mongoose")
 
 const { ValidationError, NotFoundError } = require("../utils/errors");
-const { PLAYER_STATUS } = require("../utils/constants");
+const { PLAYER_STATUS, TEAM_STATUS } = require("../utils/constants");
 const { Types } = require("mongoose");
 const notificationService = require("./notificationService");
 const { sendEmail } = require("./emailService");
 const TournamentTeams = require("../models/TournamentTeams");
+const Squad = require("../models/Squad");
 
 class PlayerService {
   async registerPlayer(playerData) {
@@ -177,7 +178,106 @@ class PlayerService {
     };
   }
 
+  async getSquadPlayersByTournament(tournamentId, search) {
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
+
+    // Get approved teams for this tournament
+    const approvedTeams = await TournamentTeams.find({
+      tournament: tournamentId,
+      status: TEAM_STATUS.APPROVED
+    }).populate('squad');
+
+    if (!approvedTeams || approvedTeams.length === 0) {
+      return {
+        players: [],
+        pagination: {
+          total: 0,
+          page: 1,
+          limit: 100,
+          pages: 0
+        }
+      };
+    }
+
+    // Get squad IDs from approved teams
+    const squadIds = approvedTeams
+      .map(team => team.squad)
+      .filter(squad => squad !== null && squad !== undefined)
+      .map(squad => squad._id);
+
+    if (squadIds.length === 0) {
+      return {
+        players: [],
+        pagination: {
+          total: 0,
+          page: 1,
+          limit: 100,
+          pages: 0
+        }
+      };
+    }
+
+    // Get squads with their players
+    const squads = await Squad.find({ _id: { $in: squadIds } })
+      .populate('players')
+      .populate('teamManager', 'fullName email')
+      .sort({ createdAt: -1 });
+
+    // Flatten players from all squads
+    const allPlayers = [];
+    squads.forEach(squad => {
+      if (squad.players && squad.players.length > 0) {
+        squad.players.forEach(player => {
+          // Apply search filter if provided
+          if (!search || 
+              player.fullName.toLowerCase().includes(search.toLowerCase()) ||
+              player.position.toLowerCase().includes(search.toLowerCase()) ||
+              squad.name.toLowerCase().includes(search.toLowerCase())) {
+            allPlayers.push({
+              _id: player._id,
+              fullName: player.fullName,
+              position: player.position,
+              photoUrl: player.photoUrl,
+              age: player.age,
+              notes: player.notes,
+              squadName: squad.name,
+              squadId: squad._id,
+              teamManager: {
+                _id: squad.teamManager._id,
+                fullName: squad.teamManager.fullName,
+                email: squad.teamManager.email
+              },
+              createdAt: player.createdAt,
+              updatedAt: player.updatedAt
+            });
+          }
+        });
+      }
+    });
+
+    return {
+      players: allPlayers,
+      pagination: {
+        total: allPlayers.length,
+        page: 1,
+        limit: 100,
+        pages: 1
+      }
+    };
+  }
+
   async getPlayersByTournamentIdCommon(tournamentId, status, search, page = 1, limit = 10) {
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
+    if (tournament.settings.auctionEnabled === false) {
+      return this.getSquadPlayersByTournament(tournamentId, search);
+    }
+
     console.log("player", search)
     let query = { tournament: tournamentId };
     if (status) {

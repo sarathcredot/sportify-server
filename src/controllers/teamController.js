@@ -3,6 +3,8 @@ const ResponseHandler = require("../utils/responseHandler");
 const teamService = require("../services/teamService");
 const BaseController = require('./baseController');
 const tournamentService = require("../services/tournamentService");
+const { TEAM_STATUS } = require("../utils/constants");
+
 
 class TeamController extends BaseController {
 
@@ -57,7 +59,7 @@ class TeamController extends BaseController {
     console.log("fillter", req.query)
     try {
       const { tournamentId } = req.params;
-      const { status, search, page, limit } = req.query;
+      const { status = TEAM_STATUS.APPROVED, search, page, limit } = req.query;
       const teams = await teamService.getTeamsByTournamentId(tournamentId, status, search, parseInt(page), parseInt(limit));
       this.handleSuccess(res, teams, 'Teams retrieved successfully');
     } catch (error) {

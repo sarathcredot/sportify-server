@@ -25,10 +25,10 @@ class SponsorController extends BaseController {
 
   async getSponsorsByTournamentId(req, res) {
     try {
-      const { tournamentId } = req.params;
-      console.log("get sponser common",tournamentId)
+      const { id } = req.params;
+      console.log("get sponser common",id)
       const { page, limit, search } = req.query;
-      const sponsors = await sponsorService.getSponsorsByTournamentId(tournamentId, parseInt(page), parseInt(limit), search);
+      const sponsors = await sponsorService.getSponsorsByTournamentId(id, parseInt(page), parseInt(limit), search);
       this.handleSuccess(res, sponsors, "Sponsors retrieved successfully");
     } catch (error) {
       this.handleError(res, error);
