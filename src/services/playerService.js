@@ -362,12 +362,48 @@ class PlayerService {
     return player;
   }
 
-  async editPlayerOfAdmin(playerId, playerData, teamManagerId) {
-    const player = await Player.findOneAndUpdate({ _id: playerId, }, { ...playerData }, { new: true });
-    if (!player) {
-      throw new NotFoundError("Player not found");
-    }
-    return player;
+  async editPlayerOfAdmin(playerId, playerData) {
+
+    const tournamentPlayer = await TournamentPlayers.findById(playerId);
+    if (!tournamentPlayer) {
+          throw new NotFoundError("Player not found");
+        }
+
+      const { firstName, lastName, photoUrl, contactNumber, email,playerCategory, status } = playerData;
+
+      // update tournament player field
+      const updatedTournamentPlayer = await TournamentPlayers.findByIdAndUpdate(
+        playerId,
+            {
+              firstName,
+              lastName,
+              contactNumber,
+              email,
+              status
+            },
+            { new: true }
+          );
+
+      // Update team fields
+          await Player.findByIdAndUpdate(
+            tournamentPlayer.player,
+            {
+              firstName,
+              lastName,
+              photoUrl,
+              contactNumber,
+              email,
+              playerCategory
+            },
+            { new: true }
+          );
+          return updatedTournamentPlayer;
+
+    // const player = await Player.findOneAndUpdate({ _id: playerId, }, { ...playerData }, { new: true });
+    // if (!player) {
+    //   throw new NotFoundError("Player not found");
+    // }
+    // return player;
   }
 
   async getPlayerById(playerId) {
