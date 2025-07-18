@@ -1,6 +1,8 @@
 const Team = require("../models/Team");
 const Tournament = require("../models/Tournament");
 const TournamentTeams = require("../models/TournamentTeams");
+const TournamentPlayers = require("../models/TournamentPlayers");
+
 const { ValidationError, NotFoundError } = require("../utils/errors");
 const authService = require("./authService");
 const { TEAM_MANAGER_ROLE, TEAM_STATUS, ROLES } = require("../utils/constants");
@@ -233,16 +235,16 @@ class TeamService {
       .populate('team')
       .populate("tournament")
       .populate({
-          path: 'players',
+        path: 'players',
+        populate: {
+          path: 'player',
           populate: {
             path: 'player',
-            populate: {
-              path: 'player',
 
-            }
           }
         }
-        )
+      }
+      )
     if (!team) {
       throw new NotFoundError("Team not found");
     }
@@ -298,7 +300,60 @@ class TeamService {
   }
 
 
- 
+  async teamPlayersById(id, search, page, limit) {
+    const tournamentTeam = await TournamentTeams.findById(id);
+    if (!tournamentTeam) {
+      throw new NotFoundError("Team not found");
+    }
+
+    const skip = (page - 1) * limit;
+
+    const playerIds = tournamentTeam.players.map(p => p.player); // or p if already ObjectId
+
+    const query = {
+      _id: { $in: playerIds },
+      ...(search && {
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName: { $regex: search, $options: 'i' } }
+        ]
+      })
+    };
+
+    // console.log("query", playerIds[0])
+
+
+
+    const players = await TournamentPlayers.find(query)
+      .populate("player")
+      .skip(skip)
+      .limit(limit);
+
+    console.log("players", players)
+
+
+    const totalPlayers = await TournamentPlayers.countDocuments(query);
+
+    return {
+      players,
+      pagination: {
+        total: totalPlayers,
+        page,
+        limit,
+        totalPages: Math.ceil(totalPlayers / limit)
+      }
+    }
+
+
+  }
+
+
+
+
+
+
+
+
 }
 
 module.exports = new TeamService();

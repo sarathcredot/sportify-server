@@ -16,6 +16,7 @@ class TeamController extends BaseController {
     this.getTeamById = this.getTeamById.bind(this);
     this.updateTeamById = this.updateTeamById.bind(this);
     this.deleteTeamById = this.deleteTeamById.bind(this);
+    this.teamPlayersById=this.teamPlayersById.bind(this);
   }
 
   async createTeam(req, res) {
@@ -125,7 +126,19 @@ class TeamController extends BaseController {
   }
 
 
-   
+  async teamPlayersById (req, res) {
+    try {
+      const { id } = req.params;
+      const {search, page=1, limit=10} =req.query
+      const teamPlayers = await teamService.teamPlayersById(id,search, page, limit);
+      this.handleSuccess(res, teamPlayers, "Team players get  successfully");
+    } catch (error) {
+      this.handleError(res, error);
+    }
+  }
+
+
+
 
 }
 

@@ -127,5 +127,10 @@ router.delete(
   teamController.deleteTeamById
 );
 
+router.get(
+  '/:id/players',
+  teamController.teamPlayersById
+);
+
 
 module.exports = router;
