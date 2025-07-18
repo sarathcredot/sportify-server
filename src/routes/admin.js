@@ -14,6 +14,7 @@ const orderRouter = require('./admin/order');
 const playerRouter=require("./admin/players")
 const sponserRouter=require("./admin/sponsor")
 const galleryRouter=require("./admin/gallery")
+const dashboardRouter = require('./admin/dashboard');
 
 
 router.use(auth);
@@ -34,6 +35,7 @@ router.use(checkIsAdmin());
  *         bearerFormat: JWT
  */
 
+router.use('/dashboard', dashboardRouter);
 router.use('/tournaments', tournamentsRouter);
 router.use('/teams', teamsRouter);
 router.use("/players",playerRouter)
