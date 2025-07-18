@@ -4,7 +4,7 @@ const dashboardController = require('../../controllers/dashboardController');
 
 /**
  * @swagger
- * /api/admin/dashboard/stats:
+ * /admin/dashboard/stats:
  *   get:
  *     summary: Get dashboard statistics
  *     description: Retrieve statistics for admin dashboard including total organizers, team managers, tournaments, and auctions with monthly growth
@@ -99,7 +99,7 @@ router.get('/stats', dashboardController.getDashboardStats);
 
 /**
  * @swagger
- * /api/admin/dashboard/top-organizers:
+ * /admin/dashboard/top-organizers:
  *   get:
  *     summary: Get top organizers by tournament count
  *     description: Retrieve top organizers ranked by the number of tournaments they have organized
@@ -149,7 +149,7 @@ router.get('/top-organizers', dashboardController.getTopOrganizers);
 
 /**
  * @swagger
- * /api/admin/dashboard/organizer-stats:
+ * /admin/dashboard/organizer-stats:
  *   get:
  *     summary: Get organizer statistics with time-based filtering and chart data
  *     description: Retrieve organizer statistics with filtering options (day, week, month, year) and monthly chart data
@@ -218,7 +218,7 @@ router.get('/organizer-stats', dashboardController.getOrganizerStats);
 
 /**
  * @swagger
- * /api/admin/dashboard/recent-activity:
+ * /admin/dashboard/recent-activity:
  *   get:
  *     summary: Get recent activity
  *     description: Retrieve recent activity data for admin dashboard
@@ -322,7 +322,7 @@ router.get('/recent-activity', dashboardController.getRecentActivity);
 
 /**
  * @swagger
- * /api/admin/dashboard:
+ * /admin/dashboard:
  *   get:
  *     summary: Get complete dashboard data
  *     description: Retrieve complete dashboard data including statistics and recent activity
@@ -370,7 +370,7 @@ router.get('/', dashboardController.getDashboardData);
 
 /**
  * @swagger
- * /api/admin/dashboard/top-team-managers:
+ * /admin/dashboard/top-team-managers:
  *   get:
  *     summary: Get top team managers by tournament count
  *     description: Retrieve top team managers ranked by the number of tournaments they have participated in
@@ -420,7 +420,7 @@ router.get('/top-team-managers', dashboardController.getTopTeamManagers);
 
 /**
  * @swagger
- * /api/admin/dashboard/team-manager-stats:
+* /admin/dashboard/team-manager-stats:
  *   get:
  *     summary: Get team manager statistics with time-based filtering and chart data
  *     description: Retrieve team manager statistics with filtering options (day, week, month, year) and monthly chart data
