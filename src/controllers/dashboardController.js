@@ -172,6 +172,43 @@ class DashboardController {
       return res.status(response.statusCode).json(response);
     }
   }
+
+  /**
+   * Get top auctions with tournament name and status
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getTopAuctions(req, res) {
+    try {
+      const { limit = 10 } = req.query;
+      const topAuctions = await dashboardService.getTopAuctions(parseInt(limit));
+      
+      const response = ResponseHandler.success('Top auctions retrieved successfully', topAuctions);
+      return res.status(response.statusCode).json(response);
+    } catch (error) {
+      const response = ResponseHandler.error('Failed to retrieve top auctions', error);
+      return res.status(response.statusCode).json(response);
+    }
+  }
+
+  /**
+   * Get auction statistics with time-based filtering and chart data
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getAuctionStats(req, res) {
+    try {
+      const { filterType = 'month', year = new Date().getFullYear() } = req.query;
+      
+      const auctionStats = await dashboardService.getAuctionStats(filterType, parseInt(year));
+      
+      const response = ResponseHandler.success('Auction statistics retrieved successfully', auctionStats);
+      return res.status(response.statusCode).json(response);
+    } catch (error) {
+      const response = ResponseHandler.error('Failed to retrieve auction statistics', error);
+      return res.status(response.statusCode).json(response);
+    }
+  }
 }
 
 module.exports = new DashboardController(); 

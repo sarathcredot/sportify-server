@@ -1008,6 +1008,289 @@ class DashboardService {
   }
 
   /**
+   * Get top auctions with tournament name and status
+   * @param {number} limit - Number of top auctions to fetch
+   * @returns {Promise<Array>} Top auctions with tournament name and status
+   */
+  async getTopAuctions(limit = 10) {
+    try {
+      const topAuctions = await Auction.aggregate([
+        {
+          $lookup: {
+            from: 'tournaments',
+            localField: 'tournament',
+            foreignField: '_id',
+            as: 'tournamentInfo'
+          }
+        },
+        {
+          $unwind: '$tournamentInfo'
+        },
+        {
+          $sort: { createdAt: -1 }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $project: {
+            tournament: '$tournamentInfo.name',
+            status: '$status'
+          }
+        }
+      ]);
+
+      return topAuctions;
+    } catch (error) {
+      throw new Error(`Failed to get top auctions: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get auction statistics with time-based filtering and chart data
+   * @param {string} filterType - 'day', 'week', 'month', 'year' (only affects chart data)
+   * @param {number} year - Year for chart data
+   * @returns {Promise<Object>} Auction statistics with chart data
+   */
+  async getAuctionStats(filterType = 'month', year = new Date().getFullYear()) {
+    try {
+      const currentDate = new Date();
+      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+
+      // Always get fixed monthly statistics
+      const [
+        totalAuctions,
+        thisMonthAuctions,
+        lastMonthAuctions
+      ] = await Promise.all([
+        Auction.countDocuments(),
+        Auction.countDocuments({
+          createdAt: { $gte: firstDayOfMonth }
+        }),
+        Auction.countDocuments({
+          createdAt: { $gte: lastMonth, $lte: lastMonthEnd }
+        })
+      ]);
+
+      // Get chart data based on filter type
+      let chartData;
+      switch (filterType) {
+        case 'day':
+          chartData = await this.getDailyAuctionChart(currentDate);
+          break;
+        case 'week':
+          chartData = await this.getWeeklyAuctionChart(currentDate);
+          break;
+        case 'month':
+          chartData = await this.getMonthlyAuctionChart(year);
+          break;
+        case 'year':
+          chartData = await this.getYearlyAuctionChart();
+          break;
+        default:
+          chartData = await this.getMonthlyAuctionChart(year);
+      }
+
+      return {
+        totalAuctions,
+        thisMonth: thisMonthAuctions,
+        lastMonth: lastMonthAuctions,
+        chartData
+      };
+    } catch (error) {
+      throw new Error(`Failed to get auction statistics: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get daily auction chart data (days of the week)
+   * @param {Date} currentDate - Current date
+   * @returns {Promise<Array>} Daily auction data
+   */
+  async getDailyAuctionChart(currentDate) {
+    try {
+      const dayOfWeek = currentDate.getDay();
+      const diff = currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), diff);
+      const endOfWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const dailyData = await Auction.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startOfWeek, $lt: endOfWeek }
+          }
+        },
+        {
+          $group: {
+            _id: { $dayOfWeek: '$createdAt' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const chartData = dayNames.map((day, index) => {
+        const dayData = dailyData.find(item => item._id === index + 1);
+        return {
+          day,
+          value: dayData ? dayData.count : 0
+        };
+      });
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get daily auction chart data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get weekly auction chart data (weeks of the month)
+   * @param {Date} currentDate - Current date
+   * @returns {Promise<Array>} Weekly auction data
+   */
+  async getWeeklyAuctionChart(currentDate) {
+    try {
+      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+      const weeklyData = await Auction.aggregate([
+        {
+          $match: {
+            createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+          }
+        },
+        {
+          $addFields: {
+            weekOfMonth: {
+              $ceil: {
+                $divide: [
+                  { $add: [{ $dayOfMonth: '$createdAt' }, { $subtract: [{ $dayOfWeek: '$createdAt' }, 1] }] },
+                  7
+                ]
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: '$weekOfMonth',
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      // Create array with weeks 1-5 (some months have 5 weeks)
+      const chartData = [];
+      for (let week = 1; week <= 5; week++) {
+        const weekData = weeklyData.find(item => item._id === week);
+        chartData.push({
+          week: `Week ${week}`,
+          value: weekData ? weekData.count : 0
+        });
+      }
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get weekly auction chart data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get monthly auction chart data
+   * @param {number} year - Year for chart data
+   * @returns {Promise<Array>} Monthly auction data
+   */
+  async getMonthlyAuctionChart(year = new Date().getFullYear()) {
+    try {
+      const monthlyData = await Auction.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(year, 0, 1),
+              $lt: new Date(year + 1, 0, 1)
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { $month: '$createdAt' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      // Create array with all months (1-12) and fill with 0 for missing months
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const chartData = monthNames.map((month, index) => {
+        const monthData = monthlyData.find(item => item._id === index + 1);
+        return {
+          month,
+          value: monthData ? monthData.count : 0
+        };
+      });
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get monthly auction chart data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get yearly auction chart data
+   * @returns {Promise<Array>} Yearly auction data
+   */
+  async getYearlyAuctionChart() {
+    try {
+      const currentYear = new Date().getFullYear();
+      const startYear = currentYear - 4; // Show last 5 years
+
+      const yearlyData = await Auction.aggregate([
+        {
+          $match: {
+            createdAt: {
+              $gte: new Date(startYear, 0, 1),
+              $lt: new Date(currentYear + 1, 0, 1)
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { $year: '$createdAt' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      const chartData = [];
+      for (let year = startYear; year <= currentYear; year++) {
+        const yearData = yearlyData.find(item => item._id === year);
+        chartData.push({
+          year: year.toString(),
+          value: yearData ? yearData.count : 0
+        });
+      }
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get yearly auction chart data: ${error.message}`);
+    }
+  }
+
+  /**
    * Get recent activity for dashboard
    * @param {number} limit - Number of recent items to fetch
    * @returns {Promise<Object>} Recent activity data
