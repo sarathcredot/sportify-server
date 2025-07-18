@@ -37,8 +37,8 @@ class SponsorController extends BaseController {
 
   async updateSponsor(req, res) {
     try {
-      const { sponsorId } = req.params;
-      const sponsor = await sponsorService.updateSponsor(sponsorId, req.body);
+      const { id } = req.params;
+      const sponsor = await sponsorService.updateSponsor(id, req.body);
       this.handleSuccess(res, sponsor, "Sponsor updated successfully");
     } catch (error) {
       this.handleError(res, error);
@@ -47,8 +47,8 @@ class SponsorController extends BaseController {
 
   async deleteSponsor(req, res) {
     try {
-      const { sponsorId } = req.params;
-      await sponsorService.deleteSponsor(sponsorId);
+      const { id } = req.params;
+      await sponsorService.deleteSponsor(id);
       this.handleSuccess(res, null, "Sponsor deleted successfully");
     } catch (error) {
       this.handleError(res, error);
