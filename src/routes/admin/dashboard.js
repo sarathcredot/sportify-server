@@ -99,6 +99,125 @@ router.get('/stats', dashboardController.getDashboardStats);
 
 /**
  * @swagger
+ * /api/admin/dashboard/top-organizers:
+ *   get:
+ *     summary: Get top organizers by tournament count
+ *     description: Retrieve top organizers ranked by the number of tournaments they have organized
+ *     tags: [Admin Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of top organizers to fetch
+ *     responses:
+ *       200:
+ *         description: Top organizers retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Top organizers retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       organizer:
+ *                         type: string
+ *                         example: "Rashid Khan"
+ *                       tournaments:
+ *                         type: number
+ *                         example: 38
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/top-organizers', dashboardController.getTopOrganizers);
+
+/**
+ * @swagger
+ * /api/admin/dashboard/organizer-stats:
+ *   get:
+ *     summary: Get organizer statistics with time-based filtering and chart data
+ *     description: Retrieve organizer statistics with filtering options (day, week, month, year) and monthly chart data
+ *     tags: [Admin Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filterType
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, year]
+ *           default: month
+ *         description: Time period filter for statistics
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           default: 2024
+ *         description: Year for chart data
+ *     responses:
+ *       200:
+ *         description: Organizer statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Organizer statistics retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalOrganizers:
+ *                       type: number
+ *                       example: 225
+ *                     thisMonth:
+ *                       type: number
+ *                       example: 20
+ *                     lastMonth:
+ *                       type: number
+ *                       example: 30
+ *                     chartData:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           month:
+ *                             type: string
+ *                             example: "Jan"
+ *                           value:
+ *                             type: number
+ *                             example: 121
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/organizer-stats', dashboardController.getOrganizerStats);
+
+/**
+ * @swagger
  * /api/admin/dashboard/recent-activity:
  *   get:
  *     summary: Get recent activity
@@ -163,7 +282,7 @@ router.get('/stats', dashboardController.getDashboardStats);
  *                             type: object
  *                             properties:
  *                               name:
- *                                 type: string
+ *                             type: string
  *                     recentOrganisers:
  *                       type: array
  *                       items:
