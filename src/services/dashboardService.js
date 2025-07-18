@@ -412,6 +412,319 @@ class DashboardService {
   }
 
   /**
+   * Get top team managers by tournament count
+   * @param {number} limit - Number of top team managers to fetch
+   * @returns {Promise<Array>} Top team managers with tournament counts
+   */
+  async getTopTeamManagers(limit = 10) {
+    try {
+      const topTeamManagers = await Tournament.aggregate([
+        {
+          $lookup: {
+            from: 'tournamentteams',
+            localField: '_id',
+            foreignField: 'tournament',
+            as: 'teams'
+          }
+        },
+        {
+          $unwind: '$teams'
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'teams.teamManager',
+            foreignField: '_id',
+            as: 'teamManager'
+          }
+        },
+        {
+          $unwind: '$teamManager'
+        },
+        {
+          $group: {
+            _id: '$teamManager._id',
+            tournamentCount: { $sum: 1 },
+            teamManagerName: { $first: '$teamManager.fullName' }
+          }
+        },
+        {
+          $sort: { tournamentCount: -1 }
+        },
+        {
+          $limit: limit
+        },
+        {
+          $project: {
+            teamManager: '$teamManagerName',
+            tournaments: '$tournamentCount'
+          }
+        }
+      ]);
+
+      return topTeamManagers;
+    } catch (error) {
+      throw new Error(`Failed to get top team managers: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get team manager statistics with time-based filtering and chart data
+   * @param {string} filterType - 'day', 'week', 'month', 'year' (only affects chart data)
+   * @param {number} year - Year for chart data
+   * @returns {Promise<Object>} Team manager statistics with chart data
+   */
+  async getTeamManagerStats(filterType = 'month', year = new Date().getFullYear()) {
+    try {
+      const currentDate = new Date();
+      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+      const lastMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+
+      // Always get fixed monthly statistics
+      const [
+        totalTeamManagers,
+        thisMonthTeamManagers,
+        lastMonthTeamManagers
+      ] = await Promise.all([
+        User.countDocuments({ role: ROLES.TEAM_MANAGER, isActive: true }),
+        User.countDocuments({
+          role: ROLES.TEAM_MANAGER,
+          isActive: true,
+          createdAt: { $gte: firstDayOfMonth }
+        }),
+        User.countDocuments({
+          role: ROLES.TEAM_MANAGER,
+          isActive: true,
+          createdAt: { $gte: lastMonth, $lte: lastMonthEnd }
+        })
+      ]);
+
+      // Get chart data based on filter type
+      let chartData;
+      switch (filterType) {
+        case 'day':
+          chartData = await this.getDailyTeamManagerChart(currentDate);
+          break;
+        case 'week':
+          chartData = await this.getWeeklyTeamManagerChart(currentDate);
+          break;
+        case 'month':
+          chartData = await this.getMonthlyTeamManagerChart(year);
+          break;
+        case 'year':
+          chartData = await this.getYearlyTeamManagerChart();
+          break;
+        default:
+          chartData = await this.getMonthlyTeamManagerChart(year);
+      }
+
+      return {
+        totalTeamManagers,
+        thisMonth: thisMonthTeamManagers,
+        lastMonth: lastMonthTeamManagers,
+        chartData
+      };
+    } catch (error) {
+      throw new Error(`Failed to get team manager statistics: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get daily team manager chart data (days of the week)
+   * @param {Date} currentDate - Current date
+   * @returns {Promise<Array>} Daily team manager data
+   */
+  async getDailyTeamManagerChart(currentDate) {
+    try {
+      const dayOfWeek = currentDate.getDay();
+      const diff = currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), diff);
+      const endOfWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const dailyData = await User.aggregate([
+        {
+          $match: {
+            role: ROLES.TEAM_MANAGER,
+            isActive: true,
+            createdAt: { $gte: startOfWeek, $lt: endOfWeek }
+          }
+        },
+        {
+          $group: {
+            _id: { $dayOfWeek: '$createdAt' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const chartData = dayNames.map((day, index) => {
+        const dayData = dailyData.find(item => item._id === index + 1);
+        return {
+          day,
+          value: dayData ? dayData.count : 0
+        };
+      });
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get daily team manager chart data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get weekly team manager chart data (weeks of the month)
+   * @param {Date} currentDate - Current date
+   * @returns {Promise<Array>} Weekly team manager data
+   */
+  async getWeeklyTeamManagerChart(currentDate) {
+    try {
+      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+      const weeklyData = await User.aggregate([
+        {
+          $match: {
+            role: ROLES.TEAM_MANAGER,
+            isActive: true,
+            createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+          }
+        },
+        {
+          $addFields: {
+            weekOfMonth: {
+              $ceil: {
+                $divide: [
+                  { $add: [{ $dayOfMonth: '$createdAt' }, { $subtract: [{ $dayOfWeek: '$createdAt' }, 1] }] },
+                  7
+                ]
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: '$weekOfMonth',
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      // Create array with weeks 1-5 (some months have 5 weeks)
+      const chartData = [];
+      for (let week = 1; week <= 5; week++) {
+        const weekData = weeklyData.find(item => item._id === week);
+        chartData.push({
+          week: `Week ${week}`,
+          value: weekData ? weekData.count : 0
+        });
+      }
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get weekly team manager chart data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get monthly team manager chart data
+   * @param {number} year - Year for chart data
+   * @returns {Promise<Array>} Monthly team manager data
+   */
+  async getMonthlyTeamManagerChart(year = new Date().getFullYear()) {
+    try {
+      const monthlyData = await User.aggregate([
+        {
+          $match: {
+            role: ROLES.TEAM_MANAGER,
+            isActive: true,
+            createdAt: {
+              $gte: new Date(year, 0, 1),
+              $lt: new Date(year + 1, 0, 1)
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { $month: '$createdAt' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      // Create array with all months (1-12) and fill with 0 for missing months
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const chartData = monthNames.map((month, index) => {
+        const monthData = monthlyData.find(item => item._id === index + 1);
+        return {
+          month,
+          value: monthData ? monthData.count : 0
+        };
+      });
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get monthly team manager chart data: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get yearly team manager chart data
+   * @returns {Promise<Array>} Yearly team manager data
+   */
+  async getYearlyTeamManagerChart() {
+    try {
+      const currentYear = new Date().getFullYear();
+      const startYear = currentYear - 4; // Show last 5 years
+
+      const yearlyData = await User.aggregate([
+        {
+          $match: {
+            role: ROLES.TEAM_MANAGER,
+            isActive: true,
+            createdAt: {
+              $gte: new Date(startYear, 0, 1),
+              $lt: new Date(currentYear + 1, 0, 1)
+            }
+          }
+        },
+        {
+          $group: {
+            _id: { $year: '$createdAt' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $sort: { '_id': 1 }
+        }
+      ]);
+
+      const chartData = [];
+      for (let year = startYear; year <= currentYear; year++) {
+        const yearData = yearlyData.find(item => item._id === year);
+        chartData.push({
+          year: year.toString(),
+          value: yearData ? yearData.count : 0
+        });
+      }
+
+      return chartData;
+    } catch (error) {
+      throw new Error(`Failed to get yearly team manager chart data: ${error.message}`);
+    }
+  }
+
+  /**
    * Get recent activity for dashboard
    * @param {number} limit - Number of recent items to fetch
    * @returns {Promise<Object>} Recent activity data

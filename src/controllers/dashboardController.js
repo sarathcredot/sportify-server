@@ -98,6 +98,43 @@ class DashboardController {
       return res.status(response.statusCode).json(response);
     }
   }
+
+  /**
+   * Get top team managers by tournament count
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getTopTeamManagers(req, res) {
+    try {
+      const { limit = 10 } = req.query;
+      const topTeamManagers = await dashboardService.getTopTeamManagers(parseInt(limit));
+      
+      const response = ResponseHandler.success('Top team managers retrieved successfully', topTeamManagers);
+      return res.status(response.statusCode).json(response);
+    } catch (error) {
+      const response = ResponseHandler.error('Failed to retrieve top team managers', error);
+      return res.status(response.statusCode).json(response);
+    }
+  }
+
+  /**
+   * Get team manager statistics with time-based filtering and chart data
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getTeamManagerStats(req, res) {
+    try {
+      const { filterType = 'month', year = new Date().getFullYear() } = req.query;
+      
+      const teamManagerStats = await dashboardService.getTeamManagerStats(filterType, parseInt(year));
+      
+      const response = ResponseHandler.success('Team manager statistics retrieved successfully', teamManagerStats);
+      return res.status(response.statusCode).json(response);
+    } catch (error) {
+      const response = ResponseHandler.error('Failed to retrieve team manager statistics', error);
+      return res.status(response.statusCode).json(response);
+    }
+  }
 }
 
 module.exports = new DashboardController(); 

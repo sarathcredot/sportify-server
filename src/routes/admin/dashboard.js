@@ -368,4 +368,123 @@ router.get('/recent-activity', dashboardController.getRecentActivity);
  */
 router.get('/', dashboardController.getDashboardData);
 
+/**
+ * @swagger
+ * /api/admin/dashboard/top-team-managers:
+ *   get:
+ *     summary: Get top team managers by tournament count
+ *     description: Retrieve top team managers ranked by the number of tournaments they have participated in
+ *     tags: [Admin Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of top team managers to fetch
+ *     responses:
+ *       200:
+ *         description: Top team managers retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Top team managers retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       teamManager:
+ *                         type: string
+ *                         example: "Khalid Abdul"
+ *                       tournaments:
+ *                         type: number
+ *                         example: 38
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/top-team-managers', dashboardController.getTopTeamManagers);
+
+/**
+ * @swagger
+ * /api/admin/dashboard/team-manager-stats:
+ *   get:
+ *     summary: Get team manager statistics with time-based filtering and chart data
+ *     description: Retrieve team manager statistics with filtering options (day, week, month, year) and monthly chart data
+ *     tags: [Admin Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: filterType
+ *         schema:
+ *           type: string
+ *           enum: [day, week, month, year]
+ *           default: month
+ *         description: Time period filter for chart data
+ *       - in: query
+ *         name: year
+ *         schema:
+ *           type: integer
+ *           default: 2024
+ *         description: Year for chart data
+ *     responses:
+ *       200:
+ *         description: Team manager statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Team manager statistics retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalTeamManagers:
+ *                       type: number
+ *                       example: 482
+ *                     thisMonth:
+ *                       type: number
+ *                       example: 23
+ *                     lastMonth:
+ *                       type: number
+ *                       example: 30
+ *                     chartData:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           month:
+ *                             type: string
+ *                             example: "Jan"
+ *                           value:
+ *                             type: number
+ *                             example: 121
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/team-manager-stats', dashboardController.getTeamManagerStats);
+
 module.exports = router; 
