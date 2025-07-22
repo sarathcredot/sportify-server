@@ -94,7 +94,7 @@ class TeamService {
   async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
     console.log("search", search)
     let query = { tournament: tournamentId };
-    if (status) {
+    if (status!=="all") {
       query.status = status;
     }
 
@@ -158,7 +158,7 @@ class TeamService {
     }
     const skip = (page - 1) * limit;
     const [teams, total] = await Promise.all([
-      TournamentTeams.find(query).populate("tournament")
+      TournamentTeams.find(query).populate("team")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),

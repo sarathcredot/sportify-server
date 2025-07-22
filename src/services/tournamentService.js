@@ -252,7 +252,8 @@ class TournamentService {
       tournament?.auction?.status === AUCTION_STATUS.LIVE ||
       tournament?.auction?.status === AUCTION_STATUS.COMPLETED
     ) {
-      throw new BadRequestError("this tournament can't edit");
+      throw new BadRequestError(`Tournament editing is not allowed when the auction has already started.`);
+
     }
 
     const city = await City.findOneAndUpdate(
