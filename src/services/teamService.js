@@ -10,6 +10,7 @@ const { parsePhoneNumber } = require("libphonenumber-js");
 const { Types } = require("mongoose");
 const { sendEmail } = require("./emailService");
 const notificationService = require("./notificationService");
+const Squad = require("../models/Squad");
 
 class TeamService {
 
@@ -92,6 +93,10 @@ class TeamService {
   }
 
   async getTeamsByTournamentId(tournamentId, status, search, page = 1, limit = 10) {
+    const tournament = await Tournament.findById(tournamentId);
+    if (!tournament) {
+      throw new NotFoundError("Tournament not found");
+    }
     console.log("search", search)
     let query = { tournament: tournamentId };
     if (status!=="all") {
@@ -130,14 +135,30 @@ class TeamService {
             }
           }
         }
-        )
-
-
+      ).populate('squad').populate({
+        path: 'players',
+        populate: {
+          path: 'player',
+        }
+      })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
       TournamentTeams.countDocuments(query)
     ]);
+
+    // if (tournament.settings.auctionEnabled) {
+    //   const approvedTeams = await TournamentTeams.find({
+    //     tournament: tournamentId,
+    //     status: TEAM_STATUS.APPROVED
+    //   }).populate('squad').populate({
+    //     path: 'players',
+    //     populate: {
+    //       path: 'player',
+    //     }
+    //   });
+    //   teams = approvedTeams;
+    // }
 
     return {
       teams: teams,
