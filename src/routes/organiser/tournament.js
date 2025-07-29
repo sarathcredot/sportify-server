@@ -603,7 +603,7 @@ router.post(
  *         description: Internal server error
  */
 router.get(
-  '/:tournamentId/sponsors',
+  '/:id/sponsors',
   sponsorController.getSponsorsByTournamentId
 );
 
