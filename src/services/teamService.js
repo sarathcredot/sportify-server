@@ -99,7 +99,7 @@ class TeamService {
     }
     console.log("search", search)
     let query = { tournament: tournamentId };
-    if (status!=="all") {
+    if (status !== "all") {
       query.status = status;
     }
 
@@ -135,12 +135,14 @@ class TeamService {
             }
           }
         }
-      ).populate('squad').populate({
-        path: 'players',
-        populate: {
-          path: 'player',
-        }
-      })
+        )
+        .populate('squad')
+        .populate({
+          path: 'squad',
+          populate: {
+            path: 'players',
+          }
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit),
