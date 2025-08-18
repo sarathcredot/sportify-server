@@ -30,6 +30,7 @@ const INITIAL_RETRY_DELAY = 1000;
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const connectDB = async (retryCount = 0) => {
+  console.log("db connected")
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, connectionOptions);
     
