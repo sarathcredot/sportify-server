@@ -104,6 +104,17 @@ if (process.env.NODE_ENV === "production") {
 app.use("/api/auth", require("./src/routes/auth"));
 app.use("/api/upload", require("./src/routes/fileUpload"));
 
+app.use("/test", (req, res) => {
+
+  try {
+
+    res.status(200).json({ msg: "sever running" })
+  } catch (error) {
+
+    res.status(500).json({ error: error.message })
+  }
+})
+
 app.use(errorHandler);
 app.use(requestLogger);
 
@@ -113,8 +124,7 @@ setupSwagger(app);
 
 const server = app.listen(PORT, () => {
   logger.info(
-    `Server running on port ${PORT} in ${
-      process.env.NODE_ENV || "development"
+    `Server running on port ${PORT} in ${process.env.NODE_ENV || "development"
     } mode`
   );
 });
