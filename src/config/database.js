@@ -34,7 +34,6 @@ const connectDB = async (retryCount = 0) => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, connectionOptions);
 
-    console.log("db str", conn)
 
     if (process.env.NODE_ENV !== 'production') {
       mongoose.set("debug", true);
@@ -55,6 +54,7 @@ const connectDB = async (retryCount = 0) => {
     });
 
     logger.info(`MongoDB Connected: ${conn.connection.host}`);
+    console.log(`MongoDB Connected: ${conn.connection.host}`)
     return conn;
   } catch (error) {
     logger.error(`Connection attempt ${retryCount + 1} failed: ${error.message}`);
