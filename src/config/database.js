@@ -30,16 +30,18 @@ const INITIAL_RETRY_DELAY = 1000;
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const connectDB = async (retryCount = 0) => {
-  console.log("db connected")
+  console.log("db connectiog....")
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI, connectionOptions);
-    
+
+    console.log("db str", conn)
+
     if (process.env.NODE_ENV !== 'production') {
       mongoose.set("debug", true);
     }
-    
+
     mongoose.set("allowDiskUse", true);
-    
+
     mongoose.connection.on('error', (err) => {
       logger.error('MongoDB connection error:', err);
     });
@@ -56,14 +58,14 @@ const connectDB = async (retryCount = 0) => {
     return conn;
   } catch (error) {
     logger.error(`Connection attempt ${retryCount + 1} failed: ${error.message}`);
-    
+
     if (retryCount < MAX_RETRIES) {
       const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
       logger.info(`Retrying connection in ${delay}ms...`);
       await sleep(delay);
       return connectDB(retryCount + 1);
     }
-    
+
     logger.error('Max retries reached. Could not connect to MongoDB');
     process.exit(1);
   }
