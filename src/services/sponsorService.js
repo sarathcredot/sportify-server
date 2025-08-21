@@ -46,6 +46,7 @@ class SponsorService {
   }
 
   async updateSponsor(sponsorId, sponsorData) {
+    console.log("update sponsor", {sponsorId}, sponsorData);
     const sponsor = await Sponsor.findByIdAndUpdate(sponsorId, sponsorData, { new: true });
     if (!sponsor) {
       throw new NotFoundError("Sponsor not found");

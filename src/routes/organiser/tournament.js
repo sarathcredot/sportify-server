@@ -645,14 +645,14 @@ router.get(
  *         description: Internal server error
  */
 router.patch(
-  '/:tournamentId/sponsors/:sponsorId',
+  '/:tournamentId/sponsors/:id',
   validate(updateSponsorSchema),
   sponsorController.updateSponsor
 );
 
 /**
  * @swagger
- * /organiser/tournaments/{tournamentId}/sponsors/{sponsorId}:
+ * /organiser/tournaments/{tournamentId}/sponsors/{id}:
  *   delete:
  *     summary: Delete a sponsor from a tournament
  *     tags: [Organiser]
