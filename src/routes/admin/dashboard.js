@@ -282,7 +282,7 @@ router.get('/organizer-stats', dashboardController.getOrganizerStats);
  *                             type: object
  *                             properties:
  *                               name:
- *                             type: string
+ *                                 type: string
  *                     recentOrganisers:
  *                       type: array
  *                       items:
@@ -584,6 +584,7 @@ router.get('/top-tournaments', dashboardController.getTopTournaments);
  *                       type: number
  *                       example: 15
  *                     lastMonth:
+ *                       type: number
  *                       example: 12
  *                     chartData:
  *                       type: array
@@ -724,4 +725,4 @@ router.get('/top-auctions', dashboardController.getTopAuctions);
  */
 router.get('/auction-stats', dashboardController.getAuctionStats);
 
-module.exports = router; 
+module.exports = router;
