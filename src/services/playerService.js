@@ -231,25 +231,38 @@ class PlayerService {
     squads.forEach(squad => {
       if (squad.players && squad.players.length > 0) {
         squad.players.forEach(player => {
-          // Apply search filter if provided
+          // Calculate age from dateOfBirth
+          const age = player.dateOfBirth ? 
+            Math.floor((new Date() - new Date(player.dateOfBirth)) / (365.25 * 24 * 60 * 60 * 1000)) : 
+            null;
+
+          // Safely access properties and apply search filter if provided
+          const playerName = player.fullName || '';
+          const playerPosition = player.position || '';
+          const squadName = squad.name || '';
+          
           if (!search || 
-              player.fullName.toLowerCase().includes(search.toLowerCase()) ||
-              player.position.toLowerCase().includes(search.toLowerCase()) ||
-              squad.name.toLowerCase().includes(search.toLowerCase())) {
+              playerName.toLowerCase().includes(search.toLowerCase()) ||
+              playerPosition.toLowerCase().includes(search.toLowerCase()) ||
+              squadName.toLowerCase().includes(search.toLowerCase())) {
+            
+            // Build team manager info safely
+            const teamManagerInfo = squad.teamManager ? {
+              _id: squad.teamManager._id,
+              fullName: squad.teamManager.fullName || '',
+              email: squad.teamManager.email || ''
+            } : null;
+
             allPlayers.push({
               _id: player._id,
-              fullName: player.fullName,
-              position: player.position,
-              photoUrl: player.photoUrl,
-              age: player.age,
-              notes: player.notes,
-              squadName: squad.name,
+              fullName: playerName,
+              position: playerPosition,
+              photoUrl: player.photoUrl || '',
+              age: age,
+              notes: player.notes || '',
+              squadName: squadName,
               squadId: squad._id,
-              teamManager: {
-                _id: squad.teamManager._id,
-                fullName: squad.teamManager.fullName,
-                email: squad.teamManager.email
-              },
+              teamManager: teamManagerInfo,
               createdAt: player.createdAt,
               updatedAt: player.updatedAt
             });
@@ -263,7 +276,7 @@ class PlayerService {
       pagination: {
         total: allPlayers.length,
         page: 1,
-        limit: 100,
+        limit: allPlayers.length, // Return all players in one page
         pages: 1
       }
     };
